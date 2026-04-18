@@ -172,7 +172,7 @@ function EquationCard({ children }: { children: React.ReactNode }) {
 
 function Tag({ children, color = PAL.orangeDk }: { children: React.ReactNode; color?: string }) {
   return (
-    <div style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 16 }}>
+    <div style={{ fontFamily: MONO, fontSize: 12, fontWeight: 600, color, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>
       {children}
     </div>
   );
@@ -180,7 +180,7 @@ function Tag({ children, color = PAL.orangeDk }: { children: React.ReactNode; co
 
 function Headline({ children, size = 34 }: { children: React.ReactNode; size?: number }) {
   return (
-    <h1 style={{ fontFamily: FONT, fontSize: size, fontWeight: 900, color: PAL.ink, lineHeight: 1.1, letterSpacing: "-0.02em", margin: 0 }}>
+    <h1 style={{ fontFamily: FONT, fontSize: `clamp(${Math.round(size * 0.65)}px, ${size * 0.085}svh, ${size}px)`, fontWeight: 900, color: PAL.ink, lineHeight: 1.15, letterSpacing: "-0.02em", margin: 0 }}>
       {children}
     </h1>
   );
@@ -239,7 +239,7 @@ function SegmentedProgress({ step, total }: { step: number; total: number }) {
 
 function TopBar({ step, total, onClose }: { step: number; total: number; onClose: () => void }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", padding: "74px 20px 8px" }}>
+    <div style={{ display: "flex", alignItems: "center", padding: "68px 20px 6px" }}>
       <CloseX onClick={onClose} />
       <SegmentedProgress step={step} total={total} />
     </div>
@@ -529,15 +529,15 @@ export default function InteractiveLesson({ onClose, onComplete }: { onClose: ()
             <Tag>SAT Math · Lesson 01</Tag>
             <Headline size={42}>Linear Functions, from zero.</Headline>
           </div>
-          <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0 }}>
+          <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0, display: "flex", flexDirection: "column" }}>
             {/* Background circles */}
             <div style={{ position: "absolute", right: "6%",  top: "8%",  width: "40%", aspectRatio: "1", borderRadius: "50%", background: PAL.yellow }} />
             <div style={{ position: "absolute", left: "8%",  top: "28%", width: "27%", aspectRatio: "1", borderRadius: "50%", background: "#BEE7F7" }} />
             <div style={{ position: "absolute", left: "38%", top: "50%", width: "17%", aspectRatio: "1", borderRadius: "50%", background: PAL.green }} />
-            {/* Pills — in flow so they can't overflow the device */}
-            <div style={{ position: "absolute", bottom: "28%", left: "12%", right: "12%", display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: 20, fontWeight: 500, padding: "11px 20px", borderRadius: 9999, whiteSpace: "nowrap" }}>y = mx + b</span>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.purple, color: "#fff", fontFamily: FONT, fontSize: 20, fontWeight: 800, padding: "11px 20px", borderRadius: 9999, whiteSpace: "nowrap", alignSelf: "flex-end" }}>made easy</span>
+            {/* Pills — in normal flow so overflow:hidden always clips them */}
+            <div style={{ marginTop: "auto", padding: "0 12% 24%", display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start", position: "relative", zIndex: 2 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: "clamp(14px, 4.5vw, 20px)", fontWeight: 500, padding: "10px 18px", borderRadius: 9999 }}>y = mx + b</span>
+              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.purple, color: "#fff", fontFamily: FONT, fontSize: "clamp(14px, 4.5vw, 20px)", fontWeight: 800, padding: "10px 18px", borderRadius: 9999, alignSelf: "flex-end" }}>made easy</span>
             </div>
           </div>
           <CTAButton onClick={advance}>Start lesson</CTAButton>
@@ -625,11 +625,11 @@ export default function InteractiveLesson({ onClose, onComplete }: { onClose: ()
       <DeviceFrame>
         <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
           <TopBar step={step} total={TOTAL} onClose={onClose} />
-          <div style={{ padding: "16px 24px 0", position: "relative", zIndex: 2 }}>
+          <div style={{ padding: "10px 24px 0", position: "relative", zIndex: 2 }}>
             <Tag color={slide.tagColor}>{slide.tag}</Tag>
             <Headline>{slide.headline}</Headline>
           </div>
-          <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 0", display: "flex", flexDirection: "column", position: "relative", zIndex: 2 }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px 0", display: "flex", flexDirection: "column", position: "relative", zIndex: 2 }}>
             {slide.visual}
             {slide.body && <div style={{ marginTop: 20 }}>{slide.body}</div>}
           </div>
