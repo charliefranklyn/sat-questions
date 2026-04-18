@@ -43,17 +43,17 @@ function MiniTable({ headers, rows, highlightCol, highlightColor = PAL.green }: 
     <div style={{
       background: "#fff", borderRadius: 20, overflow: "hidden",
       boxShadow: "0 4px 0 rgba(31,37,68,0.06), 0 1px 3px rgba(31,37,68,0.05)",
-      fontFamily: MONO, fontSize: 17,
+      fontFamily: MONO, fontSize: 15,
     }}>
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, background: PAL.ink }}>
         {headers.map((h, i) => (
-          <div key={i} style={{ padding: "12px 14px", fontWeight: 700, color: i === highlightCol ? highlightColor : "#fff" }}>{h}</div>
+          <div key={i} style={{ padding: "10px 10px", fontWeight: 700, color: i === highlightCol ? highlightColor : "#fff" }}>{h}</div>
         ))}
       </div>
       {rows.map((row, r) => (
         <div key={r} style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, borderTop: r === 0 ? "none" : `1px solid #F2ECD5` }}>
           {row.map((cell, c) => (
-            <div key={c} style={{ padding: "11px 14px", fontWeight: c === highlightCol ? 700 : 500, color: c === highlightCol ? highlightColor : PAL.ink }}>{cell}</div>
+            <div key={c} style={{ padding: "10px 10px", fontWeight: c === highlightCol ? 700 : 500, color: c === highlightCol ? highlightColor : PAL.ink }}>{cell}</div>
           ))}
         </div>
       ))}
@@ -180,7 +180,7 @@ function Tag({ children, color = PAL.orangeDk }: { children: React.ReactNode; co
 
 function Headline({ children, size = 34 }: { children: React.ReactNode; size?: number }) {
   return (
-    <h1 style={{ fontFamily: FONT, fontSize: `clamp(${Math.round(size * 0.65)}px, ${size * 0.085}svh, ${size}px)`, fontWeight: 900, color: PAL.ink, lineHeight: 1.15, letterSpacing: "-0.02em", margin: 0 }}>
+    <h1 style={{ fontFamily: FONT, fontSize: size, fontWeight: 900, color: PAL.ink, lineHeight: 1.1, letterSpacing: "-0.02em", margin: 0 }}>
       {children}
     </h1>
   );
@@ -627,9 +627,9 @@ export default function InteractiveLesson({ onClose, onComplete }: { onClose: ()
           <TopBar step={step} total={TOTAL} onClose={onClose} />
           <div style={{ padding: "10px 24px 0", position: "relative", zIndex: 2 }}>
             <Tag color={slide.tagColor}>{slide.tag}</Tag>
-            <Headline>{slide.headline}</Headline>
+            <Headline size={26}>{slide.headline}</Headline>
           </div>
-          <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px 0", display: "flex", flexDirection: "column", position: "relative", zIndex: 2 }}>
+          <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "16px 24px 0", display: "flex", flexDirection: "column", position: "relative", zIndex: 2 }}>
             {slide.visual}
             {slide.body && <div style={{ marginTop: 20 }}>{slide.body}</div>}
           </div>
