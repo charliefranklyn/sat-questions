@@ -332,8 +332,8 @@ function DeviceFrame({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(10,10,20,0.75)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{
-        width: "min(402px, calc(96svh * 0.46))",
-        height: "min(874px, 96svh)",
+        width: "min(402px, 96vw, calc(96svh * 0.46))",
+        height: "min(874px, 96svh, calc(96vw * 2.175))",
         borderRadius: 48, overflow: "hidden",
         position: "relative", background: PAL.cream,
         boxShadow: "0 40px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.12)",
@@ -527,15 +527,15 @@ export default function InteractiveLesson({ onClose, onComplete }: { onClose: ()
             <Tag>SAT Math · Lesson 01</Tag>
             <Headline size={42}>Linear Functions, from zero.</Headline>
           </div>
-          <div style={{ flex: 1, position: "relative" }}>
-            <div style={{ position: "absolute", right: 32, top: 56, width: 158, height: 158, borderRadius: "50%", background: PAL.yellow }} />
-            <div style={{ position: "absolute", left: 36, top: 132, width: 104, height: 104, borderRadius: "50%", background: "#BEE7F7" }} />
-            <div style={{ position: "absolute", right: 138, top: 180, width: 68, height: 68, borderRadius: "50%", background: PAL.green }} />
-            <div style={{ position: "absolute", left: 56, top: 174 }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: 22, fontWeight: 500, padding: "12px 22px", borderRadius: 9999 }}>y = mx + b</span>
+          <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", right: "8%", top: "10%", width: "39%", aspectRatio: "1", borderRadius: "50%", background: PAL.yellow }} />
+            <div style={{ position: "absolute", left: "9%", top: "30%", width: "26%", aspectRatio: "1", borderRadius: "50%", background: "#BEE7F7" }} />
+            <div style={{ position: "absolute", right: "34%", top: "44%", width: "17%", aspectRatio: "1", borderRadius: "50%", background: PAL.green }} />
+            <div style={{ position: "absolute", left: "14%", top: "42%" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: 22, fontWeight: 500, padding: "12px 22px", borderRadius: 9999, whiteSpace: "nowrap" }}>y = mx + b</span>
             </div>
-            <div style={{ position: "absolute", left: 188, top: 240 }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.purple, color: "#fff", fontFamily: FONT, fontSize: 22, fontWeight: 800, padding: "12px 22px", borderRadius: 9999 }}>made easy</span>
+            <div style={{ position: "absolute", left: "46%", top: "58%" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.purple, color: "#fff", fontFamily: FONT, fontSize: 22, fontWeight: 800, padding: "12px 22px", borderRadius: 9999, whiteSpace: "nowrap" }}>made easy</span>
             </div>
           </div>
           <CTAButton onClick={advance}>Start lesson</CTAButton>
