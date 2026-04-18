@@ -1,0 +1,166 @@
+[
+  {
+    "id": "adv-001",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Equivalent expressions",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which expression is equivalent to (x + 3)(x − 5)?",
+    "choices": [
+      { "label": "A", "text": "x² − 2x − 15" },
+      { "label": "B", "text": "x² + 2x − 15" },
+      { "label": "C", "text": "x² − 2x + 15" },
+      { "label": "D", "text": "x² + 8x − 15" }
+    ],
+    "correctAnswer": "A",
+    "explanation": "FOIL: x·x + x·(−5) + 3·x + 3·(−5) = x² − 5x + 3x − 15 = x² − 2x − 15."
+  },
+  {
+    "id": "adv-002",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Equivalent expressions",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Which of the following is equivalent to (2x² + 3x − 5)/(x − 1)?",
+    "choices": [
+      { "label": "A", "text": "2x + 5" },
+      { "label": "B", "text": "2x − 5" },
+      { "label": "C", "text": "2x + 5 + 10/(x−1)" },
+      { "label": "D", "text": "2x − 1" }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Factor numerator: 2x² + 3x − 5 = (2x + 5)(x − 1). Divide by (x − 1): result is 2x + 5."
+  },
+  {
+    "id": "adv-003",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Nonlinear equations",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "What are the solutions to x² − 9 = 0?",
+    "choices": [
+      { "label": "A", "text": "x = 3 only" },
+      { "label": "B", "text": "x = 9 only" },
+      { "label": "C", "text": "x = 3 and x = −3" },
+      { "label": "D", "text": "x = 9 and x = −9" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "x² = 9, so x = ±√9 = ±3."
+  },
+  {
+    "id": "adv-004",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Nonlinear equations",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "What are the solutions to x² − 5x + 6 = 0?",
+    "choices": [
+      { "label": "A", "text": "x = 1 and x = 6" },
+      { "label": "B", "text": "x = 2 and x = 3" },
+      { "label": "C", "text": "x = −2 and x = −3" },
+      { "label": "D", "text": "x = 2 and x = −3" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Factor: (x − 2)(x − 3) = 0, so x = 2 or x = 3."
+  },
+  {
+    "id": "adv-005",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Nonlinear equations",
+    "questionType": "grid-in",
+    "difficulty": "medium",
+    "prompt": "If x² + 6x + 9 = 0, what is the value of x?",
+    "correctAnswer": "-3",
+    "explanation": "Factor: (x + 3)² = 0, so x = −3."
+  },
+  {
+    "id": "adv-006",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Nonlinear functions",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "The function g is defined by g(x) = x² − 4x + 3. For what value of x does g reach its minimum?",
+    "choices": [
+      { "label": "A", "text": "x = −2" },
+      { "label": "B", "text": "x = 2" },
+      { "label": "C", "text": "x = 3" },
+      { "label": "D", "text": "x = 4" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The vertex x-coordinate of ax² + bx + c is x = −b/(2a) = 4/2 = 2."
+  },
+  {
+    "id": "adv-007",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Nonlinear functions",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "The function h is defined by h(x) = 2^x. What is h(3) − h(1)?",
+    "choices": [
+      { "label": "A", "text": "4" },
+      { "label": "B", "text": "6" },
+      { "label": "C", "text": "7" },
+      { "label": "D", "text": "8" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "h(3) = 2³ = 8. h(1) = 2¹ = 2. 8 − 2 = 6."
+  },
+  {
+    "id": "adv-008",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Systems of nonlinear equations",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "How many solutions does the system y = x² and y = x + 2 have?",
+    "choices": [
+      { "label": "A", "text": "0" },
+      { "label": "B", "text": "1" },
+      { "label": "C", "text": "2" },
+      { "label": "D", "text": "3" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Set equal: x² = x + 2 → x² − x − 2 = 0 → (x−2)(x+1) = 0. Two solutions: x = 2 and x = −1."
+  },
+  {
+    "id": "adv-009",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Equivalent expressions",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which expression is equivalent to 3(x + 4) − 2(x − 1)?",
+    "choices": [
+      { "label": "A", "text": "x + 10" },
+      { "label": "B", "text": "x + 14" },
+      { "label": "C", "text": "5x + 10" },
+      { "label": "D", "text": "5x + 14" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "3x + 12 − 2x + 2 = x + 14."
+  },
+  {
+    "id": "adv-010",
+    "section": "math",
+    "domain": "advanced-math",
+    "subtopic": "Nonlinear functions",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "If f(x) = x² + 2x − 8, which of the following is an x-intercept of f?",
+    "choices": [
+      { "label": "A", "text": "(−4, 0)" },
+      { "label": "B", "text": "(−2, 0)" },
+      { "label": "C", "text": "(4, 0)" },
+      { "label": "D", "text": "(8, 0)" }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Factor: (x + 4)(x − 2) = 0, so x = −4 or x = 2. The x-intercepts are (−4, 0) and (2, 0)."
+  }
+]

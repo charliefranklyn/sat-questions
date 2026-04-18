@@ -1,0 +1,172 @@
+[
+  {
+    "id": "con-001",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Boundaries",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which choice correctly punctuates the following sentence?\n\n\"The study concluded that exercise improves mood _____ the researchers recommended at least 30 minutes of activity daily.\"",
+    "choices": [
+      { "label": "A", "text": "mood, the" },
+      { "label": "B", "text": "mood; the" },
+      { "label": "C", "text": "mood the" },
+      { "label": "D", "text": "mood: the" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Two independent clauses must be joined by a semicolon (or period), not just a comma. A semicolon correctly joins these two complete sentences."
+  },
+  {
+    "id": "con-002",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Boundaries",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which choice correctly completes the sentence?\n\n\"Maria finished her report, _____ she submitted it online.\"",
+    "choices": [
+      { "label": "A", "text": "then" },
+      { "label": "B", "text": "and then" },
+      { "label": "C", "text": "and then," },
+      { "label": "D", "text": "; and then" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "\"And then\" correctly joins the two clauses as a coordinating conjunction phrase without adding incorrect punctuation."
+  },
+  {
+    "id": "con-003",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Form/Structure/Sense",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which choice best completes the sentence?\n\n\"Neither the manager nor the employees _____ aware of the new policy.\"",
+    "choices": [
+      { "label": "A", "text": "was" },
+      { "label": "B", "text": "were" },
+      { "label": "C", "text": "are being" },
+      { "label": "D", "text": "is" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "With \"neither...nor,\" the verb agrees with the noun closest to it. \"Employees\" is plural, so the verb must be \"were.\""
+  },
+  {
+    "id": "con-004",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Form/Structure/Sense",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Which choice best completes the sentence?\n\n\"The committee will announce _____ decision at the next meeting.\"",
+    "choices": [
+      { "label": "A", "text": "its" },
+      { "label": "B", "text": "it's" },
+      { "label": "C", "text": "their" },
+      { "label": "D", "text": "there" }
+    ],
+    "correctAnswer": "A",
+    "explanation": "\"Committee\" is a singular collective noun. The possessive pronoun is \"its\" (no apostrophe). \"It's\" means \"it is.\" \"Their\" and \"there\" are incorrect."
+  },
+  {
+    "id": "con-005",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Boundaries",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Which choice correctly punctuates the following sentence?\n\n\"The tallest mountain in the world _____ Mount Everest _____ rises 29,032 feet above sea level.\"",
+    "choices": [
+      { "label": "A", "text": "— Mount Everest —" },
+      { "label": "B", "text": ", Mount Everest," },
+      { "label": "C", "text": ": Mount Everest:" },
+      { "label": "D", "text": "; Mount Everest;" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "\"Mount Everest\" is a nonessential appositive phrase and should be set off by commas. Em dashes could also work, but commas (choice B) are standard."
+  },
+  {
+    "id": "con-006",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Form/Structure/Sense",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Which choice best completes the sentence?\n\n\"By the time the rescue team arrived, the stranded hikers _____ in the cave for over 12 hours.\"",
+    "choices": [
+      { "label": "A", "text": "waited" },
+      { "label": "B", "text": "have waited" },
+      { "label": "C", "text": "had been waiting" },
+      { "label": "D", "text": "will have waited" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "The past perfect progressive \"had been waiting\" correctly expresses an action that was ongoing before another past event (the team's arrival)."
+  },
+  {
+    "id": "con-007",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Boundaries",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Which choice correctly completes the sentence?\n\n\"The experiment yielded unexpected results _____ however, the team remained confident in their methodology.\"",
+    "choices": [
+      { "label": "A", "text": "results, however," },
+      { "label": "B", "text": "results; however," },
+      { "label": "C", "text": "results however," },
+      { "label": "D", "text": "results: however," }
+    ],
+    "correctAnswer": "B",
+    "explanation": "\"However\" is a conjunctive adverb connecting two independent clauses. The correct format is: independent clause + semicolon + conjunctive adverb + comma + independent clause."
+  },
+  {
+    "id": "con-008",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Form/Structure/Sense",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "Which choice best completes the sentence?\n\n\"The new bridge design, _____ was praised by engineers worldwide, reduced construction time by 40%.\"",
+    "choices": [
+      { "label": "A", "text": "that" },
+      { "label": "B", "text": "which" },
+      { "label": "C", "text": "who" },
+      { "label": "D", "text": "what" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "\"Which\" introduces a nonrestrictive (nonessential) clause set off by commas. \"That\" introduces restrictive clauses and is not used with commas. \"Who\" is for people."
+  },
+  {
+    "id": "con-009",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Boundaries",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which version is a complete, correctly punctuated sentence?",
+    "choices": [
+      { "label": "A", "text": "Because the storm was severe, many flights were cancelled." },
+      { "label": "B", "text": "Because the storm was severe. Many flights were cancelled." },
+      { "label": "C", "text": "The storm being severe, many flights were cancelled, this caused delays." },
+      { "label": "D", "text": "The storm was severe many flights were cancelled." }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Choice A correctly uses a comma after the introductory subordinate clause. Choices B, C, and D contain a sentence fragment, a comma splice, or a run-on."
+  },
+  {
+    "id": "con-010",
+    "section": "reading-writing",
+    "domain": "conventions",
+    "subtopic": "Form/Structure/Sense",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "Which choice best completes the sentence?\n\n\"Each of the students _____ expected to submit their project by Friday.\"",
+    "choices": [
+      { "label": "A", "text": "are" },
+      { "label": "B", "text": "were" },
+      { "label": "C", "text": "is" },
+      { "label": "D", "text": "have been" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "\"Each\" is an indefinite pronoun that takes a singular verb. \"Each of the students is\" — the prepositional phrase \"of the students\" does not affect subject-verb agreement."
+  }
+]

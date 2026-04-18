@@ -1,0 +1,176 @@
+[
+  {
+    "id": "exp-001",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Transitions",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which transition word best fits the blank?\n\n\"The researchers expected the drug to reduce inflammation. _____, clinical trials showed no significant effect.\"",
+    "choices": [
+      { "label": "A", "text": "Similarly" },
+      { "label": "B", "text": "Therefore" },
+      { "label": "C", "text": "However" },
+      { "label": "D", "text": "Furthermore" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "The second sentence contradicts the expectation set in the first. \"However\" signals a contrast or unexpected result."
+  },
+  {
+    "id": "exp-002",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Transitions",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which transition word best fits the blank?\n\n\"Renewable energy reduces carbon emissions. _____, it creates jobs in new industries.\"",
+    "choices": [
+      { "label": "A", "text": "Nevertheless" },
+      { "label": "B", "text": "In addition" },
+      { "label": "C", "text": "On the contrary" },
+      { "label": "D", "text": "As a result" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The second sentence adds another benefit. \"In addition\" signals that a new, supporting point is being added."
+  },
+  {
+    "id": "exp-003",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Transitions",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Which transition best fits the blank?\n\n\"Maya had not studied for the exam. _____, she managed to pass with a high score.\"",
+    "choices": [
+      { "label": "A", "text": "Consequently" },
+      { "label": "B", "text": "For example" },
+      { "label": "C", "text": "Surprisingly" },
+      { "label": "D", "text": "Thus" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Passing with a high score despite not studying is unexpected — \"Surprisingly\" conveys this contrast effectively."
+  },
+  {
+    "id": "exp-004",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Rhetorical Synthesis",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "Note 1: Studies show that students who eat breakfast perform better on cognitive tasks.\nNote 2: Many low-income students skip breakfast due to food insecurity.\nNote 3: Schools that offer free breakfast programs see improved attendance and test scores.",
+    "prompt": "A student is writing an argument that schools should expand free breakfast programs. Which choice most effectively uses the notes to support that argument?",
+    "choices": [
+      { "label": "A", "text": "Breakfast improves performance, and many students are food insecure, so free breakfast programs — which research shows improve attendance and test scores — are a practical solution." },
+      { "label": "B", "text": "Some students eat breakfast and some do not, which affects how they perform on tests." },
+      { "label": "C", "text": "Low-income students face many challenges in school, including food insecurity." },
+      { "label": "D", "text": "Schools with free breakfast programs have some students who perform better." }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Choice A synthesizes all three notes — the benefit of breakfast (Note 1), the equity problem (Note 2), and the evidence for the solution (Note 3) — into a cohesive argument."
+  },
+  {
+    "id": "exp-005",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Rhetorical Synthesis",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "Note 1: The Amazon rainforest produces approximately 20% of the world's oxygen.\nNote 2: Deforestation has reduced the Amazon by roughly 17% since the 1970s.\nNote 3: Indigenous communities rely on the forest for food, medicine, and cultural practices.",
+    "prompt": "A writer wants to emphasize the broad consequences of Amazon deforestation. Which choice best accomplishes this?",
+    "choices": [
+      { "label": "A", "text": "The Amazon has been shrinking since the 1970s." },
+      { "label": "B", "text": "Deforestation threatens both global oxygen supply and the livelihoods of Indigenous communities who depend on the forest." },
+      { "label": "C", "text": "Indigenous people use the Amazon for food and medicine." },
+      { "label": "D", "text": "The Amazon once covered a much larger area than it does today." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Choice B draws on Notes 1 and 3 to illustrate both global (oxygen) and human (Indigenous) consequences, best fulfilling the goal of showing broad impact."
+  },
+  {
+    "id": "exp-006",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Transitions",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Which transition word best fits the blank?\n\n\"The company's profits rose 15% in the first quarter. _____, executives approved year-end bonuses for all employees.\"",
+    "choices": [
+      { "label": "A", "text": "However" },
+      { "label": "B", "text": "As a result" },
+      { "label": "C", "text": "In contrast" },
+      { "label": "D", "text": "Although" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The bonuses are a direct result of strong profits. \"As a result\" signals a cause-and-effect relationship."
+  },
+  {
+    "id": "exp-007",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Rhetorical Synthesis",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "Note 1: Remote work reduces commuting time by an average of 54 minutes per day.\nNote 2: A 2023 survey found that 71% of remote workers report higher job satisfaction.\nNote 3: Some managers report difficulty tracking productivity among remote teams.",
+    "prompt": "A student is writing a balanced analysis of remote work. Which choice most effectively presents both advantages and challenges?",
+    "choices": [
+      { "label": "A", "text": "Remote work saves time and boosts satisfaction, but it can make productivity oversight difficult for managers." },
+      { "label": "B", "text": "Most remote workers are happy with their jobs." },
+      { "label": "C", "text": "Remote work reduces commuting time significantly." },
+      { "label": "D", "text": "Managers struggle to track remote workers, which is why many prefer in-office arrangements." }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Choice A incorporates both the benefits (Notes 1 and 2) and the challenge (Note 3) in a single balanced sentence, fulfilling the goal of a balanced analysis."
+  },
+  {
+    "id": "exp-008",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Transitions",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Which transition best fits the blank?\n\n\"The professor assigned three chapters for homework. _____, students were required to write a reflection essay.\"",
+    "choices": [
+      { "label": "A", "text": "In contrast" },
+      { "label": "B", "text": "Instead" },
+      { "label": "C", "text": "Additionally" },
+      { "label": "D", "text": "Nevertheless" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "The reflection essay is an additional assignment on top of the chapters. \"Additionally\" signals that more information is being added."
+  },
+  {
+    "id": "exp-009",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Rhetorical Synthesis",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "Note 1: Volunteering has been linked to reduced stress and longer life expectancy in adults.\nNote 2: A local nonprofit reports a 40% drop in volunteer applications over the past five years.\nNote 3: Many potential volunteers cite lack of time as the primary barrier.",
+    "prompt": "A student wants to explain the decline in volunteerism despite its known benefits. Which choice most effectively accomplishes this?",
+    "choices": [
+      { "label": "A", "text": "Volunteering is good for health, but fewer people are doing it." },
+      { "label": "B", "text": "Although volunteering reduces stress and extends life expectancy, applications have fallen 40%, likely because busy schedules leave many people feeling they cannot commit time." },
+      { "label": "C", "text": "Volunteer applications have dropped, and nonprofits are struggling to find help." },
+      { "label": "D", "text": "People should volunteer more often because it is good for their health." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Choice B synthesizes all three notes: the benefits (Note 1), the decline data (Note 2), and the reason for the decline (Note 3), directly addressing the goal."
+  },
+  {
+    "id": "exp-010",
+    "section": "reading-writing",
+    "domain": "expression-of-ideas",
+    "subtopic": "Transitions",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "Which transition best fits the blank?\n\n\"The ancient city was considered impenetrable by its enemies. _____, its own residents dismantled the city walls from within during a period of civil unrest.\"",
+    "choices": [
+      { "label": "A", "text": "Therefore" },
+      { "label": "B", "text": "Ironically" },
+      { "label": "C", "text": "Similarly" },
+      { "label": "D", "text": "Meanwhile" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The city was considered unbeatable by outsiders, yet its own people tore it down — a deeply ironic outcome. \"Ironically\" best captures this contradiction."
+  }
+]

@@ -1,0 +1,166 @@
+[
+  {
+    "id": "geo-001",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Area & volume",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "What is the area of a rectangle with length 12 and width 7?",
+    "choices": [
+      { "label": "A", "text": "19" },
+      { "label": "B", "text": "38" },
+      { "label": "C", "text": "84" },
+      { "label": "D", "text": "144" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Area = length × width = 12 × 7 = 84."
+  },
+  {
+    "id": "geo-002",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Area & volume",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "What is the volume of a rectangular prism with length 5, width 4, and height 3?",
+    "choices": [
+      { "label": "A", "text": "12" },
+      { "label": "B", "text": "47" },
+      { "label": "C", "text": "60" },
+      { "label": "D", "text": "120" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Volume = l × w × h = 5 × 4 × 3 = 60."
+  },
+  {
+    "id": "geo-003",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Lines/angles/triangles",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Two angles are supplementary. One angle measures 65°. What is the measure of the other angle?",
+    "choices": [
+      { "label": "A", "text": "25°" },
+      { "label": "B", "text": "35°" },
+      { "label": "C", "text": "115°" },
+      { "label": "D", "text": "125°" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Supplementary angles sum to 180°. 180° − 65° = 115°."
+  },
+  {
+    "id": "geo-004",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Right triangles & trigonometry",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "In a right triangle, the legs measure 3 and 4. What is the length of the hypotenuse?",
+    "choices": [
+      { "label": "A", "text": "5" },
+      { "label": "B", "text": "6" },
+      { "label": "C", "text": "7" },
+      { "label": "D", "text": "√7" }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Pythagorean theorem: c² = 3² + 4² = 9 + 16 = 25, so c = 5."
+  },
+  {
+    "id": "geo-005",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Right triangles & trigonometry",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "In right triangle ABC with right angle at C, sin(A) = 3/5. What is cos(A)?",
+    "choices": [
+      { "label": "A", "text": "3/4" },
+      { "label": "B", "text": "4/5" },
+      { "label": "C", "text": "3/5" },
+      { "label": "D", "text": "5/3" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "If sin(A) = 3/5, then opposite = 3, hypotenuse = 5, adjacent = √(25−9) = 4. cos(A) = adjacent/hypotenuse = 4/5."
+  },
+  {
+    "id": "geo-006",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Circles",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "A circle has a radius of 6. What is its circumference in terms of π?",
+    "choices": [
+      { "label": "A", "text": "6π" },
+      { "label": "B", "text": "12π" },
+      { "label": "C", "text": "36π" },
+      { "label": "D", "text": "72π" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Circumference = 2πr = 2π(6) = 12π."
+  },
+  {
+    "id": "geo-007",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Circles",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "A circle has an area of 49π. What is its radius?",
+    "choices": [
+      { "label": "A", "text": "7" },
+      { "label": "B", "text": "14" },
+      { "label": "C", "text": "49" },
+      { "label": "D", "text": "7π" }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Area = πr² = 49π → r² = 49 → r = 7."
+  },
+  {
+    "id": "geo-008",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Lines/angles/triangles",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "Triangle PQR has angles measuring 45°, 60°, and x°. What is x?",
+    "choices": [
+      { "label": "A", "text": "65°" },
+      { "label": "B", "text": "70°" },
+      { "label": "C", "text": "75°" },
+      { "label": "D", "text": "80°" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "The sum of angles in a triangle is 180°. x = 180 − 45 − 60 = 75°."
+  },
+  {
+    "id": "geo-009",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Area & volume",
+    "questionType": "grid-in",
+    "difficulty": "hard",
+    "prompt": "A cylinder has a radius of 3 and a height of 5. What is its volume? (Give your answer in terms of π, e.g. write 45 for 45π.)",
+    "correctAnswer": "45",
+    "explanation": "Volume = πr²h = π(3²)(5) = 45π. The numeric coefficient is 45."
+  },
+  {
+    "id": "geo-010",
+    "section": "math",
+    "domain": "geometry",
+    "subtopic": "Right triangles & trigonometry",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "A ladder 10 feet long leans against a wall. The base of the ladder is 6 feet from the wall. How high up the wall does the ladder reach?",
+    "choices": [
+      { "label": "A", "text": "6 feet" },
+      { "label": "B", "text": "7 feet" },
+      { "label": "C", "text": "8 feet" },
+      { "label": "D", "text": "9 feet" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Pythagorean theorem: h² + 6² = 10² → h² = 100 − 36 = 64 → h = 8 feet."
+  }
+]

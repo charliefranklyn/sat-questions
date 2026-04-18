@@ -1,0 +1,166 @@
+[
+  {
+    "id": "alg-001",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear equations (1 variable)",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "If 3x + 7 = 22, what is the value of x?",
+    "choices": [
+      { "label": "A", "text": "3" },
+      { "label": "B", "text": "5" },
+      { "label": "C", "text": "7" },
+      { "label": "D", "text": "9" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Subtract 7 from both sides: 3x = 15. Divide both sides by 3: x = 5."
+  },
+  {
+    "id": "alg-002",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear equations (1 variable)",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "What value of x satisfies 2(x − 4) = 10?",
+    "choices": [
+      { "label": "A", "text": "3" },
+      { "label": "B", "text": "7" },
+      { "label": "C", "text": "9" },
+      { "label": "D", "text": "12" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Distribute: 2x − 8 = 10. Add 8: 2x = 18. Divide by 2: x = 9."
+  },
+  {
+    "id": "alg-003",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear equations (1 variable)",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "If (x/3) − 5 = −1, what is the value of x?",
+    "choices": [
+      { "label": "A", "text": "−18" },
+      { "label": "B", "text": "−12" },
+      { "label": "C", "text": "12" },
+      { "label": "D", "text": "18" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Add 5 to both sides: x/3 = 4. Multiply both sides by 3: x = 12."
+  },
+  {
+    "id": "alg-004",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear equations (1 variable)",
+    "questionType": "grid-in",
+    "difficulty": "medium",
+    "prompt": "If 5x − 3 = 2x + 9, what is the value of x?",
+    "correctAnswer": "4",
+    "explanation": "Subtract 2x from both sides: 3x − 3 = 9. Add 3: 3x = 12. Divide by 3: x = 4."
+  },
+  {
+    "id": "alg-005",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear equations (2 variables)",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "A line passes through (0, 3) and (2, 7). What is the equation of the line?",
+    "choices": [
+      { "label": "A", "text": "y = x + 3" },
+      { "label": "B", "text": "y = 2x + 3" },
+      { "label": "C", "text": "y = 3x + 2" },
+      { "label": "D", "text": "y = 4x − 1" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Slope = (7 − 3)/(2 − 0) = 2. y-intercept = 3 (given). So y = 2x + 3."
+  },
+  {
+    "id": "alg-006",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear equations (2 variables)",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "The line 4x − 2y = 8 is graphed in the xy-plane. What is the y-intercept?",
+    "choices": [
+      { "label": "A", "text": "(0, −4)" },
+      { "label": "B", "text": "(0, 4)" },
+      { "label": "C", "text": "(0, −2)" },
+      { "label": "D", "text": "(0, 2)" }
+    ],
+    "correctAnswer": "A",
+    "explanation": "Set x = 0: −2y = 8, so y = −4. The y-intercept is (0, −4)."
+  },
+  {
+    "id": "alg-007",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear functions",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "prompt": "Function f is defined by f(x) = 3x − 4. What is f(6)?",
+    "choices": [
+      { "label": "A", "text": "10" },
+      { "label": "B", "text": "14" },
+      { "label": "C", "text": "18" },
+      { "label": "D", "text": "22" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "f(6) = 3(6) − 4 = 18 − 4 = 14."
+  },
+  {
+    "id": "alg-008",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear functions",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "A linear function f satisfies f(2) = 7 and f(5) = 16. What is f(0)?",
+    "choices": [
+      { "label": "A", "text": "−1" },
+      { "label": "B", "text": "1" },
+      { "label": "C", "text": "3" },
+      { "label": "D", "text": "5" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Slope = (16 − 7)/(5 − 2) = 3. Using f(2) = 7: 7 = 3(2) + b → b = 1. So f(0) = 1."
+  },
+  {
+    "id": "alg-009",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Systems of linear equations",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "prompt": "What is the solution (x, y) to the system: x + y = 10 and 2x − y = 2?",
+    "choices": [
+      { "label": "A", "text": "(3, 7)" },
+      { "label": "B", "text": "(4, 6)" },
+      { "label": "C", "text": "(5, 5)" },
+      { "label": "D", "text": "(6, 4)" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Add the equations: 3x = 12, so x = 4. Substitute: 4 + y = 10, so y = 6. Solution: (4, 6)."
+  },
+  {
+    "id": "alg-010",
+    "section": "math",
+    "domain": "algebra",
+    "subtopic": "Linear inequalities",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "prompt": "Which of the following represents all values of x that satisfy 3 − 2x < 9 and x + 4 > 1?",
+    "choices": [
+      { "label": "A", "text": "x < −3" },
+      { "label": "B", "text": "−3 < x < 3" },
+      { "label": "C", "text": "x > −3" },
+      { "label": "D", "text": "−3 < x < −1" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "First inequality: 3 − 2x < 9 → −2x < 6 → x > −3. Second: x > −3. Combined and noting 3 − 2x < 9 also gives x > −3, and we need x < 3 from the first. So −3 < x < 3."
+  }
+]

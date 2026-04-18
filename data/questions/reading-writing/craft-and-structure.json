@@ -1,0 +1,182 @@
+[
+  {
+    "id": "cs-001",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Words in Context",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "passage": "The scientist's hypothesis was initially met with skepticism. Her colleagues doubted the theory's viability, but her meticulous data eventually won them over.",
+    "prompt": "As used in the passage, the word \"meticulous\" most nearly means:",
+    "choices": [
+      { "label": "A", "text": "rushed" },
+      { "label": "B", "text": "extremely careful and precise" },
+      { "label": "C", "text": "controversial" },
+      { "label": "D", "text": "creative" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "\"Meticulous\" means showing great attention to detail. The context — data that won over skeptical colleagues — supports a meaning of thorough and precise."
+  },
+  {
+    "id": "cs-002",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Words in Context",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "passage": "The politician's speech was deliberately ambiguous, allowing different voters to interpret his promises in whichever way best suited their own views.",
+    "prompt": "As used in the passage, \"ambiguous\" most nearly means:",
+    "choices": [
+      { "label": "A", "text": "clear and direct" },
+      { "label": "B", "text": "open to more than one interpretation" },
+      { "label": "C", "text": "dishonest" },
+      { "label": "D", "text": "inspirational" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The passage says different voters could interpret the speech differently, directly supporting the meaning of \"open to multiple interpretations.\""
+  },
+  {
+    "id": "cs-003",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Text Structure and Purpose",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "Many researchers assumed that deep-sea ecosystems were lifeless deserts. However, the discovery of hydrothermal vents in 1977 revealed thriving communities of organisms sustained entirely by chemical energy rather than sunlight.",
+    "prompt": "The primary purpose of the passage is to:",
+    "choices": [
+      { "label": "A", "text": "warn about the dangers of deep-sea exploration" },
+      { "label": "B", "text": "describe how hydrothermal vents are formed" },
+      { "label": "C", "text": "contrast a prior scientific assumption with a discovery that overturned it" },
+      { "label": "D", "text": "argue that sunlight is not necessary for life anywhere in the universe" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "The passage sets up a prior belief (deep sea was lifeless) and then presents a discovery that disproved it — a contrast structure."
+  },
+  {
+    "id": "cs-004",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Text Structure and Purpose",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "Poet Emily Dickinson rarely left her home in Amherst, Massachusetts, and published fewer than a dozen poems during her lifetime. Yet after her death, nearly 1,800 poems were discovered in her room, establishing her as one of America's most significant literary voices.",
+    "prompt": "The author structures the passage primarily to:",
+    "choices": [
+      { "label": "A", "text": "explain why Dickinson avoided publishing her work" },
+      { "label": "B", "text": "present a contrast between Dickinson's reclusive life and her enormous posthumous legacy" },
+      { "label": "C", "text": "compare Dickinson's poetry to that of other 19th-century writers" },
+      { "label": "D", "text": "argue that Dickinson's work was misunderstood during her lifetime" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The passage contrasts her withdrawn, under-published life with the vast body of work discovered after her death."
+  },
+  {
+    "id": "cs-005",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Cross-Text Connections",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "Text 1: Automation will eliminate millions of jobs in manufacturing and transportation over the next two decades, creating widespread unemployment and economic hardship for displaced workers.\n\nText 2: Historically, technological revolutions have consistently created more jobs than they eliminated. The Industrial Revolution, for example, expanded the workforce dramatically despite initial fears of mass unemployment.",
+    "prompt": "Based on the two texts, how would the author of Text 2 most likely respond to the claim made in Text 1?",
+    "choices": [
+      { "label": "A", "text": "By agreeing that automation poses an unprecedented threat unlike any historical precedent" },
+      { "label": "B", "text": "By arguing that historical patterns suggest automation will ultimately create new employment opportunities" },
+      { "label": "C", "text": "By conceding that manufacturing jobs are uniquely vulnerable to automation" },
+      { "label": "D", "text": "By suggesting the government should slow the pace of automation" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Text 2 argues that technology has always created more jobs than it destroys, citing historical evidence. The author would use this argument to push back against Text 1's pessimistic prediction."
+  },
+  {
+    "id": "cs-006",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Words in Context",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "The committee's findings were damning: the company had systematically concealed evidence of product defects from regulators for years.",
+    "prompt": "As used in the passage, \"damning\" most nearly means:",
+    "choices": [
+      { "label": "A", "text": "inconclusive" },
+      { "label": "B", "text": "strongly critical or incriminating" },
+      { "label": "C", "text": "surprising" },
+      { "label": "D", "text": "enthusiastic" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "\"Damning\" means tending to incriminate or severely condemn. The evidence of concealment supports a negative, incriminating judgment."
+  },
+  {
+    "id": "cs-007",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Text Structure and Purpose",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "For decades, scientists classified Pluto as the ninth planet in our solar system. In 2006, however, the International Astronomical Union redefined what it means to be a planet, and Pluto no longer met the new criteria.",
+    "prompt": "The author most likely includes the detail about the 2006 IAU decision in order to:",
+    "choices": [
+      { "label": "A", "text": "argue that Pluto should be reclassified as a planet" },
+      { "label": "B", "text": "provide evidence that scientific classifications can change over time" },
+      { "label": "C", "text": "explain why astronomers created a new category of celestial objects" },
+      { "label": "D", "text": "criticize the International Astronomical Union's decision" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The passage uses Pluto's reclassification as an example of scientific definitions evolving — the IAU detail shows that even long-established categories can change."
+  },
+  {
+    "id": "cs-008",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Cross-Text Connections",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "Text 1: Urban green spaces such as parks and community gardens significantly reduce stress and improve mental health in city residents.\n\nText 2: While green spaces have measurable benefits, their impact is limited for lower-income residents who lack the time or safe access to use them regularly.",
+    "prompt": "Which statement best describes the relationship between the two texts?",
+    "choices": [
+      { "label": "A", "text": "Text 2 completely contradicts the central claim of Text 1." },
+      { "label": "B", "text": "Text 2 provides additional support for the argument in Text 1." },
+      { "label": "C", "text": "Text 2 qualifies the claim in Text 1 by noting limitations for certain populations." },
+      { "label": "D", "text": "Text 2 argues that green spaces have no measurable benefit." }
+    ],
+    "correctAnswer": "C",
+    "explanation": "Text 2 does not deny that green spaces help people — it adds a caveat that the benefits don't reach lower-income residents equally. This is a qualification, not a contradiction."
+  },
+  {
+    "id": "cs-009",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Words in Context",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "passage": "The chef's innovative use of unexpected spices gave the dish a distinctive flavor that diners found both surprising and memorable.",
+    "prompt": "As used in the passage, \"distinctive\" most nearly means:",
+    "choices": [
+      { "label": "A", "text": "unpleasant" },
+      { "label": "B", "text": "typical" },
+      { "label": "C", "text": "characteristic and unique" },
+      { "label": "D", "text": "mild" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "\"Distinctive\" means marking something as different from others. The context — surprising, memorable flavor from unusual spices — supports \"characteristic and unique.\""
+  },
+  {
+    "id": "cs-010",
+    "section": "reading-writing",
+    "domain": "craft-and-structure",
+    "subtopic": "Text Structure and Purpose",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "The widespread belief that humans use only 10% of their brains is a myth. Brain imaging studies show that virtually all brain regions are active during the course of a day. The myth likely persists because it offers an appealing but false promise: untapped mental potential waiting to be unlocked.",
+    "prompt": "The final sentence of the passage primarily serves to:",
+    "choices": [
+      { "label": "A", "text": "provide scientific evidence disproving the 10% myth" },
+      { "label": "B", "text": "suggest that the myth is partially true" },
+      { "label": "C", "text": "explain why a false belief remains culturally persistent" },
+      { "label": "D", "text": "argue that humans should try to develop untapped brain regions" }
+    ],
+    "correctAnswer": "C",
+    "explanation": "After debunking the myth, the final sentence shifts to explaining its persistence — it offers an emotionally appealing false promise, which accounts for why people still believe it."
+  }
+]

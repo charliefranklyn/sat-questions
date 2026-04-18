@@ -1,0 +1,182 @@
+[
+  {
+    "id": "ii-001",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Central Ideas and Details",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "passage": "Coral reefs cover less than 1% of the ocean floor, yet they support approximately 25% of all marine species. Often called the \"rainforests of the sea,\" reefs provide food, shelter, and breeding grounds for countless organisms.",
+    "prompt": "What is the central idea of the passage?",
+    "choices": [
+      { "label": "A", "text": "Coral reefs are disappearing due to climate change." },
+      { "label": "B", "text": "Coral reefs occupy a small area of the ocean but support a disproportionately large share of marine life." },
+      { "label": "C", "text": "Marine biologists study coral reefs to understand ocean ecosystems." },
+      { "label": "D", "text": "Rainforests and coral reefs share similar characteristics." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The passage emphasizes the contrast between the small area reefs cover and the large percentage of marine species they support — this tension is the central idea."
+  },
+  {
+    "id": "ii-002",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Central Ideas and Details",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "passage": "Thomas Edison is often credited with inventing the lightbulb, but the truth is more nuanced. Dozens of inventors worked on incandescent lighting before him. Edison's key contribution was developing a practical, long-lasting bulb and the infrastructure to deliver electricity to homes and businesses.",
+    "prompt": "Which choice best states the main idea of the passage?",
+    "choices": [
+      { "label": "A", "text": "Edison did not contribute meaningfully to the invention of the lightbulb." },
+      { "label": "B", "text": "Edison's real achievement was creating a working electrical delivery system." },
+      { "label": "C", "text": "Edison's role in the lightbulb's history is more complicated than popular belief suggests." },
+      { "label": "D", "text": "Many inventors tried and failed to create a working lightbulb." }
+    ],
+    "correctAnswer": "C",
+    "explanation": "The passage complicates the simple claim that Edison \"invented\" the lightbulb by adding context — this nuance is the central idea."
+  },
+  {
+    "id": "ii-003",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Command of Evidence (Textual)",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "In a 2022 study, researchers found that students who took handwritten notes scored significantly higher on conceptual understanding tests than those who typed notes on a laptop. The researchers hypothesize that handwriting forces students to rephrase information in their own words rather than transcribing verbatim.",
+    "prompt": "Which finding from the passage best supports the researchers' hypothesis about why handwriting is more effective?",
+    "choices": [
+      { "label": "A", "text": "Students who typed notes scored lower on tests." },
+      { "label": "B", "text": "Handwriting forces students to process and rephrase information rather than copy it directly." },
+      { "label": "C", "text": "The study was conducted in 2022." },
+      { "label": "D", "text": "Laptops distract students during class." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The hypothesis is about active processing vs. passive transcription. Choice B directly reflects the mechanism the researchers propose."
+  },
+  {
+    "id": "ii-004",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Command of Evidence (Quantitative)",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "A city's annual report showed that cycling trips increased from 1.2 million in 2019 to 2.1 million in 2023. Over the same period, protected bike lanes expanded from 45 miles to 112 miles.",
+    "prompt": "Which conclusion is best supported by the data in the passage?",
+    "choices": [
+      { "label": "A", "text": "Cycling trips increased because of improvements in bicycle technology." },
+      { "label": "B", "text": "The expansion of protected bike lanes may be associated with the increase in cycling trips." },
+      { "label": "C", "text": "All new cycling trips were made by commuters, not recreational riders." },
+      { "label": "D", "text": "Adding more bike lanes will always increase cycling rates in any city." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The data shows both cycling trips and bike lane miles increased together. A correlation is supportable; the other options go beyond what the data shows."
+  },
+  {
+    "id": "ii-005",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Inferences",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "In 1928, Alexander Fleming noticed that a mold had contaminated one of his petri dishes and killed the surrounding bacteria. Rather than discarding the dish, he investigated the mold further, eventually identifying the substance penicillin.",
+    "prompt": "Which inference is best supported by the passage?",
+    "choices": [
+      { "label": "A", "text": "Fleming had been specifically searching for a substance that killed bacteria." },
+      { "label": "B", "text": "Fleming's curiosity about an accidental observation led to a significant scientific discovery." },
+      { "label": "C", "text": "Mold contamination is common in laboratory settings." },
+      { "label": "D", "text": "Penicillin was already known before Fleming's discovery." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "Fleming investigated rather than discarded the contaminated dish — this shows his curiosity led to the discovery of penicillin, an inference the text strongly supports."
+  },
+  {
+    "id": "ii-006",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Command of Evidence (Textual)",
+    "questionType": "multiple-choice",
+    "difficulty": "medium",
+    "passage": "A historian argues that the printing press was the most transformative invention of the 15th century because it made books affordable, spread literacy, and enabled the rapid dissemination of new ideas across Europe.",
+    "prompt": "Which detail from the passage best supports the historian's argument?",
+    "choices": [
+      { "label": "A", "text": "The printing press was invented in the 15th century." },
+      { "label": "B", "text": "The press enabled rapid spread of new ideas, contributing to cultural change across Europe." },
+      { "label": "C", "text": "Books were expensive before the printing press was invented." },
+      { "label": "D", "text": "Other inventions were also important during the 15th century." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The historian's argument is about transformative impact. The spread of ideas across Europe is the most direct piece of evidence for broad historical transformation."
+  },
+  {
+    "id": "ii-007",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Inferences",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "Despite receiving no formal training, the self-taught painter spent forty years creating more than a thousand canvases. Her work was discovered only after her death, when a neighbor found crates of paintings in her attic.",
+    "prompt": "Which inference about the painter is best supported by the passage?",
+    "choices": [
+      { "label": "A", "text": "The painter created art primarily hoping for recognition." },
+      { "label": "B", "text": "The painter's work was of poor quality." },
+      { "label": "C", "text": "The painter created art for personal reasons, not for public recognition." },
+      { "label": "D", "text": "The painter was aware that her work would be discovered after her death." }
+    ],
+    "correctAnswer": "C",
+    "explanation": "The painter worked for 40 years but stored her work in an attic — never seeking an audience. This strongly implies the work was created for personal, not public, reasons."
+  },
+  {
+    "id": "ii-008",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Central Ideas and Details",
+    "questionType": "multiple-choice",
+    "difficulty": "easy",
+    "passage": "Sleep deprivation impairs judgment, slows reaction times, and weakens the immune system. Studies suggest that adults who consistently sleep fewer than six hours per night face significantly higher risks of heart disease, diabetes, and depression.",
+    "prompt": "According to the passage, which of the following is a consequence of insufficient sleep?",
+    "choices": [
+      { "label": "A", "text": "Increased energy levels" },
+      { "label": "B", "text": "Weakened immune system" },
+      { "label": "C", "text": "Improved reaction time" },
+      { "label": "D", "text": "Lower risk of diabetes" }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The passage explicitly states that sleep deprivation \"weakens the immune system.\""
+  },
+  {
+    "id": "ii-009",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Command of Evidence (Quantitative)",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "A university study tracked 500 students across four years. Students who participated in at least one extracurricular activity had a graduation rate of 89%, compared to 72% for students with no extracurricular involvement.",
+    "prompt": "A researcher claims extracurricular participation causes higher graduation rates. Which consideration most weakens this interpretation of the data?",
+    "choices": [
+      { "label": "A", "text": "The sample size of 500 students is too small to be meaningful." },
+      { "label": "B", "text": "Other factors, such as student motivation, may explain both extracurricular participation and higher graduation rates." },
+      { "label": "C", "text": "The study was conducted at a single university." },
+      { "label": "D", "text": "A 17-percentage-point difference is not statistically significant." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "This is a correlation, not a controlled experiment. Confounding variables like student motivation could drive both outcomes — without ruling these out, causation cannot be established."
+  },
+  {
+    "id": "ii-010",
+    "section": "reading-writing",
+    "domain": "information-and-ideas",
+    "subtopic": "Inferences",
+    "questionType": "multiple-choice",
+    "difficulty": "hard",
+    "passage": "In the early 20th century, the Aral Sea was one of the four largest lakes in the world. Soviet irrigation projects diverted the rivers that fed it, and by 2007 the sea had shrunk to less than 10% of its original volume, leaving behind a desert of salt and rusting ships.",
+    "prompt": "Which inference is best supported by the passage?",
+    "choices": [
+      { "label": "A", "text": "The Aral Sea will eventually recover to its original size." },
+      { "label": "B", "text": "Human water management decisions can have catastrophic environmental consequences." },
+      { "label": "C", "text": "Soviet engineers were unaware that diverting water would harm the lake." },
+      { "label": "D", "text": "Irrigation projects always cause environmental damage." }
+    ],
+    "correctAnswer": "B",
+    "explanation": "The passage shows that a deliberate human decision — diverting rivers for irrigation — destroyed one of the world's largest lakes. This strongly supports the inference about human-caused environmental catastrophe."
+  }
+]
