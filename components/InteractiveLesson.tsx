@@ -26,8 +26,9 @@ const MONO  = '"DM Mono", var(--font-dm-mono), ui-monospace, monospace';
 type IntroSlide    = { kind: "intro" };
 type TeachSlide    = { kind: "teach"; tag: string; tagColor?: string; headline: React.ReactNode; visual?: React.ReactNode; body?: React.ReactNode };
 type ABSlide       = { kind: "ab"; tag: string; tagColor?: string; headline: string; visual?: React.ReactNode; optionA: string; optionB: string; correct: "A" | "B"; explain: string };
+type RecapSlide    = { kind: "recap" };
 type CompleteSlide = { kind: "complete" };
-type Slide = IntroSlide | TeachSlide | ABSlide | CompleteSlide;
+type Slide = IntroSlide | TeachSlide | ABSlide | RecapSlide | CompleteSlide;
 
 // ── Visuals ───────────────────────────────────────────────────────────────────
 
@@ -373,16 +374,16 @@ function DeviceFrame({ children }: { children: React.ReactNode }) {
 
 // ── Slide content ─────────────────────────────────────────────────────────────
 
-const TOTAL = 12; // progress steps (slides 1–12, intro + done excluded)
+const TOTAL = 13; // progress steps (slides 1–13, intro + done excluded)
 
 const SLIDES: Slide[] = [
   { kind: "intro" },
 
   {
     kind: "teach", tag: "01 · What is linear?",
-    headline: <>Linear = <span style={{ color: PAL.green }}>constant rate of change</span>.</>,
+    headline: <>Linear functions show a <span style={{ color: PAL.green }}>constant rate of change</span>.</>,
     visual: <MiniTable headers={["Week","Savings","Gap"]} rows={[["0","$0","—"],["1","$20","+$20"],["2","$40","+$20"],["3","$60","+$20"],["4","$80","+$20"]]} highlightCol={2} highlightColor={PAL.green}/>,
-    body: <BodyText>One rule: <b style={{ color: PAL.ink }}>it increases by the same amount each time</b>. +20, +20, +20 — always the same.</BodyText>,
+    body: <BodyText>In this table, savings increase by $20 each week. Because <b style={{ color: PAL.ink }}>the change is the same each time</b>, this is linear.</BodyText>,
   },
 
   {
@@ -397,9 +398,9 @@ const SLIDES: Slide[] = [
 
   {
     kind: "teach", tag: "02 · On the number plane",
-    headline: <>Linear data makes a <span style={{ color: PAL.green }}>straight line</span>.</>,
+    headline: <>Linear functions make a <span style={{ color: PAL.green }}>straight line</span>.</>,
     visual: <PlotVisual />,
-    body: <BodyText>When the rate of increase is the same (e.g. +20 each step), the graph is a straight line.</BodyText>,
+    body: <BodyText>When the rate of change is constant (e.g. +20 each step), the graph forms a straight line — this is a linear function.</BodyText>,
   },
 
   {
@@ -491,6 +492,7 @@ const SLIDES: Slide[] = [
     explain: "b = 12 is the starting value (water at t = 0). m = 4 is the rate — water rises 4 inches every minute.",
   },
 
+  { kind: "recap" },
   { kind: "complete" },
 ];
 
@@ -539,6 +541,47 @@ export default function InteractiveLesson({ onClose, onComplete }: { onClose: ()
             </div>
           </div>
           <CTAButton onClick={advance}>Start lesson</CTAButton>
+        </div>
+      </DeviceFrame>
+    );
+  }
+
+  // ── Recap ───────────────────────────────────────────────────────────────────
+  if (slide.kind === "recap") {
+    return (
+      <DeviceFrame>
+        <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+          <div style={{ padding: "74px 20px 8px" }}><CloseX onClick={onClose} /></div>
+          <div style={{ flex: 1, overflowY: "auto", padding: "0 24px 0" }}>
+            <Tag color={PAL.blue}>Key concepts recap</Tag>
+            <Headline size={28}>A linear function in one sentence.</Headline>
+            <div style={{ marginTop: 16, background: PAL.green, borderRadius: 24, padding: "20px 20px", boxShadow: `0 6px 0 ${PAL.greenDk}`, color: "#fff", fontFamily: FONT, fontSize: 16, fontWeight: 700, lineHeight: 1.5 }}>
+              A function is linear when it changes by the same amount each step — that&apos;s <b>m</b>. Its equation is y = mx + b, where <b>b</b> is the starting value.
+            </div>
+            <div style={{ marginTop: 16, background: "#fff", borderRadius: 20, padding: "18px 20px", boxShadow: "0 4px 0 rgba(31,37,68,0.06)", textAlign: "center" }}>
+              <div style={{ fontFamily: MONO, fontSize: 30, fontWeight: 500, color: PAL.ink }}>
+                y = <span style={{ color: PAL.orange, fontWeight: 700 }}>m</span>x + <span style={{ color: PAL.purple, fontWeight: 700 }}>b</span>
+              </div>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 12 }}>
+                <span style={{ background: `${PAL.orange}22`, color: PAL.orange, fontFamily: FONT, fontSize: 13, fontWeight: 800, padding: "5px 14px", borderRadius: 9999 }}>m = rate of change</span>
+                <span style={{ background: `${PAL.purple}22`, color: PAL.purple, fontFamily: FONT, fontSize: 13, fontWeight: 800, padding: "5px 14px", borderRadius: 9999 }}>b = starting value</span>
+              </div>
+            </div>
+            <div style={{ marginTop: 20, fontFamily: FONT, fontSize: 15, fontWeight: 800, color: PAL.ink }}>How to spot one on the SAT</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
+              {[
+                "In a table: the gap between values is constant.",
+                "On a graph: the points form a straight line.",
+                "In a word problem: a fixed starting value + a fixed rate per unit.",
+              ].map((txt, i) => (
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 0 rgba(31,37,68,0.05)" }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: PAL.orange, flexShrink: 0, marginTop: 4 }} />
+                  <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: PAL.ink, lineHeight: 1.5 }}>{txt}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <CTAButton onClick={advance}>Finish lesson</CTAButton>
         </div>
       </DeviceFrame>
     );
