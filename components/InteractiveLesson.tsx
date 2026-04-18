@@ -332,8 +332,8 @@ function DeviceFrame({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(10,10,20,0.75)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{
-        width: "min(402px, 96vw, calc(96svh * 0.46))",
-        height: "min(874px, 96svh, calc(96vw * 2.175))",
+        width: "min(360px, 86vw, calc(78svh * 0.46))",
+        height: "min(780px, 78svh, calc(86vw * 2.175))",
         borderRadius: 48, overflow: "hidden",
         position: "relative", background: PAL.cream,
         boxShadow: "0 40px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.12)",
@@ -527,15 +527,15 @@ export default function InteractiveLesson({ onClose, onComplete }: { onClose: ()
             <Tag>SAT Math · Lesson 01</Tag>
             <Headline size={42}>Linear Functions, from zero.</Headline>
           </div>
-          <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", right: "8%", top: "10%", width: "39%", aspectRatio: "1", borderRadius: "50%", background: PAL.yellow }} />
-            <div style={{ position: "absolute", left: "9%", top: "30%", width: "26%", aspectRatio: "1", borderRadius: "50%", background: "#BEE7F7" }} />
-            <div style={{ position: "absolute", right: "34%", top: "44%", width: "17%", aspectRatio: "1", borderRadius: "50%", background: PAL.green }} />
-            <div style={{ position: "absolute", left: "14%", top: "42%" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: 22, fontWeight: 500, padding: "12px 22px", borderRadius: 9999, whiteSpace: "nowrap" }}>y = mx + b</span>
-            </div>
-            <div style={{ position: "absolute", left: "46%", top: "58%" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.purple, color: "#fff", fontFamily: FONT, fontSize: 22, fontWeight: 800, padding: "12px 22px", borderRadius: 9999, whiteSpace: "nowrap" }}>made easy</span>
+          <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0 }}>
+            {/* Background circles */}
+            <div style={{ position: "absolute", right: "6%",  top: "8%",  width: "40%", aspectRatio: "1", borderRadius: "50%", background: PAL.yellow }} />
+            <div style={{ position: "absolute", left: "8%",  top: "28%", width: "27%", aspectRatio: "1", borderRadius: "50%", background: "#BEE7F7" }} />
+            <div style={{ position: "absolute", left: "38%", top: "50%", width: "17%", aspectRatio: "1", borderRadius: "50%", background: PAL.green }} />
+            {/* Pills — in flow so they can't overflow the device */}
+            <div style={{ position: "absolute", bottom: "28%", left: "12%", right: "12%", display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: 20, fontWeight: 500, padding: "11px 20px", borderRadius: 9999, whiteSpace: "nowrap" }}>y = mx + b</span>
+              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.purple, color: "#fff", fontFamily: FONT, fontSize: 20, fontWeight: 800, padding: "11px 20px", borderRadius: 9999, whiteSpace: "nowrap", alignSelf: "flex-end" }}>made easy</span>
             </div>
           </div>
           <CTAButton onClick={advance}>Start lesson</CTAButton>
