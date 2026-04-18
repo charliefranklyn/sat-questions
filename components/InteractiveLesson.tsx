@@ -333,8 +333,8 @@ function DeviceFrame({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(10,10,20,0.75)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{
-        width: "min(360px, 86vw, calc(78svh * 0.46))",
-        height: "min(780px, 78svh, calc(86vw * 2.175))",
+        height: "min(880px, calc(100svh - 24px), calc((100vw - 24px) * 2.17))",
+        width: "min(406px, calc((100svh - 24px) * 0.461), calc(100vw - 24px))",
         borderRadius: 48, overflow: "hidden",
         position: "relative", background: PAL.cream,
         boxShadow: "0 40px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.12)",
