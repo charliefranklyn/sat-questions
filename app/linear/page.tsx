@@ -206,7 +206,7 @@ export default function LinearPage() {
       </div>
 
       {/* Lesson path — horizontal scroll on small screens */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", overflowX: "auto", padding: "16px 48px 48px" }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "flex-start", overflowX: "auto", padding: "24px 48px 48px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 0, minWidth: "max-content", margin: "0 auto" }}>
           {LESSONS.map((meta, i) => (
             <div key={meta.id} style={{ display: "flex", alignItems: "center" }}>
