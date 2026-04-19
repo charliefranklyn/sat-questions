@@ -182,7 +182,7 @@ export default function LinearPage() {
     <div style={{ minHeight: "100vh", background: PAL.cream, fontFamily: FONT, display: "flex", flexDirection: "column" }}>
 
       {/* Header */}
-      <div style={{ padding: "36px 48px 0", textAlign: "center" }}>
+      <div style={{ padding: "56px 48px 0", textAlign: "center" }}>
         <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: PAL.inkSoft, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>
           SAT Math · Linear Functions
         </div>
