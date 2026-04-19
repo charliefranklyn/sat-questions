@@ -2,6 +2,7 @@
 import { useState } from "react";
 import InteractiveLesson from "@/components/InteractiveLesson";
 import InteractiveLesson02 from "@/components/InteractiveLesson02";
+import InteractiveLesson03 from "@/components/InteractiveLesson03";
 
 const PAL = {
   cream:   "#FFF7E4",
@@ -13,7 +14,7 @@ const PAL = {
 
 const FONT = '"Nunito", var(--font-nunito), system-ui, sans-serif';
 
-type LessonId = "lesson1" | "lesson2";
+type LessonId = "lesson1" | "lesson2" | "lesson3";
 
 interface LessonMeta {
   id: LessonId;
@@ -34,6 +35,12 @@ const LESSONS: LessonMeta[] = [
     number: "Lesson 02",
     title: "Gradient & Slope",
     description: "Calculate slope from two points, read it off a graph, and apply it on the SAT.",
+  },
+  {
+    id: "lesson3",
+    number: "Lesson 03",
+    title: "Write the Equation",
+    description: "Find b from a known point and slope, then write the full equation of any line.",
   },
 ];
 
@@ -92,7 +99,7 @@ function LessonCard({
 
 export default function LinearPage() {
   const [open, setOpen] = useState<LessonId | null>(null);
-  const [done, setDone] = useState<Record<LessonId, boolean>>({ lesson1: false, lesson2: false });
+  const [done, setDone] = useState<Record<LessonId, boolean>>({ lesson1: false, lesson2: false, lesson3: false });
 
   return (
     <div style={{
@@ -132,6 +139,12 @@ export default function LinearPage() {
         <InteractiveLesson02
           onClose={() => setOpen(null)}
           onComplete={() => setDone(d => ({ ...d, lesson2: true }))}
+        />
+      )}
+      {open === "lesson3" && (
+        <InteractiveLesson03
+          onClose={() => setOpen(null)}
+          onComplete={() => setDone(d => ({ ...d, lesson3: true }))}
         />
       )}
     </div>
