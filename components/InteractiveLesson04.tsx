@@ -21,99 +21,131 @@ const MONO = '"DM Mono", var(--font-dm-mono), ui-monospace, monospace';
 
 type IntroSlide    = { kind: "intro" };
 type TeachSlide    = { kind: "teach"; tag: string; tagColor?: string; headline: React.ReactNode; visual?: React.ReactNode; body?: React.ReactNode };
-type ABSlide       = { kind: "ab"; tag: string; tagColor?: string; headline: string; visual?: React.ReactNode; optionA: string; optionB: string; correct: "A" | "B"; explain: string };
+type ABSlide       = { kind: "ab"; tag: string; tagColor?: string; headline: React.ReactNode; visual?: React.ReactNode; optionA: string; optionB: string; correct: "A" | "B"; explain: string };
 type RecapSlide    = { kind: "recap" };
 type CompleteSlide = { kind: "complete" };
 type Slide = IntroSlide | TeachSlide | ABSlide | RecapSlide | CompleteSlide;
 
 // ── Visuals ───────────────────────────────────────────────────────────────────
 
-function ScenarioCards() {
+function TwoRulesCard({ a, b }: {
+  a: { label: string; color: string; name: string; detail: string; eq: string };
+  b: { label: string; color: string; name: string; detail: string; eq: string };
+}) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-      {[
-        { emoji: "🏋️", name: "Gym", detail: "$50 to join\n+ $10/month", eq: "C = 10m + 50", color: PAL.blue },
-        { emoji: "🧘", name: "Yoga studio", detail: "No joining fee\n$20/month", eq: "C = 20m", color: PAL.orange },
-      ].map((item, i) => (
+    <div style={{ display: "flex", gap: 10 }}>
+      {[a, b].map((r, i) => (
         <div key={i} style={{
-          background: "#fff", borderRadius: 18, padding: "14px 12px",
+          flex: 1, background: "#fff", borderRadius: 20, padding: "16px 14px",
           boxShadow: "0 4px 0 rgba(31,37,68,0.06)",
-          display: "flex", flexDirection: "column", gap: 8,
+          borderTop: `6px solid ${r.color}`,
+          display: "flex", flexDirection: "column", gap: 6,
         }}>
-          <div style={{ fontFamily: FONT, fontSize: 22, textAlign: "center" }}>{item.emoji}</div>
-          <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 900, color: item.color, textAlign: "center", textTransform: "uppercase", letterSpacing: "0.06em" }}>{item.name}</div>
-          <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 600, color: PAL.inkSoft, textAlign: "center", lineHeight: 1.4, whiteSpace: "pre-line" }}>{item.detail}</div>
-          <div style={{
-            background: item.color, borderRadius: 10, padding: "6px 10px",
-            fontFamily: MONO, fontSize: 13, fontWeight: 700, color: "#fff", textAlign: "center",
-          }}>{item.eq}</div>
+          <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 800, color: r.color, textTransform: "uppercase", letterSpacing: "0.08em" }}>{r.label}</div>
+          <div style={{ fontFamily: FONT, fontSize: 18, fontWeight: 800, color: PAL.ink, lineHeight: 1.2 }}>{r.name}</div>
+          <div style={{ fontFamily: MONO, fontSize: 13, color: PAL.inkSoft, fontWeight: 500, letterSpacing: "-0.01em", lineHeight: 1.4 }}>{r.detail}</div>
+          <div style={{ marginTop: 4, fontFamily: MONO, fontSize: 17, fontWeight: 700, color: PAL.ink }}>{r.eq}</div>
         </div>
       ))}
     </div>
   );
 }
 
-function TwoLinesPlot() {
-  const W = 310, H = 200, pad = 28;
-  // Gym: C = 10m + 50, Yoga: C = 20m, cross at m=5, C=100
-  const maxM = 10, maxC = 200;
-  const xs = (m: number) => pad + (m / maxM) * (W - pad * 2);
-  const ys = (c: number) => H - pad - (c / maxC) * (H - pad * 2);
+function IntersectionGraph({
+  line1, line2, intersect,
+  xMax = 10, yMax = 160,
+  xLabel = "month", yLabel = "$",
+}: {
+  line1: { m: number; b: number; color: string; label: string };
+  line2: { m: number; b: number; color: string; label: string };
+  intersect: [number, number];
+  xMax?: number; yMax?: number;
+  xLabel?: string; yLabel?: string;
+}) {
+  const width = 320, height = 220;
+  const padL = 40, padR = 16, padT = 18, padB = 34;
+  const plotW = width - padL - padR;
+  const plotH = height - padT - padB;
+  const xToPx = (x: number) => padL + (x / xMax) * plotW;
+  const yToPx = (y: number) => padT + plotH - (y / yMax) * plotH;
+
+  const linePts = (m: number, b: number): [[number,number],[number,number]] => [
+    [xToPx(0), yToPx(b)],
+    [xToPx(xMax), yToPx(m * xMax + b)],
+  ];
+
+  const l1 = linePts(line1.m, line1.b);
+  const l2 = linePts(line2.m, line2.b);
+  const ix = xToPx(intersect[0]);
+  const iy = yToPx(intersect[1]);
+
+  // Label positions: 80% of xMax for line1, 30% for line2
+  const l1Lm = 0.8 * xMax;
+  const l1Lx = xToPx(l1Lm);
+  const l1Ly = yToPx(line1.m * l1Lm + line1.b);
+  const l2Lm = 0.3 * xMax;
+  const l2Lx = xToPx(l2Lm);
+  const l2Ly = yToPx(line2.m * l2Lm + line2.b);
 
   return (
-    <div style={{ background: "#fff", borderRadius: 18, padding: 14, boxShadow: "0 4px 0 rgba(31,37,68,0.06)" }}>
-      <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
-        {[0,2,4,6,8,10].map(m => (
-          <line key={`v${m}`} x1={xs(m)} y1={pad} x2={xs(m)} y2={H-pad} stroke="#F0E9D1" strokeWidth="1"/>
-        ))}
-        {[0,50,100,150,200].map(c => (
-          <line key={`h${c}`} x1={pad} y1={ys(c)} x2={W-pad} y2={ys(c)} stroke="#F0E9D1" strokeWidth="1"/>
-        ))}
-        <line x1={pad} y1={H-pad} x2={W-pad} y2={H-pad} stroke={PAL.ink} strokeWidth="1.5"/>
-        <line x1={pad} y1={pad} x2={pad} y2={H-pad} stroke={PAL.ink} strokeWidth="1.5"/>
-        {/* Gym line: C = 10m + 50 */}
-        <line x1={xs(0)} y1={ys(50)} x2={xs(10)} y2={ys(150)} stroke={PAL.blue} strokeWidth="3" strokeLinecap="round"/>
-        {/* Yoga line: C = 20m */}
-        <line x1={xs(0)} y1={ys(0)} x2={xs(10)} y2={ys(200)} stroke={PAL.orange} strokeWidth="3" strokeLinecap="round"/>
-        {/* Intersection dot */}
-        <circle cx={xs(5)} cy={ys(100)} r="8" fill={PAL.green} stroke="#fff" strokeWidth="3"/>
-        {/* Labels */}
-        <text x={xs(6.5)} y={ys(130)} fontFamily={MONO} fontSize="11" fontWeight="700" fill={PAL.blue}>Gym</text>
-        <text x={xs(6.5)} y={ys(160)} fontFamily={MONO} fontSize="11" fontWeight="700" fill={PAL.orange}>Yoga</text>
-        <text x={xs(5)+10} y={ys(100)-8} fontFamily={MONO} fontSize="11" fontWeight="700" fill={PAL.green}>month 5, $100</text>
-        {/* Axis labels */}
-        <text x={xs(10)-10} y={H-10} fontFamily={FONT} fontSize="10" fontWeight="600" fill={PAL.inkSoft}>months</text>
-        <text x={pad+4} y={pad+4} fontFamily={FONT} fontSize="10" fontWeight="600" fill={PAL.inkSoft}>cost ($)</text>
+    <div style={{ background: "#fff", borderRadius: 20, padding: "14px 14px 10px", boxShadow: "0 4px 0 rgba(31,37,68,0.06)" }}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: "auto", display: "block" }}>
+        <line x1={padL} y1={padT} x2={padL} y2={padT + plotH} stroke="#BFC3D8" strokeWidth="1.5"/>
+        <line x1={padL} y1={padT + plotH} x2={padL + plotW} y2={padT + plotH} stroke="#BFC3D8" strokeWidth="1.5"/>
+        <text x={padL + plotW / 2} y={height - 8} fontFamily={MONO} fontSize="11" fill={PAL.inkSoft} textAnchor="middle">{xLabel}</text>
+        <text x={12} y={padT + plotH / 2} fontFamily={MONO} fontSize="11" fill={PAL.inkSoft} textAnchor="middle" transform={`rotate(-90 12 ${padT + plotH / 2})`}>{yLabel}</text>
+        <line x1={l1[0][0]} y1={l1[0][1]} x2={l1[1][0]} y2={l1[1][1]} stroke={line1.color} strokeWidth="3.5" strokeLinecap="round"/>
+        <line x1={l2[0][0]} y1={l2[0][1]} x2={l2[1][0]} y2={l2[1][1]} stroke={line2.color} strokeWidth="3.5" strokeLinecap="round"/>
+        <line x1={ix} y1={padT + plotH} x2={ix} y2={iy} stroke={PAL.ink} strokeWidth="1" strokeDasharray="3 3" opacity="0.5"/>
+        <line x1={padL} y1={iy} x2={ix} y2={iy} stroke={PAL.ink} strokeWidth="1" strokeDasharray="3 3" opacity="0.5"/>
+        <circle cx={ix} cy={iy} r={8} fill="#fff" stroke={PAL.ink} strokeWidth="3"/>
+        <text x={l1Lx} y={l1Ly - 8} fontFamily={MONO} fontSize="12" fontWeight="700" fill={line1.color} textAnchor="end">{line1.label}</text>
+        <text x={l2Lx} y={l2Ly + 16} fontFamily={MONO} fontSize="12" fontWeight="700" fill={line2.color} textAnchor="start">{line2.label}</text>
       </svg>
+      <div style={{ marginTop: 6, textAlign: "center", fontFamily: FONT, fontSize: 13, fontWeight: 700, color: PAL.ink }}>
+        They cross at <span style={{ fontFamily: MONO }}>({intersect[0]}, {intersect[1]})</span>
+      </div>
     </div>
   );
 }
 
-function SolveStepsCard() {
-  const steps: { label: string; body: React.ReactNode; highlight?: string }[] = [
-    { label: "Both equal C — set them equal", body: <>10m + 50 = 20m</> },
-    { label: "Subtract 10m from both sides",  body: <>50 = 10m</> },
-    { label: "Divide both sides by 10",       body: <>m = <span style={{ color: PAL.orange, fontWeight: 700 }}>5</span></> },
-    { label: "Swap m=5 back in to find C",    body: <>C = 20 × 5 = <span style={{ color: PAL.green, fontWeight: 700 }}>100</span></> },
-    { label: "Answer",                         body: <span style={{ color: PAL.green, fontWeight: 700 }}>Month 5 — both cost $100</span> },
-  ];
+function SolveCard({ lines }: { lines: React.ReactNode[] }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {steps.map((s, i) => (
-        <div key={i} style={{
-          display: "flex", alignItems: "flex-start", gap: 12,
-          background: "#fff", borderRadius: 14, padding: "10px 14px",
-          boxShadow: "0 3px 0 rgba(31,37,68,0.05)",
-        }}>
-          <div style={{
-            width: 26, height: 26, borderRadius: "50%",
-            background: PAL.paper, flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: FONT, fontSize: 13, fontWeight: 900, color: PAL.ink,
-          }}>{i + 1}</div>
+    <div style={{ background: "#fff", borderRadius: 20, padding: "18px 18px", boxShadow: "0 4px 0 rgba(31,37,68,0.06)", display: "flex", flexDirection: "column", gap: 8 }}>
+      {lines.map((ln, i) => {
+        const last = i === lines.length - 1;
+        return (
+          <div key={i} style={{
+            fontFamily: MONO, fontSize: last ? 22 : 20,
+            fontWeight: last ? 700 : 500,
+            color: last ? PAL.green : PAL.ink,
+            letterSpacing: "-0.01em", textAlign: "center",
+            padding: last ? "10px 0 2px" : 0,
+          }}>{ln}</div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TwoEquationsCard({
+  eq1, eq2,
+  eq1Label = "Equation 1", eq2Label = "Equation 2",
+}: {
+  eq1: string; eq2: string;
+  eq1Label?: string; eq2Label?: string;
+}) {
+  return (
+    <div style={{ background: "#fff", borderRadius: 20, padding: "18px 18px", boxShadow: "0 4px 0 rgba(31,37,68,0.06)", display: "flex", flexDirection: "column", gap: 12 }}>
+      {[
+        { label: eq1Label, eq: eq1, color: PAL.orange },
+        { label: eq2Label, eq: eq2, color: PAL.purple },
+      ].map((row, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 10, height: 36, borderRadius: 4, background: row.color, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: FONT, fontSize: 10, fontWeight: 800, color: PAL.inkSoft, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>{s.label}</div>
-            <div style={{ fontFamily: MONO, fontSize: 15, fontWeight: 500, color: PAL.ink }}>{s.body}</div>
+            <div style={{ fontFamily: FONT, fontSize: 11, fontWeight: 800, color: row.color, textTransform: "uppercase", letterSpacing: "0.08em" }}>{row.label}</div>
+            <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 700, color: PAL.ink, letterSpacing: "-0.01em" }}>{row.eq}</div>
           </div>
         </div>
       ))}
@@ -121,70 +153,31 @@ function SolveStepsCard() {
   );
 }
 
-function TwoEquationCard({ eq1, eq2 }: { eq1: React.ReactNode; eq2: React.ReactNode }) {
-  return (
-    <div style={{
-      background: "#fff", borderRadius: 20,
-      boxShadow: "0 4px 0 rgba(31,37,68,0.06)",
-      overflow: "hidden",
-    }}>
-      <div style={{ padding: "16px 20px", fontFamily: MONO, fontSize: 22, fontWeight: 500, color: PAL.ink, textAlign: "center" }}>{eq1}</div>
-      <div style={{ height: 1, background: "#F2ECD5" }} />
-      <div style={{ padding: "16px 20px", fontFamily: MONO, fontSize: 22, fontWeight: 500, color: PAL.ink, textAlign: "center" }}>{eq2}</div>
-    </div>
-  );
-}
-
-function CheckCard() {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {[
-        { eq: "C = 10m + 50", check: "100 = 10×5 + 50", color: PAL.blue },
-        { eq: "C = 20m",      check: "100 = 20×5",      color: PAL.orange },
-      ].map((row, i) => (
-        <div key={i} style={{
-          background: "#fff", borderRadius: 14, padding: "12px 14px",
-          boxShadow: "0 3px 0 rgba(31,37,68,0.05)",
-          display: "flex", alignItems: "center", gap: 12,
-        }}>
-          <div style={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: row.color, minWidth: 80 }}>{row.eq}</div>
-          <div style={{ flex: 1, fontFamily: MONO, fontSize: 14, fontWeight: 500, color: PAL.ink }}>{row.check}</div>
-          <svg width="20" height="20" viewBox="0 0 20 20" style={{ flexShrink: 0 }}>
-            <circle cx="10" cy="10" r="9" fill={PAL.green}/>
-            <path d="M5.5 10.5l3 3 6-6" stroke="#fff" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ParallelLinesVisual() {
-  const W = 310, H = 150, pad = 20;
-  const xs = (x: number) => pad + ((x + 1) / 8) * (W - pad * 2);
-  const ys = (y: number) => H - pad - ((y + 1) / 9) * (H - pad * 2);
+function ParallelNoAnswerGraph({ sameLine = false }: { sameLine?: boolean }) {
+  const width = 320, height = 200;
+  const padL = 30, padR = 16, padT = 16, padB = 28;
+  const plotW = width - padL - padR;
+  const plotH = height - padT - padB;
 
   return (
-    <div style={{ background: "#fff", borderRadius: 18, padding: 14, boxShadow: "0 4px 0 rgba(31,37,68,0.06)" }}>
-      <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
-        {[-1,0,1,2,3,4,5,6].map(x => (
-          <line key={`v${x}`} x1={xs(x)} y1={pad} x2={xs(x)} y2={H-pad} stroke="#F0E9D1" strokeWidth="1"/>
-        ))}
-        {[-1,1,3,5,7].map(y => (
-          <line key={`h${y}`} x1={pad} y1={ys(y)} x2={W-pad} y2={ys(y)} stroke="#F0E9D1" strokeWidth="1"/>
-        ))}
-        <line x1={pad} y1={ys(0)} x2={W-pad} y2={ys(0)} stroke={PAL.ink} strokeWidth="1.5"/>
-        <line x1={xs(0)} y1={pad} x2={xs(0)} y2={H-pad} stroke={PAL.ink} strokeWidth="1.5"/>
-        {/* y = 2x + 3 */}
-        <line x1={xs(-1)} y1={ys(1)} x2={xs(3)} y2={ys(9)} stroke={PAL.blue} strokeWidth="3.5" strokeLinecap="round"/>
-        {/* y = 2x + 1 */}
-        <line x1={xs(-1)} y1={ys(-1)} x2={xs(3)} y2={ys(7)} stroke={PAL.orange} strokeWidth="3.5" strokeLinecap="round"/>
-        <text x={xs(2.8)} y={ys(8)-6} fontFamily={MONO} fontSize="11" fontWeight="700" fill={PAL.blue}>slope = 2</text>
-        <text x={xs(2.8)} y={ys(6)-6} fontFamily={MONO} fontSize="11" fontWeight="700" fill={PAL.orange}>slope = 2</text>
+    <div style={{ background: "#fff", borderRadius: 20, padding: "14px 14px 10px", boxShadow: "0 4px 0 rgba(31,37,68,0.06)" }}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: "auto", display: "block" }}>
+        <line x1={padL} y1={padT} x2={padL} y2={padT + plotH} stroke="#BFC3D8" strokeWidth="1.5"/>
+        <line x1={padL} y1={padT + plotH} x2={padL + plotW} y2={padT + plotH} stroke="#BFC3D8" strokeWidth="1.5"/>
+        {sameLine ? (
+          <>
+            <line x1={padL + 6} y1={padT + plotH - 24} x2={padL + plotW - 6} y2={padT + 40} stroke={PAL.orange} strokeWidth="6" strokeLinecap="round"/>
+            <line x1={padL + 6} y1={padT + plotH - 24} x2={padL + plotW - 6} y2={padT + 40} stroke={PAL.purple} strokeWidth="3" strokeLinecap="round" strokeDasharray="7 5"/>
+            <text x={padL + plotW / 2} y={padT + plotH + 22} fontFamily={FONT} fontSize="13" fontWeight="700" fill={PAL.ink} textAnchor="middle">Same line — every point matches</text>
+          </>
+        ) : (
+          <>
+            <line x1={padL + 10} y1={padT + plotH - 30} x2={padL + plotW - 10} y2={padT + 40} stroke={PAL.orange} strokeWidth="4" strokeLinecap="round"/>
+            <line x1={padL + 10} y1={padT + plotH - 70} x2={padL + plotW - 10} y2={padT} stroke={PAL.purple} strokeWidth="4" strokeLinecap="round"/>
+            <text x={padL + plotW / 2} y={padT + plotH + 22} fontFamily={FONT} fontSize="13" fontWeight="700" fill={PAL.ink} textAnchor="middle">Parallel — they never meet</text>
+          </>
+        )}
       </svg>
-      <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 600, color: PAL.inkSoft, textAlign: "center", marginTop: 4 }}>
-        Same slope — they never cross
-      </div>
     </div>
   );
 }
@@ -228,9 +221,7 @@ function CTAButton({ children, onClick, disabled }: { children: React.ReactNode;
         boxShadow: disabled ? "none" : "0 6px 0 rgba(0,0,0,0.18)",
         userSelect: "none",
       }}
-    >
-      {children}
-    </div>
+    >{children}</div>
   );
 }
 
@@ -248,11 +239,7 @@ function SegmentedProgress({ step, total }: { step: number; total: number }) {
   return (
     <div style={{ display: "flex", gap: 6, flex: 1, marginLeft: 12 }}>
       {Array.from({ length: total }).map((_, i) => (
-        <div key={i} style={{
-          flex: 1, height: 6, borderRadius: 3,
-          background: i < step ? PAL.ink : "rgba(31,37,68,0.12)",
-          transition: "background 0.3s",
-        }} />
+        <div key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: i < step ? PAL.ink : "rgba(31,37,68,0.12)", transition: "background 0.3s" }} />
       ))}
     </div>
   );
@@ -283,20 +270,9 @@ function OptionRow({ letter, label, state, onClick }: {
   return (
     <div
       onClick={state === "idle" || state === "selected" ? onClick : undefined}
-      style={{
-        display: "flex", alignItems: "center", gap: 16,
-        padding: "18px 18px", borderRadius: 20,
-        background: s.bg, border: `2px solid ${s.border}`,
-        cursor: state === "idle" || state === "selected" ? "pointer" : "default",
-        transition: "all 0.2s",
-      }}
+      style={{ display: "flex", alignItems: "center", gap: 16, padding: "18px 18px", borderRadius: 20, background: s.bg, border: `2px solid ${s.border}`, cursor: state === "idle" || state === "selected" ? "pointer" : "default", transition: "all 0.2s" }}
     >
-      <div style={{
-        width: 36, height: 36, borderRadius: 12,
-        background: s.letterBg, color: s.letterText,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontFamily: FONT, fontSize: 18, fontWeight: 900, flexShrink: 0,
-      }}>{letter}</div>
+      <div style={{ width: 36, height: 36, borderRadius: 12, background: s.letterBg, color: s.letterText, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: 18, fontWeight: 900, flexShrink: 0 }}>{letter}</div>
       <div style={{ fontFamily: FONT, fontSize: 17, fontWeight: 600, color: s.text, lineHeight: 1.3, flex: 1 }}>{label}</div>
       {state === "correct" && (
         <svg width="24" height="24" viewBox="0 0 24 24">
@@ -319,12 +295,7 @@ function FeedbackBanner({ correct, text, correctLabel, onContinue }: {
 }) {
   const bg = correct ? PAL.green : PAL.red;
   return (
-    <div style={{
-      position: "absolute", left: 0, right: 0, bottom: 0,
-      background: bg, padding: "20px 20px 34px",
-      borderTopLeftRadius: 28, borderTopRightRadius: 28,
-      boxShadow: "0 -8px 24px rgba(0,0,0,0.12)",
-    }}>
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: bg, padding: "20px 20px 34px", borderTopLeftRadius: 28, borderTopRightRadius: 28, boxShadow: "0 -8px 24px rgba(0,0,0,0.12)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10, fontFamily: FONT, fontSize: 22, fontWeight: 900, color: "#fff" }}>
         <svg width="24" height="24" viewBox="0 0 24 24">
           {correct
@@ -334,16 +305,10 @@ function FeedbackBanner({ correct, text, correctLabel, onContinue }: {
         {correct ? "Nice." : "Not quite."}
       </div>
       {!correct && correctLabel && (
-        <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 8 }}>
-          Correct answer: {correctLabel}
-        </div>
+        <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 8 }}>Correct answer: {correctLabel}</div>
       )}
       <div style={{ fontFamily: FONT, fontSize: 16, fontWeight: 600, color: "#fff", lineHeight: 1.4, marginBottom: 18, opacity: 0.95 }}>{text}</div>
-      <div onClick={onContinue} style={{
-        padding: "15px 0", borderRadius: 18, background: "#fff", color: bg,
-        fontFamily: FONT, fontSize: 18, fontWeight: 900,
-        textAlign: "center", cursor: "pointer", userSelect: "none",
-      }}>Continue</div>
+      <div onClick={onContinue} style={{ padding: "15px 0", borderRadius: 18, background: "#fff", color: bg, fontFamily: FONT, fontSize: 18, fontWeight: 900, textAlign: "center", cursor: "pointer", userSelect: "none" }}>Continue</div>
     </div>
   );
 }
@@ -351,23 +316,14 @@ function FeedbackBanner({ correct, text, correctLabel, onContinue }: {
 function DeviceFrame({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(10,10,20,0.75)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{
-        height: "min(880px, calc(100svh - 24px), calc((100vw - 24px) * 2.17))",
-        width: "min(406px, calc((100svh - 24px) * 0.461), calc(100vw - 24px))",
-        borderRadius: 48, overflow: "hidden",
-        position: "relative", background: PAL.cream,
-        boxShadow: "0 40px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.12)",
-        display: "flex", flexDirection: "column",
-      }}>
+      <div style={{ height: "min(880px, calc(100svh - 24px), calc((100vw - 24px) * 2.17))", width: "min(406px, calc((100svh - 24px) * 0.461), calc(100vw - 24px))", borderRadius: 48, overflow: "hidden", position: "relative", background: PAL.cream, boxShadow: "0 40px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column" }}>
         <div style={{ position: "absolute", top: 11, left: "50%", transform: "translateX(-50%)", width: 126, height: 37, borderRadius: 24, background: "#000", zIndex: 50, pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "21px 28px 0", pointerEvents: "none" }}>
           <span style={{ fontFamily: "-apple-system, system-ui", fontWeight: 600, fontSize: 15, color: PAL.ink }}>9:41</span>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <svg width="17" height="12" viewBox="0 0 17 12" fill={PAL.ink}>
-              <rect x="0" y="7" width="3" height="5" rx="0.7"/>
-              <rect x="4.7" y="4.5" width="3" height="7.5" rx="0.7"/>
-              <rect x="9.4" y="2" width="3" height="10" rx="0.7"/>
-              <rect x="14.1" y="0" width="3" height="12" rx="0.7"/>
+              <rect x="0" y="7" width="3" height="5" rx="0.7"/><rect x="4.7" y="4.5" width="3" height="7.5" rx="0.7"/>
+              <rect x="9.4" y="2" width="3" height="10" rx="0.7"/><rect x="14.1" y="0" width="3" height="12" rx="0.7"/>
             </svg>
             <svg width="26" height="13" viewBox="0 0 26 13" fill="none">
               <rect x="0.5" y="0.5" width="22" height="12" rx="3.5" stroke={PAL.ink} strokeOpacity="0.35"/>
@@ -376,9 +332,7 @@ function DeviceFrame({ children }: { children: React.ReactNode }) {
             </svg>
           </div>
         </div>
-        <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-          {children}
-        </div>
+        <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>{children}</div>
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 60, height: 34, display: "flex", justifyContent: "center", alignItems: "flex-end", paddingBottom: 8, pointerEvents: "none" }}>
           <div style={{ width: 139, height: 5, borderRadius: 100, background: "rgba(0,0,0,0.25)" }} />
         </div>
@@ -395,99 +349,115 @@ const SLIDES: Slide[] = [
   { kind: "intro" },
 
   {
-    kind: "teach", tag: "01 · Two conditions, one answer",
-    headline: "Sometimes two rules both need to be true at the same time.",
-    visual: <ScenarioCards />,
-    body: <BodyText>A gym and a yoga studio have different pricing. At some point they cost exactly the same amount. Finding <b style={{ color: PAL.ink }}>that month</b> means satisfying both rules at once.</BodyText>,
+    kind: "teach", tag: "01 · The setup",
+    headline: <>Sometimes two rules both need to be true at the <span style={{ color: PAL.orange }}>same time</span>.</>,
+    visual: <TwoRulesCard
+      a={{ label: "Gym", color: PAL.orange, name: "Iron & Co.", detail: "$50 to join + $10/month", eq: "C = 10m + 50" }}
+      b={{ label: "Yoga", color: PAL.purple, name: "Zen Studio", detail: "$20/month, no fee", eq: "C = 20m" }}
+    />,
+    body: <BodyText>A gym charges <b style={{ color: PAL.orange }}>$50 to join + $10/month</b>. A yoga studio charges <b style={{ color: PAL.purple }}>$20/month, no fee</b>. Find when they cost the <b>same</b>.</BodyText>,
   },
 
   {
-    kind: "teach", tag: "01 · Two conditions, one answer",
+    kind: "teach", tag: "01 · The setup",
     headline: <>Each rule is a line. The answer is <span style={{ color: PAL.green }}>where they cross</span>.</>,
-    visual: <TwoLinesPlot />,
-    body: <BodyText>The lines meet at month 5, cost $100. That's the one point where both rules are true at the same time.</BodyText>,
+    visual: <IntersectionGraph
+      line1={{ m: 10, b: 50, color: PAL.orange, label: "gym" }}
+      line2={{ m: 20, b: 0, color: PAL.purple, label: "yoga" }}
+      intersect={[5, 100]}
+      xMax={10} yMax={160}
+      xLabel="month" yLabel="$"
+    />,
+    body: <BodyText>The lines meet at <b style={{ color: PAL.green }}>month 5</b>, when both cost <b style={{ color: PAL.green }}>$100</b>.</BodyText>,
   },
 
   {
-    kind: "ab", tag: "01 · Two conditions, one answer",
-    headline: "Gym: C = 10m + 50. Yoga: C = 20m. At which month do they cost the same?",
-    visual: <CheckCard />,
+    kind: "ab", tag: "01 · The setup",
+    headline: "At which month do they cost the same?",
+    visual: <TwoEquationsCard eq1Label="Gym" eq1="C = 10m + 50" eq2Label="Yoga" eq2="C = 20m" />,
     optionA: "Month 5",
     optionB: "Month 10",
     correct: "A",
-    explain: "At m=5: gym costs 10×5+50 = $100. Yoga costs 20×5 = $100. Same price — month 5 is the answer.",
+    explain: "At m = 5: gym = 10(5) + 50 = $100, yoga = 20(5) = $100. Both match.",
   },
 
   {
-    kind: "teach", tag: "02 · How to find it",
-    headline: "Both equations equal the same thing. So set them equal to each other.",
-    visual: <SolveStepsCard />,
-    body: <BodyText>You end up with one equation and one unknown. Solve for that unknown, then swap it back in to get the full answer.</BodyText>,
+    kind: "teach", tag: "02 · Solve it",
+    headline: <>Both equations equal the same <span style={{ fontFamily: MONO }}>C</span>. So set the right-hand sides <span style={{ color: PAL.orange }}>equal</span>.</>,
+    visual: <SolveCard lines={[
+      <>10m + 50 = 20m</>,
+      <>50 = 10m</>,
+      <>m = <span style={{ color: PAL.orange, fontWeight: 700 }}>5</span></>,
+      <>C = 20(5) = 100</>,
+    ]} />,
+    body: <BodyText>If both sides equal <b style={{ fontFamily: MONO }}>C</b>, they equal each other. Solve for <b>m</b>, then plug it back in to get <b>C</b>.</BodyText>,
   },
 
   {
-    kind: "ab", tag: "02 · How to find it",
-    headline: "y = x + 3 and y = 2x. What is x?",
-    visual: <TwoEquationCard eq1={<>y = x + 3</>} eq2={<>y = 2x</>} />,
+    kind: "ab", tag: "02 · Solve it",
+    headline: <>What is <span style={{ fontFamily: MONO }}>x</span>?</>,
+    visual: <TwoEquationsCard eq1="y = x + 3" eq2="y = 2x" />,
     optionA: "3",
     optionB: "6",
     correct: "A",
-    explain: "Set equal: x+3 = 2x. Subtract x from both sides: 3 = x. Then y = 2×3 = 6. Answer: (3, 6).",
+    explain: "Set equal: x + 3 = 2x. Subtract x from both sides: 3 = x. Then y = 2(3) = 6.",
   },
 
   {
-    kind: "ab", tag: "02 · How to find it",
-    headline: "y = 3x − 1 and y = x + 3. What is y?",
-    visual: <TwoEquationCard eq1={<>y = 3x − 1</>} eq2={<>y = x + 3</>} />,
+    kind: "ab", tag: "02 · Solve it",
+    headline: <>What is <span style={{ fontFamily: MONO }}>y</span>?</>,
+    visual: <TwoEquationsCard eq1="y = 3x − 1" eq2="y = x + 3" />,
     optionA: "5",
     optionB: "2",
     correct: "A",
-    explain: "Set equal: 3x−1 = x+3 → 2x = 4 → x = 2. Swap back: y = 2+3 = 5. Answer: (2, 5).",
+    explain: "3x − 1 = x + 3 → 2x = 4 → x = 2. Swap back: y = 2 + 3 = 5.",
   },
 
   {
-    kind: "teach", tag: "03 · When there's no answer",
-    headline: "Same slope means the lines go the same direction — they never cross.",
-    visual: <ParallelLinesVisual />,
-    body: <BodyText>No crossing point means <b style={{ color: PAL.ink }}>no answer</b>. This happens when both lines have the same slope but different starting points — they run parallel forever.</BodyText>,
+    kind: "teach", tag: "03 · Special cases",
+    headline: <>Same slope means the lines go the <span style={{ color: PAL.orange }}>same direction</span> — they never cross.</>,
+    visual: <ParallelNoAnswerGraph />,
+    body: <BodyText>No crossing point = no answer. This happens when two lines have the <b>same slope</b> but <b>different starting points</b>.</BodyText>,
   },
 
   {
-    kind: "ab", tag: "03 · When there's no answer",
-    headline: "y = 2x + 1 and y = 2x + 3. How many answers are there?",
-    visual: <TwoEquationCard eq1={<>y = 2x + 1</>} eq2={<>y = 2x + 3</>} />,
+    kind: "ab", tag: "03 · Special cases",
+    headline: "How many answers?",
+    visual: <TwoEquationsCard eq1="y = 2x + 1" eq2="y = 2x + 3" />,
     optionA: "No answers — they never cross",
     optionB: "One answer",
     correct: "A",
-    explain: "Both lines have slope 2 but different starting points (1 vs 3). They go in the same direction and never meet.",
+    explain: "Both have slope 2 but different starting points (1 vs 3). Same direction, never meet.",
   },
 
   {
-    kind: "ab", tag: "03 · When there's no answer",
-    headline: "y = x + 4 and y = x + 4. How many answers are there?",
-    visual: <TwoEquationCard eq1={<>y = x + 4</>} eq2={<>y = x + 4</>} />,
+    kind: "ab", tag: "03 · Special cases",
+    headline: "How many answers?",
+    visual: <TwoEquationsCard eq1="y = x + 4" eq2="y = x + 4" />,
     optionA: "Every point on the line works",
     optionB: "No answers",
     correct: "A",
-    explain: "They're the same line. Every single point satisfies both equations — there are infinite answers.",
+    explain: "Same line — every point on it satisfies both equations. Infinite answers.",
   },
 
   {
     kind: "ab", tag: "SAT Question", tagColor: PAL.red,
-    headline: "y = 2x + 5 and y = −x + 2. What is x?",
+    headline: <>What is <span style={{ fontFamily: MONO }}>x</span>?</>,
+    visual: <TwoEquationsCard eq1="y = 2x + 5" eq2="y = −x + 2" />,
     optionA: "−1",
     optionB: "1",
     correct: "A",
-    explain: "Set equal: 2x+5 = −x+2 → 3x = −3 → x = −1. Then y = 2(−1)+5 = 3. Answer: (−1, 3).",
+    explain: "2x + 5 = −x + 2 → 3x = −3 → x = −1.",
   },
 
   {
     kind: "ab", tag: "SAT Question", tagColor: PAL.red,
-    headline: "y = 3x − 2 and y = 3x + 5. How many solutions does this system have?",
+    headline: "How many solutions?",
+    visual: <TwoEquationsCard eq1="y = 3x − 2" eq2="y = 3x + 5" />,
     optionA: "No solution",
     optionB: "One solution",
     correct: "A",
-    explain: "Same slope (3), different starting points (−2 and 5). Parallel lines — they never cross.",
+    explain: "Same slope (3), different starting points. Parallel — they never cross.",
   },
 
   { kind: "recap" },
@@ -516,7 +486,6 @@ export default function InteractiveLesson04({ onClose, onComplete }: { onClose: 
     setSubmitted(true);
   }
 
-  // ── Intro ───────────────────────────────────────────────────────────────────
   if (slide.kind === "intro") {
     return (
       <DeviceFrame>
@@ -524,16 +493,17 @@ export default function InteractiveLesson04({ onClose, onComplete }: { onClose: 
           <div style={{ padding: "74px 20px 8px" }}><CloseX onClick={onClose} /></div>
           <div style={{ padding: "20px 24px 0", position: "relative", zIndex: 2 }}>
             <Tag>SAT Math · Lesson 04</Tag>
-            <Headline size={40}>Two equations. One answer.</Headline>
+            <Headline size={48}>Two equations.<br/>One answer.</Headline>
           </div>
-          <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0, display: "flex", flexDirection: "column" }}>
-            <div style={{ position: "absolute", right: "6%",  top: "8%",  width: "38%", aspectRatio: "1", borderRadius: "50%", background: PAL.blue,   opacity: 0.7 }} />
-            <div style={{ position: "absolute", left: "8%",  top: "30%", width: "26%", aspectRatio: "1", borderRadius: "50%", background: PAL.orange, opacity: 0.7 }} />
-            <div style={{ position: "absolute", right: "32%",top: "52%", width: "18%", aspectRatio: "1", borderRadius: "50%", background: PAL.green }} />
-            <div style={{ marginTop: "auto", padding: "0 10% 22%", display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start", position: "relative", zIndex: 2 }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: "clamp(12px, 4vw, 17px)", fontWeight: 500, padding: "10px 18px", borderRadius: 9999 }}>two lines, one point</span>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.green, color: "#fff", fontFamily: FONT, fontSize: "clamp(14px, 4.5vw, 20px)", fontWeight: 800, padding: "10px 18px", borderRadius: 9999, alignSelf: "flex-end" }}>step by step</span>
-            </div>
+          <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0 }}>
+            <div style={{ position: "absolute", right: 24, top: 48, width: 160, height: 160, borderRadius: "50%", background: PAL.yellow }} />
+            <div style={{ position: "absolute", left: 30, top: 140, width: 106, height: 106, borderRadius: "50%", background: "#BEE7F7" }} />
+            <div style={{ position: "absolute", right: 140, top: 180, width: 72, height: 72, borderRadius: "50%", background: PAL.orange }} />
+            <svg viewBox="0 0 220 140" style={{ position: "absolute", left: 56, top: 210, width: 220, height: 140 }}>
+              <line x1="10" y1="120" x2="210" y2="20" stroke={PAL.orange} strokeWidth="7" strokeLinecap="round"/>
+              <line x1="10" y1="20" x2="210" y2="120" stroke={PAL.purple} strokeWidth="7" strokeLinecap="round"/>
+              <circle cx="110" cy="70" r="11" fill="#fff" stroke={PAL.ink} strokeWidth="4"/>
+            </svg>
           </div>
           <CTAButton onClick={advance}>Start lesson</CTAButton>
         </div>
@@ -541,30 +511,27 @@ export default function InteractiveLesson04({ onClose, onComplete }: { onClose: 
     );
   }
 
-  // ── Recap ───────────────────────────────────────────────────────────────────
   if (slide.kind === "recap") {
+    const rows = [
+      { color: PAL.green,  badge: "1", title: "One answer",      detail: "Set the right-hand sides equal, solve for x, then find y." },
+      { color: PAL.orange, badge: "0", title: "No answer",        detail: "Same slope, different starting point — lines never cross." },
+      { color: PAL.purple, badge: "∞", title: "Infinite answers", detail: "Both equations are the same line." },
+    ];
     return (
       <DeviceFrame>
         <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
           <div style={{ padding: "74px 20px 8px" }}><CloseX onClick={onClose} /></div>
           <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "4px 24px 0" }}>
             <Tag color={PAL.blue}>Key concepts recap</Tag>
-            <Headline size={28}>Two equations, three possible outcomes.</Headline>
-            <div style={{ marginTop: 14, background: PAL.green, borderRadius: 22, padding: "16px 18px", boxShadow: `0 6px 0 ${PAL.greenDk}`, color: "#fff" }}>
-              <div style={{ fontFamily: FONT, fontSize: 16, fontWeight: 800, lineHeight: 1.35 }}>
-                Two equations share one answer when their lines cross. Set them equal, solve for x, then find y.
-              </div>
-            </div>
-            <div style={{ marginTop: 14, fontFamily: FONT, fontSize: 12, fontWeight: 800, color: PAL.inkSoft, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Three possible outcomes</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
-                { dot: PAL.green,  text: "One answer: set equal, solve for x, swap back to find y." },
-                { dot: PAL.red,    text: "No answer: same slope, different starting point — lines never cross." },
-                { dot: PAL.orange, text: "Infinite answers: both equations are the same line." },
-              ].map((t, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: t.dot, flexShrink: 0, marginTop: 6 }} />
-                  <div style={{ fontFamily: FONT, fontSize: 13.5, fontWeight: 600, color: PAL.ink, lineHeight: 1.45 }}>{t.text}</div>
+            <div style={{ marginTop: 14 }}><Headline size={28}>Systems of equations.</Headline></div>
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+              {rows.map((row, i) => (
+                <div key={i} style={{ background: "#fff", borderRadius: 18, padding: "14px 14px", boxShadow: "0 3px 0 rgba(31,37,68,0.06)", display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: row.color, color: "#fff", fontFamily: MONO, fontWeight: 700, fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{row.badge}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 800, color: PAL.ink, lineHeight: 1.2 }}>{row.title}</div>
+                    <div style={{ marginTop: 3, fontFamily: FONT, fontSize: 13.5, fontWeight: 600, color: PAL.inkSoft, lineHeight: 1.4 }}>{row.detail}</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -575,39 +542,31 @@ export default function InteractiveLesson04({ onClose, onComplete }: { onClose: 
     );
   }
 
-  // ── Complete ────────────────────────────────────────────────────────────────
   if (slide.kind === "complete") {
     return (
       <DeviceFrame>
         <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
           <div style={{ padding: "74px 20px 8px" }}><CloseX onClick={onClose} /></div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 30px", textAlign: "center" }}>
-            <div style={{ width: 128, height: 128, borderRadius: "50%", background: PAL.green, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28, boxShadow: `0 10px 0 ${PAL.greenDk}` }}>
-              <svg width="64" height="64" viewBox="0 0 64 64">
-                <path d="M14 33l12 12 24-24" stroke="#fff" strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 24px", gap: 18 }}>
+            <div style={{ width: 112, height: 112, borderRadius: "50%", background: PAL.green, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 8px 0 ${PAL.greenDk}` }}>
+              <svg viewBox="0 0 40 40" width="60" height="60">
+                <path d="M8 21 L17 30 L33 12" stroke="#fff" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <Headline size={36}>Lesson complete.</Headline>
-            <div style={{ marginTop: 14 }}>
-              <BodyText size={18}>You can now find where two lines meet — and spot when they don&apos;t.</BodyText>
-            </div>
-            <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap", justifyContent: "center" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.green, color: "#fff", fontFamily: FONT, fontSize: 18, fontWeight: 800, padding: "9px 18px", borderRadius: 9999 }}>5 / 5 correct</span>
-            </div>
+            <BodyText size={16}>You can solve any system of two linear equations.</BodyText>
+            <div style={{ height: 8 }} />
+            <div
+              onClick={() => { setIdx(0); setPicked(null); setSubmitted(false); }}
+              style={{ cursor: "pointer", fontFamily: FONT, fontSize: 14, fontWeight: 700, color: PAL.inkSoft, textDecoration: "underline" }}
+            >Restart lesson</div>
           </div>
-          <div
-            onClick={() => { setIdx(0); setPicked(null); setSubmitted(false); }}
-            style={{ margin: "0 20px 12px", padding: "14px 0", fontFamily: FONT, fontSize: 16, fontWeight: 700, color: PAL.inkSoft, textAlign: "center", cursor: "pointer" }}
-          >
-            Review from the start
-          </div>
-          <CTAButton onClick={() => { onComplete?.(); onClose(); }}>Back to lessons</CTAButton>
+          <CTAButton onClick={() => { onComplete?.(); onClose(); }}>Done</CTAButton>
         </div>
       </DeviceFrame>
     );
   }
 
-  // ── Teach ───────────────────────────────────────────────────────────────────
   if (slide.kind === "teach") {
     return (
       <DeviceFrame>
@@ -627,7 +586,6 @@ export default function InteractiveLesson04({ onClose, onComplete }: { onClose: 
     );
   }
 
-  // ── A/B ─────────────────────────────────────────────────────────────────────
   const isCorrect = picked === slide.correct;
   const correctLabel = slide.correct === "A" ? slide.optionA : slide.optionB;
 
