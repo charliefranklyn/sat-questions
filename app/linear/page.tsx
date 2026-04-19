@@ -11,95 +11,163 @@ const PAL = {
   inkSoft: "#5A6088",
   green:   "#38C76B",
   greenDk: "#2CA555",
+  orange:  "#FF8A3D",
+  blue:    "#2DADE8",
+  purple:  "#A86CE4",
+  yellow:  "#FFD23F",
 };
 
 const FONT = '"Nunito", var(--font-nunito), system-ui, sans-serif';
+const MONO = '"DM Mono", var(--font-dm-mono), ui-monospace, monospace';
 
 type LessonId = "lesson1" | "lesson2" | "lesson3" | "lesson4";
 
 interface LessonMeta {
   id: LessonId;
-  number: string;
+  tag: string;
   title: string;
   description: string;
+  accent: string;
+  accentDk: string;
+  icon: React.ReactNode;
 }
 
 const LESSONS: LessonMeta[] = [
   {
-    id: "lesson1",
-    number: "Lesson 01",
+    id: "lesson1", tag: "01",
     title: "Linear Functions",
-    description: "What a linear function is, the y = mx + b formula, and SAT word problem traps.",
+    description: "What a linear function is and the y = mx + b formula.",
+    accent: PAL.orange, accentDk: "#DB6D22",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M4 22L24 6" stroke="#fff" strokeWidth="3" strokeLinecap="round"/>
+        <circle cx="4" cy="22" r="3" fill="#fff"/>
+        <circle cx="24" cy="6" r="3" fill="#fff"/>
+      </svg>
+    ),
   },
   {
-    id: "lesson2",
-    number: "Lesson 02",
+    id: "lesson2", tag: "02",
     title: "Gradient & Slope",
-    description: "Calculate slope from two points, read it off a graph, and apply it on the SAT.",
+    description: "Calculate slope from two points and read it off a graph.",
+    accent: PAL.blue, accentDk: "#1A8AB8",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M4 22L14 10L24 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M19 6L24 10L19 14" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
   },
   {
-    id: "lesson3",
-    number: "Lesson 03",
+    id: "lesson3", tag: "03",
     title: "Write the Equation",
-    description: "Find b from a known point and slope, then write the full equation of any line.",
+    description: "Find b from a known point and slope, write the full line equation.",
+    accent: PAL.purple, accentDk: "#8A50C8",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M5 20L10 8h3l4 12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M7.5 15h7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M19 8v12M16 11h6" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
+      </svg>
+    ),
   },
   {
-    id: "lesson4",
-    number: "Lesson 04",
+    id: "lesson4", tag: "04",
     title: "Two Equations",
-    description: "Find where two lines meet — and spot when they run parallel or are the same line.",
+    description: "Find where two lines meet and spot when they never do.",
+    accent: PAL.green, accentDk: PAL.greenDk,
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M4 22L24 6" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" opacity="0.7"/>
+        <path d="M4 6L24 22" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
+        <circle cx="14" cy="14" r="4" fill="#fff"/>
+      </svg>
+    ),
   },
 ];
 
-function LessonCard({
-  meta,
-  done,
-  onStart,
-}: {
-  meta: LessonMeta;
-  done: boolean;
-  onStart: () => void;
+function LessonNode({ meta, done, locked, onStart }: {
+  meta: LessonMeta; done: boolean; locked: boolean; onStart: () => void;
 }) {
   return (
-    <div style={{
-      background: "#fff", borderRadius: 24, padding: "24px 24px 20px",
-      boxShadow: "0 4px 0 rgba(31,37,68,0.08)",
-      display: "flex", flexDirection: "column", gap: 12,
-      maxWidth: 360, width: "100%",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <div style={{
-          width: 52, height: 52, borderRadius: "50%",
-          background: done ? PAL.green : PAL.ink,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-          boxShadow: `0 5px 0 ${done ? PAL.greenDk : "rgba(31,37,68,0.3)"}`,
-        }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            {done
-              ? <path d="M5 12l4 4 10-10" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-              : <path d="M8 6l8 6-8 6V6z" fill="#fff"/>}
-          </svg>
-        </div>
-        <div>
-          <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 700, color: PAL.inkSoft, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 2 }}>{meta.number}</div>
-          <div style={{ fontFamily: FONT, fontSize: 20, fontWeight: 900, color: PAL.ink, letterSpacing: "-0.02em", lineHeight: 1.1 }}>{meta.title}</div>
-        </div>
-      </div>
-      <p style={{ fontFamily: FONT, fontSize: 15, fontWeight: 500, color: PAL.inkSoft, lineHeight: 1.5, margin: 0 }}>{meta.description}</p>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, flex: "0 0 auto", width: 200 }}>
+      {/* Circle button */}
       <div
-        onClick={onStart}
+        onClick={locked ? undefined : onStart}
         style={{
-          padding: "16px 0", borderRadius: 18,
-          background: PAL.ink, color: "#fff",
-          fontFamily: FONT, fontSize: 17, fontWeight: 800,
-          textAlign: "center", cursor: "pointer",
-          boxShadow: "0 5px 0 rgba(0,0,0,0.18)",
-          userSelect: "none",
+          width: 96, height: 96, borderRadius: "50%",
+          background: done ? PAL.green : locked ? "rgba(31,37,68,0.12)" : meta.accent,
+          boxShadow: done
+            ? `0 7px 0 ${PAL.greenDk}`
+            : locked
+              ? "none"
+              : `0 7px 0 ${meta.accentDk}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: locked ? "default" : "pointer",
+          transition: "transform 0.15s",
+          position: "relative",
         }}
       >
-        {done ? "Restart lesson" : "Start lesson"}
+        {done ? (
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <path d="M8 21l8 8 16-16" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        ) : locked ? (
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="13" width="16" height="11" rx="3" stroke="rgba(31,37,68,0.3)" strokeWidth="2.5"/>
+            <path d="M10 13V10a4 4 0 018 0v3" stroke="rgba(31,37,68,0.3)" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+        ) : (
+          <div style={{ color: "#fff" }}>{meta.icon}</div>
+        )}
       </div>
+
+      {/* Tag + title */}
+      <div style={{ textAlign: "center" }}>
+        <div style={{
+          fontFamily: MONO, fontSize: 11, fontWeight: 600,
+          color: done ? PAL.green : locked ? "rgba(31,37,68,0.3)" : meta.accent,
+          letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4,
+        }}>Lesson {meta.tag}</div>
+        <div style={{
+          fontFamily: FONT, fontSize: 17, fontWeight: 900,
+          color: locked ? "rgba(31,37,68,0.3)" : PAL.ink,
+          letterSpacing: "-0.02em", lineHeight: 1.2,
+        }}>{meta.title}</div>
+        <div style={{
+          fontFamily: FONT, fontSize: 13, fontWeight: 500,
+          color: locked ? "rgba(31,37,68,0.25)" : PAL.inkSoft,
+          lineHeight: 1.45, marginTop: 6,
+        }}>{meta.description}</div>
+      </div>
+
+      {/* CTA */}
+      {!locked && (
+        <div
+          onClick={onStart}
+          style={{
+            padding: "12px 28px", borderRadius: 14,
+            background: done ? PAL.green : PAL.ink,
+            color: "#fff",
+            fontFamily: FONT, fontSize: 15, fontWeight: 800,
+            cursor: "pointer", userSelect: "none",
+            boxShadow: done ? `0 4px 0 ${PAL.greenDk}` : "0 4px 0 rgba(0,0,0,0.2)",
+            letterSpacing: "-0.01em", whiteSpace: "nowrap",
+          }}
+        >{done ? "Redo" : "Start"}</div>
+      )}
+    </div>
+  );
+}
+
+function Connector({ done }: { done: boolean }) {
+  return (
+    <div style={{ flex: 1, display: "flex", alignItems: "center", paddingBottom: 80, minWidth: 32 }}>
+      <div style={{
+        width: "100%", height: 5, borderRadius: 99,
+        background: done ? PAL.green : "rgba(31,37,68,0.12)",
+        transition: "background 0.4s",
+      }} />
     </div>
   );
 }
@@ -108,58 +176,58 @@ export default function LinearPage() {
   const [open, setOpen] = useState<LessonId | null>(null);
   const [done, setDone] = useState<Record<LessonId, boolean>>({ lesson1: false, lesson2: false, lesson3: false, lesson4: false });
 
+  const completedCount = Object.values(done).filter(Boolean).length;
+
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: PAL.cream,
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "48px 24px",
-      fontFamily: FONT,
-    }}>
-      <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 700, color: PAL.inkSoft, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>SAT Math</div>
-        <h1 style={{ fontFamily: FONT, fontSize: 36, fontWeight: 900, color: PAL.ink, letterSpacing: "-0.03em", margin: 0, lineHeight: 1.1 }}>Linear Functions</h1>
-        <p style={{ fontFamily: FONT, fontSize: 16, color: PAL.inkSoft, marginTop: 10, lineHeight: 1.5 }}>Two lessons. Start from zero.</p>
+    <div style={{ minHeight: "100vh", background: PAL.cream, fontFamily: FONT, display: "flex", flexDirection: "column" }}>
+
+      {/* Header */}
+      <div style={{ padding: "56px 48px 0", textAlign: "center" }}>
+        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: PAL.inkSoft, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>
+          SAT Math · Linear Functions
+        </div>
+        <h1 style={{ fontFamily: FONT, fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 900, color: PAL.ink, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "0 0 16px" }}>
+          Four lessons.<br/>
+          <span style={{ color: PAL.inkSoft, fontWeight: 700, fontSize: "0.68em" }}>Start from zero.</span>
+        </h1>
+        {completedCount > 0 && (
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: PAL.green, color: "#fff",
+            fontFamily: FONT, fontSize: 13, fontWeight: 800,
+            padding: "6px 14px", borderRadius: 9999,
+          }}>
+            <svg width="13" height="13" viewBox="0 0 13 13">
+              <path d="M2 6.5l3 3 6-6" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {completedCount} of 4 complete
+          </div>
+        )}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", alignItems: "center" }}>
-        {LESSONS.map((meta) => (
-          <LessonCard
-            key={meta.id}
-            meta={meta}
-            done={done[meta.id]}
-            onStart={() => setOpen(meta.id)}
-          />
-        ))}
+      {/* Lesson path — horizontal scroll on small screens */}
+      <div style={{ flex: 1, display: "flex", alignItems: "center", overflowX: "auto", padding: "48px 48px 64px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 0, minWidth: "max-content", margin: "0 auto" }}>
+          {LESSONS.map((meta, i) => (
+            <div key={meta.id} style={{ display: "flex", alignItems: "center" }}>
+              <LessonNode
+                meta={meta}
+                done={done[meta.id]}
+                locked={false}
+                onStart={() => setOpen(meta.id)}
+              />
+              {i < LESSONS.length - 1 && (
+                <Connector done={done[meta.id]} />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {open === "lesson1" && (
-        <InteractiveLesson
-          onClose={() => setOpen(null)}
-          onComplete={() => setDone(d => ({ ...d, lesson1: true }))}
-        />
-      )}
-      {open === "lesson2" && (
-        <InteractiveLesson02
-          onClose={() => setOpen(null)}
-          onComplete={() => setDone(d => ({ ...d, lesson2: true }))}
-        />
-      )}
-      {open === "lesson3" && (
-        <InteractiveLesson03
-          onClose={() => setOpen(null)}
-          onComplete={() => setDone(d => ({ ...d, lesson3: true }))}
-        />
-      )}
-      {open === "lesson4" && (
-        <InteractiveLesson04
-          onClose={() => setOpen(null)}
-          onComplete={() => setDone(d => ({ ...d, lesson4: true }))}
-        />
-      )}
+      {open === "lesson1" && <InteractiveLesson onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson1: true }))} />}
+      {open === "lesson2" && <InteractiveLesson02 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson2: true }))} />}
+      {open === "lesson3" && <InteractiveLesson03 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson3: true }))} />}
+      {open === "lesson4" && <InteractiveLesson04 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson4: true }))} />}
     </div>
   );
 }
