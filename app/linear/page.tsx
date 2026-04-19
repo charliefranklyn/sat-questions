@@ -187,8 +187,8 @@ export default function LinearPage() {
           SAT Math · Linear Functions
         </div>
         <h1 style={{ fontFamily: FONT, fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 900, color: PAL.ink, letterSpacing: "-0.03em", lineHeight: 1.05, margin: "0 0 16px" }}>
-          Four lessons.<br/>
-          <span style={{ color: PAL.inkSoft, fontWeight: 700, fontSize: "0.68em" }}>Start from zero.</span>
+          Linear Functions<br/>
+          <span style={{ color: PAL.inkSoft, fontWeight: 700, fontSize: "0.68em" }}>Mini course</span>
         </h1>
         {completedCount > 0 && (
           <div style={{
