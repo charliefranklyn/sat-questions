@@ -182,7 +182,7 @@ export default function LinearPage() {
     <div style={{ minHeight: "100vh", background: PAL.cream, fontFamily: FONT, display: "flex", flexDirection: "column" }}>
 
       {/* Header */}
-      <div style={{ padding: "56px 48px 0", textAlign: "center" }}>
+      <div style={{ padding: "36px 48px 0", textAlign: "center" }}>
         <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: PAL.inkSoft, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>
           SAT Math · Linear Functions
         </div>
@@ -206,7 +206,7 @@ export default function LinearPage() {
       </div>
 
       {/* Lesson path — horizontal scroll on small screens */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", overflowX: "auto", padding: "48px 48px 64px" }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", overflowX: "auto", padding: "16px 48px 48px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 0, minWidth: "max-content", margin: "0 auto" }}>
           {LESSONS.map((meta, i) => (
             <div key={meta.id} style={{ display: "flex", alignItems: "center" }}>
