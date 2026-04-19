@@ -3,6 +3,7 @@ import { useState } from "react";
 import InteractiveLesson from "@/components/InteractiveLesson";
 import InteractiveLesson02 from "@/components/InteractiveLesson02";
 import InteractiveLesson03 from "@/components/InteractiveLesson03";
+import InteractiveLesson04 from "@/components/InteractiveLesson04";
 
 const PAL = {
   cream:   "#FFF7E4",
@@ -14,7 +15,7 @@ const PAL = {
 
 const FONT = '"Nunito", var(--font-nunito), system-ui, sans-serif';
 
-type LessonId = "lesson1" | "lesson2" | "lesson3";
+type LessonId = "lesson1" | "lesson2" | "lesson3" | "lesson4";
 
 interface LessonMeta {
   id: LessonId;
@@ -41,6 +42,12 @@ const LESSONS: LessonMeta[] = [
     number: "Lesson 03",
     title: "Write the Equation",
     description: "Find b from a known point and slope, then write the full equation of any line.",
+  },
+  {
+    id: "lesson4",
+    number: "Lesson 04",
+    title: "Two Equations",
+    description: "Find where two lines meet — and spot when they run parallel or are the same line.",
   },
 ];
 
@@ -99,7 +106,7 @@ function LessonCard({
 
 export default function LinearPage() {
   const [open, setOpen] = useState<LessonId | null>(null);
-  const [done, setDone] = useState<Record<LessonId, boolean>>({ lesson1: false, lesson2: false, lesson3: false });
+  const [done, setDone] = useState<Record<LessonId, boolean>>({ lesson1: false, lesson2: false, lesson3: false, lesson4: false });
 
   return (
     <div style={{
@@ -145,6 +152,12 @@ export default function LinearPage() {
         <InteractiveLesson03
           onClose={() => setOpen(null)}
           onComplete={() => setDone(d => ({ ...d, lesson3: true }))}
+        />
+      )}
+      {open === "lesson4" && (
+        <InteractiveLesson04
+          onClose={() => setOpen(null)}
+          onComplete={() => setDone(d => ({ ...d, lesson4: true }))}
         />
       )}
     </div>
