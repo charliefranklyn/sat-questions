@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Nunito, DM_Mono } from "next/font/google";
 import NavBar from "@/components/NavBar";
-import ChatWidget from "@/components/ChatWidget";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
@@ -23,7 +22,6 @@ export default function RootLayout({
       <body className={`${geist.className} ${nunito.variable} ${dmMono.variable} text-slate-900 min-h-screen`}>
         <NavBar />
         <main className="min-h-screen">{children}</main>
-        <ChatWidget />
       </body>
     </html>
   );
