@@ -6,6 +6,7 @@ import InteractiveLessonL3 from "@/components/InteractiveLessonL3";
 import InteractiveLessonL4 from "@/components/InteractiveLessonL4";
 import InteractiveLessonL5 from "@/components/InteractiveLessonL5";
 import InteractiveLessonL6 from "@/components/InteractiveLessonL6";
+import InteractiveLessonL7 from "@/components/InteractiveLessonL7";
 
 const INK    = "#1F2544";
 const SOFT   = "#5A6088";
@@ -19,7 +20,7 @@ const GOLD     = "#F59E0B";
 const SILVER   = "#94A3B8";
 const BRONZE   = "#CD7C2E";
 
-type LessonId = "l1" | "l2" | "l3" | "l4" | "l5" | "l6";
+type LessonId = "l1" | "l2" | "l3" | "l4" | "l5" | "l6" | "l7";
 
 const LINEAR_LESSONS = [
   { id: "l1" as LessonId, num: "01", title: "Recognising Linear Functions",   count: 10, locked: false },
@@ -28,6 +29,7 @@ const LINEAR_LESSONS = [
   { id: "l4" as LessonId, num: "04", title: "The Slope of a Linear Function", count: 10, locked: false },
   { id: "l5" as LessonId, num: "05", title: "Reading Equations from Graphs",  count: 10, locked: false },
   { id: "l6" as LessonId, num: "06", title: "Systems of Equations",           count: 10, locked: false },
+  { id: "l7" as LessonId, num: "07", title: "Linear Inequalities",            count: 10, locked: false },
 ];
 
 const LEADERBOARD = [
@@ -106,7 +108,7 @@ function TopicSection({ title, icon, lessons, done, expanded, onToggle, onOpen }
 
 export default function MathematicsPage() {
   const [open, setOpen] = useState<LessonId | null>(null);
-  const [done, setDone] = useState<Record<LessonId, boolean>>({ l1: false, l2: false, l3: false, l4: false, l5: false, l6: false });
+  const [done, setDone] = useState<Record<LessonId, boolean>>({ l1: false, l2: false, l3: false, l4: false, l5: false, l6: false, l7: false });
   const [expandLinear, setExpandLinear] = useState(true);
 
   const completedCount = Object.values(done).filter(Boolean).length;
@@ -204,6 +206,7 @@ export default function MathematicsPage() {
     {open === "l4" && <InteractiveLessonL4 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l4: true }))} />}
     {open === "l5" && <InteractiveLessonL5 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l5: true }))} />}
     {open === "l6" && <InteractiveLessonL6 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l6: true }))} />}
+    {open === "l7" && <InteractiveLessonL7 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l7: true }))} />}
     </>
   );
 }

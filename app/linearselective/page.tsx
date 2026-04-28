@@ -6,6 +6,7 @@ import InteractiveLesson03 from "@/components/InteractiveLesson03";
 import InteractiveLesson04 from "@/components/InteractiveLesson04";
 import InteractiveLessonL5 from "@/components/InteractiveLessonL5";
 import InteractiveLessonL6 from "@/components/InteractiveLessonL6";
+import InteractiveLessonL7 from "@/components/InteractiveLessonL7";
 
 const PAL = {
   cream:   "#FFF7E4",
@@ -22,7 +23,7 @@ const PAL = {
 const FONT = '"Inter", ui-sans-serif, system-ui, sans-serif';
 const MONO = '"DM Mono", var(--font-dm-mono), ui-monospace, monospace';
 
-type LessonId = "lesson1" | "lesson2" | "lesson3" | "lesson4" | "lesson5" | "lesson6";
+type LessonId = "lesson1" | "lesson2" | "lesson3" | "lesson4" | "lesson5" | "lesson6" | "lesson7";
 
 interface LessonMeta {
   id: LessonId;
@@ -113,6 +114,17 @@ const LESSONS: LessonMeta[] = [
       </svg>
     ),
   },
+  {
+    id: "lesson7", tag: "07",
+    title: "Linear Inequalities",
+    description: "Read and write >, <, ≥ and ≤ to compare values mathematically.",
+    accent: "#8B5CF6", accentDk: "#7C3AED",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <text x="4" y="20" fontFamily="DM Mono, monospace" fontSize="20" fontWeight="900" fill="#fff">{">"}</text>
+      </svg>
+    ),
+  },
 ];
 
 function LessonNode({ meta, done, locked, onStart }: {
@@ -200,7 +212,7 @@ function Connector({ done }: { done: boolean }) {
 
 export default function LinearSelectivePage() {
   const [open, setOpen] = useState<LessonId | null>(null);
-  const [done, setDone] = useState<Record<LessonId, boolean>>({ lesson1: false, lesson2: false, lesson3: false, lesson4: false, lesson5: false, lesson6: false });
+  const [done, setDone] = useState<Record<LessonId, boolean>>({ lesson1: false, lesson2: false, lesson3: false, lesson4: false, lesson5: false, lesson6: false, lesson7: false });
 
   const completedCount = Object.values(done).filter(Boolean).length;
   const totalCount = LESSONS.length;
@@ -255,6 +267,7 @@ export default function LinearSelectivePage() {
       {open === "lesson4" && <InteractiveLesson04 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson4: true }))} />}
       {open === "lesson5" && <InteractiveLessonL5 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson5: true }))} />}
       {open === "lesson6" && <InteractiveLessonL6 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson6: true }))} />}
+      {open === "lesson7" && <InteractiveLessonL7 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, lesson7: true }))} />}
     </div>
   );
 }
