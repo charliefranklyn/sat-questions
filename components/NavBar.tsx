@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 
 export default function NavBar() {
   const pathname = usePathname();
-  // Landing page has its own nav
-  if (pathname === "/") return null;
+  // Landing page and onboarding have their own nav
+  if (pathname === "/" || pathname === "/experiment" || pathname === "/experiment2") return null;
 
   return (
     <>

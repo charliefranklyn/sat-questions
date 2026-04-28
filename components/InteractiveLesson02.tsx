@@ -1,121 +1,136 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
+function playCorrect() {
+  const audio = new Audio("/sounds/correct.mp3");
+  audio.play().catch(() => {});
+}
 
-const PAL = {
-  cream:    "#FFF7E4",
-  paper:    "#FFEAB8",
-  ink:      "#1F2544",
-  inkSoft:  "#5A6088",
-  green:    "#38C76B",
-  greenDk:  "#2CA555",
-  blue:     "#2DADE8",
-  orange:   "#FF8A3D",
-  orangeDk: "#DB6D22",
-  purple:   "#A86CE4",
-  red:      "#EF5A5A",
-  yellow:   "#FFD23F",
-};
+const ACCENT  = "#3B5BDB";
+const CREAM   = "#FFF7E4";
+const INK     = "#1F2544";
+const SOFT    = "#5A6088";
+const GREEN   = "#38C76B";
+const GREEN_DK= "#2CA555";
+const ORANGE  = "#FF8A3D";
+const PURPLE  = "#A86CE4";
+const RED     = "#EF5A5A";
+const YELLOW  = "#FFD23F";
 
-const FONT = '"Nunito", var(--font-nunito), system-ui, sans-serif';
+const FONT = '"Inter", ui-sans-serif, system-ui, sans-serif';
 const MONO = '"DM Mono", var(--font-dm-mono), ui-monospace, monospace';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+function tagLabel(tag: string): string {
+  const m = tag.match(/^0?(\d+)\s*·\s*(.+)/);
+  if (m) return `${m[1]}. ${m[2].toUpperCase()}`;
+  return tag.toUpperCase();
+}
 
-type IntroSlide    = { kind: "intro" };
-type TeachSlide    = { kind: "teach"; tag: string; tagColor?: string; headline: React.ReactNode; visual?: React.ReactNode; body?: React.ReactNode };
-type ABSlide       = { kind: "ab"; tag: string; tagColor?: string; headline: string; visual?: React.ReactNode; optionA: string; optionB: string; correct: "A" | "B"; explain: string };
-type RecapSlide    = { kind: "recap" };
-type CompleteSlide = { kind: "complete" };
-type Slide = IntroSlide | TeachSlide | ABSlide | RecapSlide | CompleteSlide;
-
-// ── Visuals ───────────────────────────────────────────────────────────────────
-
-function SteepnessVisual() {
+function BgCircles() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-      {[
-        { label: "Steep",   sub: "big change in y",   color: PAL.orange, path: "M 14 120 L 140 18" },
-        { label: "Shallow", sub: "small change in y",  color: PAL.blue,   path: "M 14 100 L 140 70" },
-      ].map((g, i) => (
-        <div key={i} style={{ background: "#fff", borderRadius: 18, padding: 12, boxShadow: "0 4px 0 rgba(31,37,68,0.06)" }}>
-          <svg width="100%" height={130} viewBox="0 0 150 130">
-            {[30, 60, 90].map((v, k) => <line key={`h${k}`} x1={10} y1={v} x2={140} y2={v} stroke="#F0E9D1" strokeWidth="1"/>)}
-            {[40, 70, 100].map((v, k) => <line key={`v${k}`} x1={v} y1={10} x2={v} y2={120} stroke="#F0E9D1" strokeWidth="1"/>)}
-            <line x1={10} y1={120} x2={140} y2={120} stroke={PAL.ink} strokeWidth="1.5"/>
-            <line x1={10} y1={10}  x2={10}  y2={120} stroke={PAL.ink} strokeWidth="1.5"/>
-            <path d={g.path} stroke={g.color} strokeWidth="4.5" fill="none" strokeLinecap="round"/>
-          </svg>
-          <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 900, color: PAL.ink, textAlign: "center", marginTop: 4 }}>{g.label}</div>
-          <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 600, color: PAL.inkSoft, textAlign: "center", marginTop: 1 }}>{g.sub}</div>
+    <>
+      <div style={{ position:"absolute", right:"-5%", top:"-13%", width:"36vw", height:"36vw", maxWidth:520, maxHeight:520, borderRadius:"50%", background:YELLOW,    opacity:0.52, pointerEvents:"none" }}/>
+      <div style={{ position:"absolute", right:"19%",  top:"6%",   width:"20vw", height:"20vw", maxWidth:290, maxHeight:290, borderRadius:"50%", background:"#F4A088", opacity:0.58, pointerEvents:"none" }}/>
+      <div style={{ position:"absolute", right:"7%",   top:"44%",  width:"25vw", height:"25vw", maxWidth:360, maxHeight:360, borderRadius:"50%", background:"#8ECFA0", opacity:0.52, pointerEvents:"none" }}/>
+      <div style={{ position:"absolute", right:"-4%",  bottom:"-9%", width:"28vw", height:"28vw", maxWidth:400, maxHeight:400, borderRadius:"50%", background:"#A8C4E0", opacity:0.50, pointerEvents:"none" }}/>
+    </>
+  );
+}
+
+function MiniTable({ headers, rows, highlightCol = 2, accentColor = ACCENT }: {
+  headers: string[]; rows: string[][]; highlightCol?: number; accentColor?: string;
+}) {
+  const cols = headers.length;
+  return (
+    <div style={{ background:"#fff", borderRadius:20, overflow:"hidden", boxShadow:"0 2px 20px rgba(0,0,0,0.07)" }}>
+      <div style={{ display:"grid", gridTemplateColumns:`repeat(${cols},1fr)`, borderBottom:`2px solid #F0EAD8` }}>
+        {headers.map((h,i) => (
+          <div key={i} style={{ padding:"12px 20px", fontFamily:FONT, fontWeight:700, fontSize:14, color: i===highlightCol ? accentColor : INK }}>{h}</div>
+        ))}
+      </div>
+      {rows.map((row,r) => (
+        <div key={r} style={{ display:"grid", gridTemplateColumns:`repeat(${cols},1fr)`, borderTop: r===0 ? "none" : "1px solid #F0EAD8" }}>
+          {row.map((cell,c) => (
+            <div key={c} style={{ padding:"11px 20px", fontFamily:FONT, fontSize:15, fontWeight: c===highlightCol ? 700 : 500, color: c===highlightCol ? accentColor : INK }}>{cell}</div>
+          ))}
         </div>
       ))}
     </div>
   );
 }
 
-function GradientFormulaCard({ compact = false }: { compact?: boolean }) {
-  const pad = compact ? "22px 16px" : "32px 20px";
-  const numSize = compact ? 34 : 44;
-  return (
-    <div style={{
-      background: "#fff", borderRadius: 24, padding: pad,
-      boxShadow: "0 6px 0 rgba(31,37,68,0.08)",
-      fontFamily: MONO, color: PAL.ink,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      gap: 14,
-    }}>
-      <div style={{ fontSize: numSize, fontWeight: 500 }}>m&nbsp;=&nbsp;</div>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div style={{ color: PAL.orange, fontSize: numSize * 0.8, fontWeight: 700, padding: "0 10px 4px" }}>
-          y<sub style={{ fontSize: numSize * 0.5 }}>2</sub>&nbsp;−&nbsp;y<sub style={{ fontSize: numSize * 0.5 }}>1</sub>
-        </div>
-        <div style={{ width: "100%", height: 3, background: PAL.ink, borderRadius: 2 }}/>
-        <div style={{ color: PAL.purple, fontSize: numSize * 0.8, fontWeight: 700, padding: "4px 10px 0" }}>
-          x<sub style={{ fontSize: numSize * 0.5 }}>2</sub>&nbsp;−&nbsp;x<sub style={{ fontSize: numSize * 0.5 }}>1</sub>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function WorkedStepsCard() {
-  const steps: { n: number; label: string; body: React.ReactNode }[] = [
-    {
-      n: 1,
-      label: "Label the points",
-      body: <>(x<sub>1</sub>, y<sub>1</sub>) = (0, 3) &nbsp;·&nbsp; (x<sub>2</sub>, y<sub>2</sub>) = (1, 7)</>,
-    },
-    {
-      n: 2,
-      label: "Substitute",
-      body: <>m = <span style={{ color: PAL.orange, fontWeight: 700 }}>(7 − 3)</span> ÷ <span style={{ color: PAL.purple, fontWeight: 700 }}>(1 − 0)</span></>,
-    },
-    {
-      n: 3,
-      label: "Simplify",
-      body: <>m = <span style={{ color: PAL.orange, fontWeight: 700 }}>4</span> ÷ <span style={{ color: PAL.purple, fontWeight: 700 }}>1</span></>,
-    },
-    {
-      n: 4,
-      label: "Result",
-      body: <span style={{ color: PAL.green, fontWeight: 700 }}>m = 4</span>,
-    },
+function TwoSlopesVisual() {
+  const graphs = [
+    { label:"A", sub:"rises fast", color:ORANGE, x1:14, y1:118, x2:136, y2:20 },
+    { label:"B", sub:"rises slowly", color:ACCENT, x1:14, y1:100, x2:136, y2:70 },
   ];
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {steps.map((s) => (
-        <div key={s.n} style={{ display: "flex", alignItems: "flex-start", gap: 12, background: "#fff", borderRadius: 16, padding: "12px 14px", boxShadow: "0 3px 0 rgba(31,37,68,0.05)" }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: "50%",
-            background: PAL.paper, flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: FONT, fontSize: 15, fontWeight: 900,
-          }}>{s.n}</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: FONT, fontSize: 11, fontWeight: 800, color: PAL.inkSoft, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 1 }}>{s.label}</div>
-            <div style={{ fontFamily: MONO, fontSize: 15, fontWeight: 500, color: PAL.ink }}>{s.body}</div>
+    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+      {graphs.map(g => (
+        <div key={g.label} style={{ background:"#fff", borderRadius:18, padding:14, boxShadow:"0 4px 0 rgba(31,37,68,0.06)" }}>
+          <svg width="100%" height={130} viewBox="0 0 150 130">
+            {[30,60,90].map((v,k) => <line key={`h${k}`} x1={10} y1={v} x2={140} y2={v} stroke="#F0E9D1" strokeWidth="1"/>)}
+            {[40,70,100].map((v,k) => <line key={`v${k}`} x1={v} y1={10} x2={v} y2={120} stroke="#F0E9D1" strokeWidth="1"/>)}
+            <line x1={10} y1={120} x2={140} y2={120} stroke={INK} strokeWidth="1.5"/>
+            <line x1={10} y1={10}  x2={10}  y2={120} stroke={INK} strokeWidth="1.5"/>
+            <line x1={g.x1} y1={g.y1} x2={g.x2} y2={g.y2} stroke={g.color} strokeWidth="4.5" fill="none" strokeLinecap="round"/>
+          </svg>
+          <div style={{ fontFamily:FONT, fontSize:15, fontWeight:900, color:INK, textAlign:"center", marginTop:4 }}>{g.label}</div>
+          <div style={{ fontFamily:FONT, fontSize:12, fontWeight:600, color:SOFT, textAlign:"center", marginTop:2 }}>{g.sub}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GradientFormulaCard() {
+  const sz = 44;
+  return (
+    <div>
+      <div style={{ background:"#fff", borderRadius:24, padding:"32px 20px", boxShadow:"0 6px 0 rgba(31,37,68,0.08)", fontFamily:MONO, color:INK, display:"flex", alignItems:"center", justifyContent:"center", gap:14, marginBottom:14 }}>
+        <div style={{ fontSize:sz, fontWeight:500 }}>m&nbsp;=&nbsp;</div>
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+          <div style={{ color:ORANGE, fontSize:sz*0.8, fontWeight:700, padding:"0 10px 4px" }}>
+            y<sub style={{ fontSize:sz*0.5 }}>2</sub>&nbsp;&minus;&nbsp;y<sub style={{ fontSize:sz*0.5 }}>1</sub>
+          </div>
+          <div style={{ width:"100%", height:3, background:INK, borderRadius:2 }}/>
+          <div style={{ color:PURPLE, fontSize:sz*0.8, fontWeight:700, padding:"4px 10px 0" }}>
+            x<sub style={{ fontSize:sz*0.5 }}>2</sub>&nbsp;&minus;&nbsp;x<sub style={{ fontSize:sz*0.5 }}>1</sub>
+          </div>
+        </div>
+      </div>
+      <div style={{ display:"flex", gap:12 }}>
+        <div style={{ flex:1, background:ORANGE, color:"#fff", borderRadius:16, padding:"14px 16px" }}>
+          <div style={{ fontFamily:FONT, fontSize:13, fontWeight:800, textTransform:"uppercase", letterSpacing:"0.06em", opacity:0.9 }}>Top</div>
+          <div style={{ fontFamily:FONT, fontSize:14, fontWeight:800, marginTop:2 }}>Change in y</div>
+        </div>
+        <div style={{ flex:1, background:PURPLE, color:"#fff", borderRadius:16, padding:"14px 16px" }}>
+          <div style={{ fontFamily:FONT, fontSize:13, fontWeight:800, textTransform:"uppercase", letterSpacing:"0.06em", opacity:0.9 }}>Bottom</div>
+          <div style={{ fontFamily:FONT, fontSize:14, fontWeight:800, marginTop:2 }}>Change in x</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WorkedGradientCard({ p1, p2 }: { p1:[number,number]; p2:[number,number] }) {
+  const dy = p2[1] - p1[1];
+  const dx = p2[0] - p1[0];
+  const m  = dy / dx;
+  const steps = [
+    { n:1, label:"Label the points", body: <>(x<sub>1</sub>, y<sub>1</sub>) = ({p1[0]}, {p1[1]}) &nbsp;·&nbsp; (x<sub>2</sub>, y<sub>2</sub>) = ({p2[0]}, {p2[1]})</> },
+    { n:2, label:"Subtract y-values", body: <><span style={{ color:ORANGE, fontWeight:700 }}>{p2[1]} &minus; {p1[1]} = {dy}</span></> },
+    { n:3, label:"Subtract x-values", body: <><span style={{ color:PURPLE, fontWeight:700 }}>{p2[0]} &minus; {p1[0]} = {dx}</span></> },
+    { n:4, label:"Divide", body: <span style={{ color:GREEN, fontWeight:700 }}>m = {dy} &divide; {dx} = {m}</span> },
+  ];
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+      {steps.map(s => (
+        <div key={s.n} style={{ display:"flex", alignItems:"flex-start", gap:12, background:"#fff", borderRadius:16, padding:"12px 14px", boxShadow:"0 3px 0 rgba(31,37,68,0.05)" }}>
+          <div style={{ width:28, height:28, borderRadius:"50%", background:"#FFEAB8", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT, fontSize:15, fontWeight:900 }}>{s.n}</div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontFamily:FONT, fontSize:11, fontWeight:800, color:SOFT, textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:1 }}>{s.label}</div>
+            <div style={{ fontFamily:MONO, fontSize:15, fontWeight:500, color:INK }}>{s.body}</div>
           </div>
         </div>
       ))}
@@ -123,585 +138,506 @@ function WorkedStepsCard() {
   );
 }
 
-function PointsCard({ p1, p2 }: { p1: [number, number]; p2: [number, number] }) {
-  const fmt = ([x, y]: [number, number]) => `(${x}, ${y})`;
+function PointsCard({ p1, p2, c1=ACCENT, c2=GREEN }: { p1:[number,number]; p2:[number,number]; c1?:string; c2?:string }) {
+  const fmt = ([x,y]:[number,number]) => `(${x}, ${y})`;
   return (
-    <div style={{
-      background: "#fff", borderRadius: 20, padding: "18px 16px",
-      boxShadow: "0 4px 0 rgba(31,37,68,0.06)",
-      display: "flex", alignItems: "center", justifyContent: "space-around",
-    }}>
-      {[{ label: "Point 1", pt: p1, color: PAL.blue }, { label: "Point 2", pt: p2, color: PAL.green }].map((item, i) => (
-        <div key={i} style={{ textAlign: "center" }}>
-          <div style={{ fontFamily: FONT, fontSize: 11, fontWeight: 800, color: item.color, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{item.label}</div>
-          <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 700, color: PAL.ink }}>{fmt(item.pt)}</div>
+    <div style={{ background:"#fff", borderRadius:20, padding:"18px 16px", boxShadow:"0 4px 0 rgba(31,37,68,0.06)", display:"flex", alignItems:"center", justifyContent:"space-around" }}>
+      {[{label:"Point 1",pt:p1,color:c1},{label:"Point 2",pt:p2,color:c2}].map((item,i) => (
+        <div key={i} style={{ textAlign:"center" }}>
+          <div style={{ fontFamily:FONT, fontSize:11, fontWeight:800, color:item.color, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:4 }}>{item.label}</div>
+          <div style={{ fontFamily:MONO, fontSize:26, fontWeight:700, color:INK }}>{fmt(item.pt)}</div>
         </div>
       ))}
     </div>
   );
 }
 
-function TwoPointPlot({
-  p1, p2,
-  showWorking = false,
-  working,
-  xMin = -5, xMax = 5,
-  yMin = -5, yMax = 5,
-}: {
-  p1: [number, number];
-  p2: [number, number];
-  showWorking?: boolean;
-  working?: React.ReactNode;
-  xMin?: number; xMax?: number;
-  yMin?: number; yMax?: number;
-}) {
-  const W = 310, H = 210;
-  const pad = 22;
-  const xs = (x: number) => pad + ((x - xMin) / (xMax - xMin)) * (W - pad * 2);
-  const ys = (y: number) => H - pad - ((y - yMin) / (yMax - yMin)) * (H - pad * 2);
-
-  const xTicks: number[] = [];
-  for (let i = xMin; i <= xMax; i++) xTicks.push(i);
-  const yTicks: number[] = [];
-  for (let i = yMin; i <= yMax; i++) yTicks.push(i);
-
-  const slope = (p2[1] - p1[1]) / (p2[0] - p1[0]);
-  const intercept = p1[1] - slope * p1[0];
-  const xA = xMin, yA = slope * xA + intercept;
-  const xB = xMax, yB = slope * xB + intercept;
-
+function EquationCard({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ background: "#fff", borderRadius: 20, padding: 14, boxShadow: "0 4px 0 rgba(31,37,68,0.06)" }}>
-      <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
-        {xTicks.map((x) => (
-          <line key={`v${x}`} x1={xs(x)} y1={pad} x2={xs(x)} y2={H - pad} stroke="#F0E9D1" strokeWidth="1"/>
-        ))}
-        {yTicks.map((y) => (
-          <line key={`h${y}`} x1={pad} y1={ys(y)} x2={W - pad} y2={ys(y)} stroke="#F0E9D1" strokeWidth="1"/>
-        ))}
-        <line x1={xs(xMin)} y1={ys(0)} x2={xs(xMax)} y2={ys(0)} stroke={PAL.ink} strokeWidth="1.5"/>
-        <line x1={xs(0)} y1={ys(yMin)} x2={xs(0)} y2={ys(yMax)} stroke={PAL.ink} strokeWidth="1.5"/>
-        <line x1={xs(xA)} y1={ys(yA)} x2={xs(xB)} y2={ys(yB)} stroke={PAL.green} strokeWidth="3.5" strokeLinecap="round"/>
-        <circle cx={xs(p1[0])} cy={ys(p1[1])} r="7" fill={PAL.blue}   stroke="#fff" strokeWidth="3"/>
-        <circle cx={xs(p2[0])} cy={ys(p2[1])} r="7" fill={PAL.orange} stroke="#fff" strokeWidth="3"/>
-        <text x={xs(p1[0]) + 10} y={ys(p1[1]) - 10} fontFamily={MONO} fontSize="12" fontWeight="700" fill={PAL.blue}>
-          ({p1[0]}, {p1[1]})
-        </text>
-        <text x={xs(p2[0]) + 10} y={ys(p2[1]) - 10} fontFamily={MONO} fontSize="12" fontWeight="700" fill={PAL.orange}>
-          ({p2[0]}, {p2[1]})
-        </text>
-      </svg>
-      {showWorking && working && (
-        <div style={{
-          marginTop: 8, padding: "10px 12px",
-          background: PAL.cream, borderRadius: 12,
-          fontFamily: MONO, fontSize: 14, fontWeight: 500, color: PAL.ink,
-          textAlign: "center",
-        }}>
-          {working}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Primitive UI ──────────────────────────────────────────────────────────────
-
-function Tag({ children, color = PAL.orangeDk }: { children: React.ReactNode; color?: string }) {
-  return (
-    <div style={{ fontFamily: MONO, fontSize: 12, fontWeight: 600, color, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>
+    <div style={{ background:"#fff", borderRadius:20, padding:"28px 28px", textAlign:"center", boxShadow:"0 4px 0 rgba(31,37,68,0.06)", fontFamily:MONO, fontSize:40, fontWeight:500, color:INK, maxWidth:520 }}>
       {children}
     </div>
   );
 }
 
-function Headline({ children, size = 34 }: { children: React.ReactNode; size?: number }) {
-  return (
-    <h1 style={{ fontFamily: FONT, fontSize: size, fontWeight: 900, color: PAL.ink, lineHeight: 1.1, letterSpacing: "-0.02em", margin: 0 }}>
-      {children}
-    </h1>
-  );
-}
-
-function BodyText({ children, size = 17 }: { children: React.ReactNode; size?: number }) {
-  return (
-    <p style={{ fontFamily: FONT, fontSize: size, fontWeight: 500, color: PAL.inkSoft, lineHeight: 1.45, margin: 0 }}>
-      {children}
-    </p>
-  );
-}
-
-function CTAButton({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) {
-  return (
-    <div
-      onClick={disabled ? undefined : onClick}
-      style={{
-        margin: "0 20px 28px", padding: "20px 0", borderRadius: 22,
-        background: disabled ? "rgba(31,37,68,0.25)" : PAL.ink,
-        color: "#fff", fontFamily: FONT, fontSize: 19, fontWeight: 800,
-        textAlign: "center", letterSpacing: "-0.01em",
-        cursor: disabled ? "default" : "pointer",
-        boxShadow: disabled ? "none" : "0 6px 0 rgba(0,0,0,0.18)",
-        userSelect: "none",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function CloseX({ onClick }: { onClick: () => void }) {
-  return (
-    <div onClick={onClick} style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-      <svg width="20" height="20" viewBox="0 0 20 20">
-        <path d="M4 4l12 12M16 4L4 16" stroke={PAL.inkSoft} strokeWidth="2.4" strokeLinecap="round"/>
-      </svg>
-    </div>
-  );
-}
-
-function SegmentedProgress({ step, total }: { step: number; total: number }) {
-  return (
-    <div style={{ display: "flex", gap: 6, flex: 1, marginLeft: 12 }}>
-      {Array.from({ length: total }).map((_, i) => (
-        <div key={i} style={{
-          flex: 1, height: 6, borderRadius: 3,
-          background: i < step ? PAL.ink : "rgba(31,37,68,0.12)",
-          transition: "background 0.3s",
-        }} />
-      ))}
-    </div>
-  );
-}
-
-function TopBar({ step, total, onClose }: { step: number; total: number; onClose: () => void }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", padding: "68px 20px 6px" }}>
-      <CloseX onClick={onClose} />
-      <SegmentedProgress step={step} total={total} />
-    </div>
-  );
-}
-
-type OptionState = "idle" | "selected" | "correct" | "wrong" | "dim";
-
+type OptionState = "idle" | "correct" | "wrong" | "dim";
 function OptionRow({ letter, label, state, onClick }: {
-  letter: string; label: string; state: OptionState; onClick?: () => void;
+  letter:string; label:string; state:OptionState; onClick?:() => void;
 }) {
-  const styles: Record<OptionState, { bg: string; border: string; text: string; letterBg: string; letterText: string }> = {
-    idle:     { bg: "#fff",    border: "rgba(31,37,68,0.15)", text: PAL.ink,      letterBg: PAL.paper,  letterText: PAL.ink },
-    selected: { bg: "#fff",    border: PAL.ink,               text: PAL.ink,      letterBg: PAL.ink,    letterText: "#fff"  },
-    correct:  { bg: "#E7F8EC", border: PAL.green,             text: PAL.greenDk,  letterBg: PAL.green,  letterText: "#fff"  },
-    wrong:    { bg: "#FDECEC", border: PAL.red,               text: "#B8342E",    letterBg: PAL.red,    letterText: "#fff"  },
-    dim:      { bg: "#fff",    border: "rgba(31,37,68,0.1)",  text: "rgba(31,37,68,0.35)", letterBg: "rgba(31,37,68,0.06)", letterText: "rgba(31,37,68,0.4)" },
+  const S: Record<OptionState,{bg:string;border:string;text:string;badge:string;badgeText:string}> = {
+    idle:    { bg:"#fff",    border:"rgba(31,37,68,0.14)", text:INK,  badge:"#F5F0E8",            badgeText:INK },
+    correct: { bg:"#E7F8EC",border:GREEN,                  text:INK,  badge:GREEN,                badgeText:"#fff" },
+    wrong:   { bg:"#FDECEC",border:RED,                    text:SOFT, badge:RED,                  badgeText:"#fff" },
+    dim:     { bg:"#fff",   border:"rgba(31,37,68,0.07)", text:"rgba(31,37,68,0.35)", badge:"rgba(31,37,68,0.07)", badgeText:"rgba(31,37,68,0.3)" },
   };
-  const s = styles[state];
+  const s = S[state];
   return (
-    <div
-      onClick={state === "idle" || state === "selected" ? onClick : undefined}
-      style={{
-        display: "flex", alignItems: "center", gap: 16,
-        padding: "18px 18px", borderRadius: 20,
-        background: s.bg, border: `2px solid ${s.border}`,
-        cursor: state === "idle" || state === "selected" ? "pointer" : "default",
-        transition: "all 0.2s",
-      }}
-    >
-      <div style={{
-        width: 36, height: 36, borderRadius: 12,
-        background: s.letterBg, color: s.letterText,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontFamily: FONT, fontSize: 18, fontWeight: 900, flexShrink: 0,
-      }}>{letter}</div>
-      <div style={{ fontFamily: FONT, fontSize: 17, fontWeight: 600, color: s.text, lineHeight: 1.3, flex: 1 }}>{label}</div>
-      {state === "correct" && (
-        <svg width="24" height="24" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="11" fill={PAL.green}/>
-          <path d="M6.5 12.5l3.5 3.5 7.5-7.5" stroke="#fff" strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )}
-      {state === "wrong" && (
-        <svg width="24" height="24" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="11" fill={PAL.red}/>
-          <path d="M8 8l8 8M16 8l-8 8" stroke="#fff" strokeWidth="2.6" strokeLinecap="round"/>
-        </svg>
-      )}
+    <div onClick={state==="idle" ? onClick : undefined}
+      style={{ display:"flex", alignItems:"center", gap:14, padding:"18px 22px", borderRadius:16, background:s.bg, border:`2px solid ${s.border}`, cursor:state==="idle"?"pointer":"default", transition:"all 0.15s" }}>
+      <div style={{ width:38, height:38, borderRadius:10, background:s.badge, color:s.badgeText, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT, fontSize:16, fontWeight:900, flexShrink:0 }}>{letter}</div>
+      <div style={{ fontFamily:FONT, fontSize:17, fontWeight:600, color:s.text, flex:1, lineHeight:1.3 }}>{label}</div>
+      {state==="correct" && <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="11" fill={GREEN}/><path d="M6 11l3.5 3.5 6.5-6.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+      {state==="wrong"   && <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="11" fill={RED}/><path d="M7 7l8 8M15 7l-8 8" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/></svg>}
     </div>
   );
 }
 
-function FeedbackBanner({ correct, text, correctLabel, onContinue }: {
-  correct: boolean; text: string; correctLabel?: string; onContinue: () => void;
-}) {
-  const bg = correct ? PAL.green : PAL.red;
-  return (
-    <div style={{
-      position: "absolute", left: 0, right: 0, bottom: 0,
-      background: bg, padding: "20px 20px 34px",
-      borderTopLeftRadius: 28, borderTopRightRadius: 28,
-      boxShadow: "0 -8px 24px rgba(0,0,0,0.12)",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10, fontFamily: FONT, fontSize: 22, fontWeight: 900, color: "#fff" }}>
-        <svg width="24" height="24" viewBox="0 0 24 24">
-          {correct
-            ? <path d="M5 12l4 4 10-10" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            : <path d="M7 7l10 10M17 7l-10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round"/>}
-        </svg>
-        {correct ? "Nice." : "Not quite."}
-      </div>
-      {!correct && correctLabel && (
-        <div style={{ fontFamily: FONT, fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: 8 }}>
-          Correct answer: {correctLabel}
-        </div>
-      )}
-      <div style={{ fontFamily: FONT, fontSize: 16, fontWeight: 600, color: "#fff", lineHeight: 1.4, marginBottom: 18, opacity: 0.95 }}>{text}</div>
-      <div onClick={onContinue} style={{
-        padding: "15px 0", borderRadius: 18, background: "#fff", color: bg,
-        fontFamily: FONT, fontSize: 18, fontWeight: 900,
-        textAlign: "center", cursor: "pointer", userSelect: "none",
-      }}>Continue</div>
-    </div>
-  );
-}
-
-// ── Device frame ──────────────────────────────────────────────────────────────
-
-function DeviceFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(10,10,20,0.75)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{
-        height: "min(880px, calc(100svh - 24px), calc((100vw - 24px) * 2.17))",
-        width: "min(406px, calc((100svh - 24px) * 0.461), calc(100vw - 24px))",
-        borderRadius: 48, overflow: "hidden",
-        position: "relative", background: PAL.cream,
-        boxShadow: "0 40px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.12)",
-        display: "flex", flexDirection: "column",
-      }}>
-        <div style={{ position: "absolute", top: 11, left: "50%", transform: "translateX(-50%)", width: 126, height: 37, borderRadius: 24, background: "#000", zIndex: 50, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "21px 28px 0", pointerEvents: "none" }}>
-          <span style={{ fontFamily: "-apple-system, system-ui", fontWeight: 600, fontSize: 15, color: PAL.ink }}>9:41</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <svg width="17" height="12" viewBox="0 0 17 12" fill={PAL.ink}>
-              <rect x="0" y="7" width="3" height="5" rx="0.7"/>
-              <rect x="4.7" y="4.5" width="3" height="7.5" rx="0.7"/>
-              <rect x="9.4" y="2" width="3" height="10" rx="0.7"/>
-              <rect x="14.1" y="0" width="3" height="12" rx="0.7"/>
-            </svg>
-            <svg width="26" height="13" viewBox="0 0 26 13" fill="none">
-              <rect x="0.5" y="0.5" width="22" height="12" rx="3.5" stroke={PAL.ink} strokeOpacity="0.35"/>
-              <rect x="2" y="2" width="18" height="9" rx="2" fill={PAL.ink}/>
-              <path d="M24 4.5V8.5C24.8 8.2 25.5 7.2 25.5 6.5C25.5 5.8 24.8 4.8 24 4.5Z" fill={PAL.ink} fillOpacity="0.4"/>
-            </svg>
-          </div>
-        </div>
-        <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-          {children}
-        </div>
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 60, height: 34, display: "flex", justifyContent: "center", alignItems: "flex-end", paddingBottom: 8, pointerEvents: "none" }}>
-          <div style={{ width: 139, height: 5, borderRadius: 100, background: "rgba(0,0,0,0.25)" }} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Slide content ─────────────────────────────────────────────────────────────
-
-const TOTAL = 10;
+type Slide =
+  | { kind:"intro" }
+  | { kind:"teach"; tag:string; tagColor?:string; headline:React.ReactNode; visual?:React.ReactNode; body?:React.ReactNode }
+  | { kind:"ab"; tag:string; tagColor?:string; headline:React.ReactNode; body?:React.ReactNode; visual?:React.ReactNode; optionA:string; optionB:string; correct:"A"|"B"; explain:string }
+  | { kind:"transition" }
+  | { kind:"recap" }
+  | { kind:"results" }
+  | { kind:"complete" };
 
 const SLIDES: Slide[] = [
-  { kind: "intro" },
-
+  { kind:"intro" },
   {
-    kind: "teach", tag: "01 · The formula",
-    headline: <>Gradient measures <span style={{ color: PAL.orange }}>steepness</span>.</>,
-    visual: <SteepnessVisual />,
-    body: <BodyText>A steeper line has a <b style={{ color: PAL.ink }}>larger</b> gradient. A flatter line has a smaller one. We measure it with a formula.</BodyText>,
+    kind:"teach", tag:"01 · What is Gradient?",
+    headline: <>Gradient measures how <span style={{ color:ACCENT }}>steep</span> a line is.</>,
+    visual: <TwoSlopesVisual />,
+    body: <>A steep line has a large gradient. A shallow line has a small one. The steeper the hill, the bigger the number.</>,
   },
-
   {
-    kind: "teach", tag: "01 · The formula",
-    headline: "The gradient formula.",
+    kind:"ab", tag:"01 · What is Gradient?",
+    headline: <>Which line has the <span style={{ color:ACCENT }}>higher gradient</span>?</>,
+    visual: <TwoSlopesVisual />,
+    optionA:"A — the steeper line",
+    optionB:"B — the shallower line",
+    correct:"A",
+    explain:"Line A rises much faster — it gains more in y for every step in x. That means a higher gradient.",
+  },
+  {
+    kind:"ab", tag:"01 · What is Gradient?",
+    headline: <>What is the gradient of this line?</>,
+    body:"The table shows how much altitude (y) is gained for each kilometre walked (x).",
+    visual: <MiniTable headers={["km walked (x)","altitude gain (y)","change"]} rows={[["1","4","+4"],["2","8","+4"],["3","12","+4"],["4","16","+4"]]} highlightCol={2} accentColor={ORANGE}/>,
+    optionA:"4",
+    optionB:"8",
+    correct:"A",
+    explain:"The altitude goes up by 4 for every 1 km. That constant change is the gradient: m = 4.",
+  },
+  {
+    kind:"teach", tag:"02 · The Formula",
+    headline: <>Gradient = <span style={{ color:ORANGE }}>rise</span> &divide; <span style={{ color:PURPLE }}>run</span>.</>,
+    visual: <GradientFormulaCard />,
+    body: <>Pick any two points. Subtract the <b style={{ color:ORANGE }}>y-values</b> (rise). Divide by the difference in <b style={{ color:PURPLE }}>x-values</b> (run).</>,
+  },
+  {
+    kind:"teach", tag:"02 · The Formula",
+    headline: <>Let&apos;s use it. Points: <span style={{ fontFamily:MONO }}>{"(0, 2)"}</span> and <span style={{ fontFamily:MONO }}>{"(3, 8)"}</span>.</>,
+    visual: <WorkedGradientCard p1={[0,2]} p2={[3,8]} />,
+    body: <>The y-values differ by <b style={{ color:ORANGE }}>6</b>. The x-values differ by <b style={{ color:PURPLE }}>3</b>. So m = 6 &divide; 3 = <b style={{ color:GREEN }}>2</b>.</>,
+  },
+  {
+    kind:"ab", tag:"02 · The Formula",
+    headline: "What is the gradient of the line through (0, 2) and (3, 8)?",
+    visual: <PointsCard p1={[0,2]} p2={[3,8]} />,
+    optionA:"2",
+    optionB:"3",
+    correct:"A",
+    explain:"(8 − 2) ÷ (3 − 0) = 6 ÷ 3 = 2. Always put y on top and x on the bottom.",
+  },
+  {
+    kind:"ab", tag:"02 · The Formula",
+    headline: "What is the gradient of the line through (1, 6) and (3, 2)?",
+    visual: <PointsCard p1={[1,6]} p2={[3,2]} />,
+    optionA:"−2",
+    optionB:"2",
+    correct:"A",
+    explain:"(2 − 6) ÷ (3 − 1) = −4 ÷ 2 = −2. Negative because y decreases as x increases — the line slopes downward.",
+  },
+  { kind:"recap" },
+  { kind:"transition" },
+  {
+    kind:"ab", tag:"SAT Question", tagColor:RED,
+    headline:"A road rises 8 m for every 4 m of horizontal distance. What is the gradient?",
+    visual: <MiniTable headers={["horizontal (x)","height gained (y)"]} rows={[["4 m","8 m"],["8 m","16 m"],["12 m","24 m"]]} highlightCol={1} accentColor={RED}/>,
+    optionA:"2",
+    optionB:"0.5",
+    correct:"A",
+    explain:"Gradient = rise ÷ run = 8 ÷ 4 = 2. For every 1 metre forward, the road rises 2 metres.",
+  },
+  {
+    kind:"ab", tag:"SAT Question", tagColor:RED,
+    headline:"What is the gradient of the line through (1, 3) and (5, 11)?",
+    visual: <PointsCard p1={[1,3]} p2={[5,11]} c1={RED} c2={ORANGE}/>,
+    optionA:"4",
+    optionB:"2",
+    correct:"B",
+    explain:"(11 − 3) ÷ (5 − 1) = 8 ÷ 4 = 2. Don't confuse the change in y (8) with the final gradient (2).",
+  },
+  {
+    kind:"ab", tag:"SAT Question", tagColor:RED,
+    headline:"What is the gradient of the line through (2, 6) and (4, 2)?",
+    visual: <PointsCard p1={[2,6]} p2={[4,2]} c1={RED} c2={ORANGE}/>,
+    optionA:"2",
+    optionB:"−2",
+    correct:"B",
+    explain:"(2 − 6) ÷ (4 − 2) = −4 ÷ 2 = −2. The y-values are going down, so the gradient is negative.",
+  },
+  {
+    kind:"ab", tag:"SAT Question", tagColor:RED,
+    headline: <>What is the gradient of the line <span style={{ fontFamily:MONO }}>y = 5x + 3</span>?</>,
+    visual: <EquationCard>y = <span style={{ color:ORANGE, fontWeight:700 }}>5</span>x + <span style={{ color:PURPLE, fontWeight:700 }}>3</span></EquationCard>,
+    optionA:"5",
+    optionB:"3",
+    correct:"A",
+    explain:"In y = mx + b, the gradient is always m — the number multiplied by x. Here m = 5. The 3 is the y-intercept, not the gradient.",
+  },
+  {
+    kind:"ab", tag:"SAT Question", tagColor:RED,
+    headline:"Which line has a steeper gradient?",
     visual: (
-      <div>
-        <GradientFormulaCard />
-        <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-          <div style={{ flex: 1, background: PAL.orange, color: "#fff", borderRadius: 16, padding: "12px 14px" }}>
-            <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", opacity: 0.9 }}>Top</div>
-            <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 800, marginTop: 2, lineHeight: 1.25 }}>Change in y</div>
-          </div>
-          <div style={{ flex: 1, background: PAL.purple, color: "#fff", borderRadius: 16, padding: "12px 14px" }}>
-            <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", opacity: 0.9 }}>Bottom</div>
-            <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 800, marginTop: 2, lineHeight: 1.25 }}>Change in x</div>
-          </div>
-        </div>
+      <div style={{ display:"flex", gap:12 }}>
+        <EquationCard>A: y = <span style={{ color:ORANGE, fontWeight:700 }}>4</span>x − 2</EquationCard>
+        <EquationCard>B: y = <span style={{ color:PURPLE, fontWeight:700 }}>3</span>x + 1</EquationCard>
       </div>
     ),
-    body: <BodyText>Pick any two points. Subtract the <b style={{ color: PAL.orange }}>y-values</b>. Divide by the difference in <b style={{ color: PAL.purple }}>x-values</b>.</BodyText>,
+    optionA:"y = 4x − 2",
+    optionB:"y = 3x + 1",
+    correct:"A",
+    explain:"Line A has gradient 4. Line B has gradient 3. 4 > 3, so line A is steeper. The y-intercepts don't affect steepness.",
   },
-
   {
-    kind: "teach", tag: "01 · The formula",
-    headline: <>Let&apos;s use it. Points: <span style={{ fontFamily: MONO, color: PAL.ink }}>(0, 3)</span> and <span style={{ fontFamily: MONO, color: PAL.ink }}>(1, 7)</span>.</>,
-    visual: <WorkedStepsCard />,
-    body: <BodyText>The y-values differ by <b style={{ color: PAL.orange }}>4</b>. The x-values differ by <b style={{ color: PAL.purple }}>1</b>. So the gradient is <b style={{ color: PAL.green }}>4</b>.</BodyText>,
+    kind:"ab", tag:"SAT Question", tagColor:RED,
+    headline:"What is the gradient of the line through (0, 4) and (2, 0)?",
+    visual: <PointsCard p1={[0,4]} p2={[2,0]} c1={RED} c2={ORANGE}/>,
+    optionA:"2",
+    optionB:"−2",
+    correct:"B",
+    explain:"(0 − 4) ÷ (2 − 0) = −4 ÷ 2 = −2. The line goes from (0,4) down to (2,0) — it slopes downward, so negative.",
   },
-
-  {
-    kind: "ab", tag: "01 · The formula",
-    headline: "What is the gradient of the line through (0, 3) and (1, 7)?",
-    visual: <PointsCard p1={[0, 3]} p2={[1, 7]} />,
-    optionA: "3",
-    optionB: "4",
-    correct: "B",
-    explain: "(7 − 3) ÷ (1 − 0) = 4 ÷ 1 = 4. Always y on top, x on the bottom.",
-  },
-
-  {
-    kind: "ab", tag: "01 · The formula",
-    headline: "What is the gradient of the line through (−1, 4) and (1, 0)?",
-    visual: <PointsCard p1={[-1, 4]} p2={[1, 0]} />,
-    optionA: "−2",
-    optionB: "2",
-    correct: "A",
-    explain: "(0 − 4) ÷ (1 − (−1)) = −4 ÷ 2 = −2. Negative because the line slopes downward.",
-  },
-
-  {
-    kind: "teach", tag: "02 · From a graph",
-    headline: <>You can read gradient <span style={{ color: PAL.green }}>off a graph</span>.</>,
-    visual: (
-      <TwoPointPlot
-        p1={[1, 2]} p2={[4, 4]}
-        xMin={-1} xMax={5} yMin={-1} yMax={5}
-        showWorking
-        working={<>m = (4 − 2) ÷ (4 − 1) = <b style={{ color: PAL.green }}>2/3</b></>}
-      />
-    ),
-    body: <BodyText>Find two points that land cleanly on grid intersections. Label them. Then use the same formula.</BodyText>,
-  },
-
-  {
-    kind: "ab", tag: "02 · From a graph",
-    headline: "What is the gradient of this line?",
-    visual: (
-      <TwoPointPlot
-        p1={[-3, 2]} p2={[1, -1]}
-        xMin={-5} xMax={3} yMin={-3} yMax={4}
-      />
-    ),
-    optionA: "3/4",
-    optionB: "−3/4",
-    correct: "B",
-    explain: "(−1 − 2) ÷ (1 − (−3)) = −3/4. The line slopes down left to right, so the gradient must be negative.",
-  },
-
-  {
-    kind: "ab", tag: "SAT Question", tagColor: PAL.red,
-    headline: "A line passes through (2, 5) and (6, 9). What is the slope?",
-    optionA: "1",
-    optionB: "2",
-    correct: "A",
-    explain: "(9 − 5) ÷ (6 − 2) = 4 ÷ 4 = 1.",
-  },
-
-  {
-    kind: "ab", tag: "SAT Question", tagColor: PAL.red,
-    headline: "A line passes through (−2, 7) and (4, −5). What is the slope?",
-    optionA: "−2",
-    optionB: "2",
-    correct: "A",
-    explain: "(−5 − 7) ÷ (4 − (−2)) = −12 ÷ 6 = −2. Negative because y decreases as x increases.",
-  },
-
-  {
-    kind: "ab", tag: "SAT Question", tagColor: PAL.red,
-    headline: "A line passes through (0, −3) and (4, 5). What is the slope?",
-    optionA: "2",
-    optionB: "1/2",
-    correct: "A",
-    explain: "(5 − (−3)) ÷ (4 − 0) = 8 ÷ 4 = 2.",
-  },
-
-  { kind: "recap" },
-  { kind: "complete" },
+  { kind:"results" },
+  { kind:"complete" },
 ];
 
-// ── Main component ────────────────────────────────────────────────────────────
+export default function InteractiveLesson02({ onClose, onComplete }: {
+  onClose:() => void; onComplete:() => void;
+}) {
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [picks, setPicks]       = useState<Record<number,"A"|"B">>({});
+  const [completeLevel, setCompleteLevel] = useState(1);
+  const [completePct, setCompletePct]     = useState(20);
+  const [recapPicks, setRecapPicks]       = useState<Record<number,boolean>>({});
 
-export default function InteractiveLesson02({ onClose, onComplete }: { onClose: () => void; onComplete?: () => void }) {
-  const [idx, setIdx] = useState(0);
-  const [picked, setPicked] = useState<"A" | "B" | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const slide      = SLIDES[slideIdx];
+  const pickedHere = picks[slideIdx] ?? null;
+  const submitted  = pickedHere !== null;
+  const SAT_START  = SLIDES.findIndex(s => s.kind === "ab" && (s as Extract<Slide,{kind:"ab"}>).tag === "SAT Question");
+  const SAT_COUNT  = 6;
+  const inSAT      = slideIdx >= SAT_START && slideIdx < SAT_START + SAT_COUNT;
+  const progress   = inSAT ? 100 : Math.min(100, (slideIdx / (SAT_START - 1)) * 100);
 
-  const slide = SLIDES[idx];
-  const step = idx === 0 ? 0 : Math.min(idx, TOTAL);
+  const isIntro      = slide.kind === "intro";
+  const isComplete   = slide.kind === "complete";
+  const isTransition = slide.kind === "transition";
+  const isResults    = slide.kind === "results";
+  const showTopBar   = !isIntro && !isComplete && !isTransition && !isResults;
+  const showFeedback = slide.kind === "ab" && submitted;
+
+  useEffect(() => {
+    if (slide.kind === "complete") {
+      playCorrect();
+      setCompleteLevel(2);
+      setCompletePct(20);
+      setTimeout(() => { setCompleteLevel(3); setCompletePct(30); }, 700);
+    }
+  }, [slideIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function advance() {
-    setIdx(i => i + 1);
-    setPicked(null);
-    setSubmitted(false);
+    if (slideIdx + 1 >= SLIDES.length) { onComplete(); onClose(); return; }
+    setSlideIdx(i => i + 1);
   }
+  function goBack() { setSlideIdx(i => i - 1); }
 
-  function handlePick(choice: "A" | "B") {
-    if (submitted) return;
-    setPicked(choice);
-    setSubmitted(true);
-  }
-
-  // ── Intro ───────────────────────────────────────────────────────────────────
-  if (slide.kind === "intro") {
-    return (
-      <DeviceFrame>
-        <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-          <div style={{ padding: "74px 20px 8px" }}><CloseX onClick={onClose} /></div>
-          <div style={{ padding: "20px 24px 0", position: "relative", zIndex: 2 }}>
-            <Tag>SAT Math · Lesson 02</Tag>
-            <Headline size={40}>Gradient &amp; Slope, from scratch.</Headline>
-          </div>
-          <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0, display: "flex", flexDirection: "column" }}>
-            <div style={{ position: "absolute", right: "8%",  top: "12%",  width: "40%", aspectRatio: "1", borderRadius: "50%", background: PAL.orange }} />
-            <div style={{ position: "absolute", left: "8%",  top: "32%",  width: "25%", aspectRatio: "1", borderRadius: "50%", background: PAL.yellow }} />
-            <div style={{ position: "absolute", right: "34%",top: "55%",  width: "16%", aspectRatio: "1", borderRadius: "50%", background: PAL.purple }} />
-            <div style={{ marginTop: "auto", padding: "0 10% 22%", display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start", position: "relative", zIndex: 2 }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.blue, color: "#fff", fontFamily: MONO, fontSize: "clamp(12px, 4vw, 18px)", fontWeight: 500, padding: "10px 18px", borderRadius: 9999 }}>m = (y₂−y₁)/(x₂−x₁)</span>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.orange, color: "#fff", fontFamily: FONT, fontSize: "clamp(14px, 4.5vw, 20px)", fontWeight: 800, padding: "10px 18px", borderRadius: 9999, alignSelf: "flex-end" }}>step by step</span>
-            </div>
-          </div>
-          <CTAButton onClick={advance}>Start lesson</CTAButton>
-        </div>
-      </DeviceFrame>
-    );
-  }
-
-  // ── Recap ───────────────────────────────────────────────────────────────────
-  if (slide.kind === "recap") {
-    return (
-      <DeviceFrame>
-        <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-          <div style={{ padding: "74px 20px 8px" }}><CloseX onClick={onClose} /></div>
-          <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "4px 24px 0" }}>
-            <Tag color={PAL.blue}>Key concepts recap</Tag>
-            <Headline size={28}>Gradient in one formula.</Headline>
-            <div style={{ marginTop: 14, background: PAL.green, borderRadius: 22, padding: "16px 18px", boxShadow: `0 6px 0 ${PAL.greenDk}`, color: "#fff" }}>
-              <div style={{ fontFamily: FONT, fontSize: 16, fontWeight: 800, lineHeight: 1.35, letterSpacing: "-0.01em" }}>
-                Gradient is how much y changes for each unit of x. Pick any two points and divide the change in y by the change in x.
-              </div>
-            </div>
-            <div style={{ marginTop: 14 }}>
-              <GradientFormulaCard compact />
-            </div>
-            <div style={{ marginTop: 14 }}>
-              <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 800, color: PAL.inkSoft, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Tips</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {[
-                  <>Label <span style={{ fontFamily: MONO }}>(x₁, y₁)</span> first — either point can be point 1.</>,
-                  <>Negative result = the line slopes <b>downward</b>.</>,
-                  <>On the SAT: spot two coordinate pairs and plug in.</>,
-                ].map((t, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: PAL.orange, flexShrink: 0, marginTop: 6 }}/>
-                    <div style={{ fontFamily: FONT, fontSize: 13.5, fontWeight: 600, color: PAL.ink, lineHeight: 1.45 }}>{t}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <CTAButton onClick={advance}>Finish lesson</CTAButton>
-        </div>
-      </DeviceFrame>
-    );
-  }
-
-  // ── Complete ────────────────────────────────────────────────────────────────
-  if (slide.kind === "complete") {
-    return (
-      <DeviceFrame>
-        <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-          <div style={{ padding: "74px 20px 8px" }}><CloseX onClick={onClose} /></div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 30px", textAlign: "center" }}>
-            <div style={{ width: 128, height: 128, borderRadius: "50%", background: PAL.green, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28, boxShadow: `0 10px 0 ${PAL.greenDk}` }}>
-              <svg width="64" height="64" viewBox="0 0 64 64">
-                <path d="M14 33l12 12 24-24" stroke="#fff" strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <Headline size={36}>Lesson complete.</Headline>
-            <div style={{ marginTop: 14 }}>
-              <BodyText size={18}>You can now calculate the gradient from two points or read it off a graph.</BodyText>
-            </div>
-            <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap", justifyContent: "center" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", background: PAL.green, color: "#fff", fontFamily: FONT, fontSize: 18, fontWeight: 800, padding: "9px 18px", borderRadius: 9999 }}>5 / 5 correct</span>
-            </div>
-          </div>
-          <div
-            onClick={() => { setIdx(0); setPicked(null); setSubmitted(false); }}
-            style={{ margin: "0 20px 12px", padding: "14px 0", fontFamily: FONT, fontSize: 16, fontWeight: 700, color: PAL.inkSoft, textAlign: "center", cursor: "pointer" }}
-          >
-            Review from the start
-          </div>
-          <CTAButton onClick={() => { onComplete?.(); onClose(); }}>Back to lessons</CTAButton>
-        </div>
-      </DeviceFrame>
-    );
-  }
-
-  // ── Teach ───────────────────────────────────────────────────────────────────
-  if (slide.kind === "teach") {
-    return (
-      <DeviceFrame>
-        <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-          <TopBar step={step} total={TOTAL} onClose={onClose} />
-          <div style={{ padding: "10px 24px 0" }}>
-            <Tag color={slide.tagColor}>{slide.tag}</Tag>
-            <Headline size={26}>{slide.headline}</Headline>
-          </div>
-          <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "16px 24px 0", display: "flex", flexDirection: "column" }}>
-            {slide.visual}
-            {slide.body && <div style={{ marginTop: 20 }}>{slide.body}</div>}
-          </div>
-          <CTAButton onClick={advance}>Continue</CTAButton>
-        </div>
-      </DeviceFrame>
-    );
-  }
-
-  // ── A/B ─────────────────────────────────────────────────────────────────────
-  const isCorrect = picked === slide.correct;
-  const correctLabel = slide.correct === "A" ? slide.optionA : slide.optionB;
-
-  const getState = (letter: "A" | "B"): OptionState => {
-    if (!submitted) return picked === letter ? "selected" : "idle";
-    if (letter === slide.correct) return "correct";
-    if (letter === picked) return "wrong";
+  function getOptionState(letter:"A"|"B"): OptionState {
+    if (!submitted) return "idle";
+    const s = slide as Extract<Slide,{kind:"ab"}>;
+    if (letter === s.correct) return "correct";
+    if (letter === pickedHere) return "wrong";
     return "dim";
-  };
+  }
+
+  const recapStatements = [
+    { text:"Gradient measures how steep a line is.", answer:true },
+    { text:"A negative gradient means the line goes down from left to right.", answer:true },
+    { text:"Gradient is calculated by dividing the change in x by the change in y.", answer:false },
+    { text:"Any two points on a line give the same gradient.", answer:true },
+  ];
 
   return (
-    <DeviceFrame>
-      <div style={{ width: "100%", height: "100%", background: PAL.cream, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-        <TopBar step={step} total={TOTAL} onClose={onClose} />
-        <div style={{ padding: "16px 24px 0" }}>
-          <Tag color={slide.tagColor}>{slide.tag}</Tag>
-          <Headline size={26}>{slide.headline}</Headline>
-        </div>
-        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "20px 24px 0", display: "flex", flexDirection: "column" }}>
-          {slide.visual && <div style={{ marginBottom: 22 }}>{slide.visual}</div>}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <OptionRow letter="A" label={slide.optionA} state={getState("A")} onClick={() => handlePick("A")} />
-            <OptionRow letter="B" label={slide.optionB} state={getState("B")} onClick={() => handlePick("B")} />
+    <div style={{ position:"fixed", inset:0, background:"#E8E3DA", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT, zIndex:100 }}>
+      <div style={{
+        width:"min(1448px, 97vw)", height:"min(1086px, calc(100vh - 32px))",
+        background:CREAM, borderRadius:20, boxShadow:"0 4px 32px rgba(0,0,0,0.10)",
+        display:"flex", flexDirection:"column", position:"relative", overflow:"hidden",
+      }}>
+        <BgCircles />
+        <div style={{ position:"relative", zIndex:1, flex:1, minHeight:0, display:"grid", gridTemplateRows:"auto 1fr auto", overflow:"hidden" }}>
+
+          {/* Top bar */}
+          <div>
+            {showTopBar && (
+              <div style={{ padding:"22px 52px 0", display:"flex", alignItems:"center", gap:20 }}>
+                <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", padding:0, display:"flex", flexShrink:0 }}>
+                  <svg width="20" height="20" viewBox="0 0 22 22"><path d="M4 4l14 14M18 4L4 18" stroke={INK} strokeWidth="2.5" strokeLinecap="round"/></svg>
+                </button>
+                {inSAT ? (
+                  <div style={{ flex:1, display:"flex", gap:6, alignItems:"center" }}>
+                    {Array.from({ length:SAT_COUNT }).map((_,i) => {
+                      const done = slideIdx - SAT_START;
+                      const filled = i < done, current = i === done;
+                      return <div key={i} style={{ flex:1, height:8, borderRadius:99, background: filled ? RED : current ? `${RED}55` : "rgba(31,37,68,0.1)", transition:"background 0.3s ease" }}/>;
+                    })}
+                  </div>
+                ) : (
+                  <div style={{ flex:1, height:7, borderRadius:99, background:"rgba(31,37,68,0.1)", overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${progress}%`, borderRadius:99, background:ACCENT, transition:"width 0.4s ease" }}/>
+                  </div>
+                )}
+              </div>
+            )}
+            {isIntro && (
+              <div style={{ padding:"22px 52px 0" }}>
+                <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", padding:0, display:"flex" }}>
+                  <svg width="20" height="20" viewBox="0 0 22 22"><path d="M4 4l14 14M18 4L4 18" stroke={INK} strokeWidth="2.5" strokeLinecap="round"/></svg>
+                </button>
+              </div>
+            )}
           </div>
+
+          {/* Scrollable content */}
+          <div style={{ position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute", inset:0, overflowY:"auto", padding:"28px 52px 0" }}>
+
+            {/* TRANSITION */}
+            {slide.kind === "transition" && (
+              <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:CREAM, borderRadius:"inherit" }}>
+                <div style={{ width:80, height:80, borderRadius:20, background:ACCENT, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 24px", boxShadow:"0 8px 0 rgba(59,91,219,0.3)", animation:"bounceIn 0.5s ease" }}>
+                  <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
+                    <rect x="14" y="28" width="36" height="26" rx="6" fill="white"/>
+                    <path d="M22 28v-8a10 10 0 0 1 20 0v8" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+                    <circle cx="32" cy="41" r="4" fill={ACCENT}/>
+                  </svg>
+                </div>
+                <div style={{ fontFamily:FONT, fontSize:13, fontWeight:700, color:ACCENT, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:12 }}>SAT Questions unlocked</div>
+                <div style={{ fontFamily:FONT, fontSize:56, fontWeight:900, color:INK, lineHeight:1, marginBottom:32, textAlign:"center" }}>Prove what<br/>you know.</div>
+                <div style={{ display:"flex", gap:8, justifyContent:"center", marginBottom:40 }}>
+                  {Array.from({length:6}).map((_,i) => (
+                    <div key={i} style={{ width:40, height:40, borderRadius:12, background:RED, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT, fontSize:15, fontWeight:800, color:"#fff", opacity:0, animation:"popIn 0.3s ease forwards", animationDelay:`${i*100}ms` }}>{i+1}</div>
+                  ))}
+                </div>
+                <button onClick={advance} style={{ padding:"14px 44px", background:ACCENT, color:"#fff", border:"none", borderRadius:14, fontFamily:FONT, fontSize:15, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 0 rgba(59,91,219,0.35)", letterSpacing:"0.04em" }}>START →</button>
+                <style>{`@keyframes bounceIn{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}@keyframes popIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:scale(1)}}`}</style>
+              </div>
+            )}
+
+            {/* RESULTS */}
+            {slide.kind === "results" && (() => {
+              const SAT_CORRECTS: ("A"|"B")[] = ["A","B","B","A","A","B"];
+              const score = SAT_CORRECTS.filter((ans,i) => picks[SAT_START + i] === ans).length;
+              return (
+                <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:CREAM, borderRadius:"inherit" }}>
+                  <div style={{ fontFamily:FONT, fontSize:13, fontWeight:700, color:SOFT, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:16 }}>SAT Questions</div>
+                  <div style={{ fontFamily:FONT, fontSize:80, fontWeight:900, color:INK, lineHeight:1, marginBottom:8, textAlign:"center" }}>
+                    {score}<span style={{ color:SOFT, fontSize:48 }}>/6</span>
+                  </div>
+                  <div style={{ fontFamily:FONT, fontSize:20, fontWeight:700, color: score===6 ? GREEN : score>=4 ? ORANGE : RED, marginBottom:40 }}>
+                    {score===6 ? "Perfect score!" : score>=4 ? "Well done." : score>=2 ? "Good effort." : "Keep practising."}
+                  </div>
+                  <div style={{ display:"flex", gap:10, justifyContent:"center", marginBottom:48 }}>
+                    {SAT_CORRECTS.map((ans,i) => {
+                      const correct = picks[SAT_START + i] === ans;
+                      return (
+                        <div key={i} style={{ width:48, height:48, borderRadius:14, background: correct ? GREEN : RED, display:"flex", alignItems:"center", justifyContent:"center", opacity:0, animation:"popIn 0.3s ease forwards", animationDelay:`${i*80}ms`, boxShadow: correct ? `0 4px 0 ${GREEN_DK}` : "0 4px 0 rgba(200,60,60,0.35)" }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            {correct ? <path d="M4 12l5 5 11-11" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/> : <path d="M5 5l14 14M19 5L5 19" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>}
+                          </svg>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button onClick={advance} style={{ padding:"14px 44px", background:ACCENT, color:"#fff", border:"none", borderRadius:14, fontFamily:FONT, fontSize:15, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 0 rgba(59,91,219,0.35)", letterSpacing:"0.04em" }}>CONTINUE →</button>
+                  <style>{`@keyframes popIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:scale(1)}}`}</style>
+                </div>
+              );
+            })()}
+
+            {/* INTRO */}
+            {slide.kind === "intro" && (
+              <div style={{ minHeight:"100%", display:"flex", flexDirection:"column", justifyContent:"center", maxWidth:580, paddingBottom:40 }}>
+                <div style={{ fontFamily:FONT, fontSize:13, fontWeight:700, color:ACCENT, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:16 }}>SAT Math · Today&apos;s lesson:</div>
+                <div style={{ fontFamily:FONT, fontSize:72, fontWeight:900, color:INK, lineHeight:0.95, marginBottom:36 }}>Gradient<br/>&amp; Slope</div>
+                <div style={{ display:"flex", gap:12, marginBottom:28 }}>
+                  <span style={{ background:ORANGE, color:"#fff", fontFamily:MONO, fontSize:15, fontWeight:500, padding:"10px 20px", borderRadius:9999, boxShadow:"0 4px 0 rgba(0,0,0,0.12)" }}>m = Δy ÷ Δx</span>
+                  <span style={{ background:ACCENT, color:"#fff", fontFamily:FONT, fontSize:15, fontWeight:800, padding:"10px 20px", borderRadius:9999, boxShadow:"0 4px 0 rgba(59,91,219,0.3)" }}>step by step</span>
+                </div>
+                <div style={{ background:"#fff", borderRadius:20, padding:"20px 24px", display:"flex", alignItems:"center", gap:20, boxShadow:"0 4px 0 rgba(31,37,68,0.06)" }}>
+                  <div style={{ width:48, height:48, borderRadius:12, background:"#EEF2FF", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polyline points="3,17 8,12 13,14 21,6" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontFamily:FONT, fontSize:11, fontWeight:700, color:ACCENT, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:10 }}>Your progress</div>
+                    <div style={{ display:"flex", gap:5 }}>
+                      {Array.from({length:10}).map((_,i) => <div key={i} style={{ height:10, flex:1, borderRadius:999, background: i < 2 ? ACCENT : "#E0DAD0" }}/>)}
+                    </div>
+                  </div>
+                  <div style={{ textAlign:"right", flexShrink:0 }}>
+                    <div style={{ fontFamily:FONT, fontSize:22, fontWeight:800, color:ACCENT }}>20%</div>
+                    <div style={{ fontFamily:FONT, fontSize:12, color:SOFT }}>Mastery</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TEACH */}
+            {slide.kind === "teach" && (() => {
+              const s = slide as Extract<Slide,{kind:"teach"}>;
+              return (
+                <div style={{ paddingBottom:28 }}>
+                  <div style={{ fontFamily:FONT, fontSize:12, fontWeight:700, color:s.tagColor||ACCENT, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:10 }}>{tagLabel(s.tag)}</div>
+                  <div style={{ fontFamily:FONT, fontSize:46, fontWeight:900, color:INK, lineHeight:1.1, marginBottom:14, maxWidth:660 }}>{s.headline}</div>
+                  {s.body && <div style={{ fontFamily:FONT, fontSize:17, fontWeight:500, color:SOFT, lineHeight:1.55, marginBottom:26, maxWidth:580 }}>{s.body}</div>}
+                  {s.visual && <div style={{ maxWidth:740 }}>{s.visual}</div>}
+                </div>
+              );
+            })()}
+
+            {/* AB */}
+            {slide.kind === "ab" && (() => {
+              const s = slide as Extract<Slide,{kind:"ab"}>;
+              return (
+                <div style={{ paddingBottom:28 }}>
+                  <div style={{ fontFamily:FONT, fontSize:12, fontWeight:700, color:s.tagColor||ACCENT, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:10 }}>{tagLabel(s.tag)}</div>
+                  <div style={{ fontFamily:FONT, fontSize:34, fontWeight:900, color:INK, lineHeight:1.15, marginBottom: s.body ? 10 : 22, maxWidth:680 }}>{s.headline}</div>
+                  {s.body && <div style={{ fontFamily:FONT, fontSize:17, fontWeight:500, color:SOFT, lineHeight:1.55, marginBottom:22, maxWidth:580 }}>{s.body}</div>}
+                  {s.visual && <div style={{ maxWidth:740, marginBottom:22 }}>{s.visual}</div>}
+                  <div style={{ display:"flex", flexDirection:"column", gap:12, maxWidth:660 }}>
+                    <OptionRow letter="A" label={s.optionA} state={submitted ? getOptionState("A") : "idle"} onClick={() => { if (!submitted) { if ("A"===s.correct) playCorrect(); setPicks(p=>({...p,[slideIdx]:"A"})); }}}/>
+                    <OptionRow letter="B" label={s.optionB} state={submitted ? getOptionState("B") : "idle"} onClick={() => { if (!submitted) { if ("B"===s.correct) playCorrect(); setPicks(p=>({...p,[slideIdx]:"B"})); }}}/>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* RECAP */}
+            {slide.kind === "recap" && (
+              <div style={{ paddingBottom:28, maxWidth:640 }}>
+                <div style={{ fontFamily:FONT, fontSize:12, fontWeight:700, color:ACCENT, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:10 }}>Key concepts recap</div>
+                <div style={{ fontFamily:FONT, fontSize:40, fontWeight:900, color:INK, lineHeight:1.1, marginBottom:8 }}>Let&apos;s check what you remember.</div>
+                <div style={{ fontFamily:FONT, fontSize:16, color:SOFT, marginBottom:24 }}>Is each statement true or false?</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  {recapStatements.map((s,i) => {
+                    const picked = recapPicks[i];
+                    const hasPicked = picked !== undefined;
+                    const correct = hasPicked && picked === s.answer;
+                    const wrong   = hasPicked && picked !== s.answer;
+                    return (
+                      <div key={i} style={{ background:"#fff", borderRadius:18, padding:"16px 20px", boxShadow:"0 4px 0 rgba(31,37,68,0.06)", border: correct ? `2px solid ${GREEN}` : wrong ? `2px solid ${RED}` : "2px solid transparent", display:"flex", alignItems:"center", gap:16 }}>
+                        <div style={{ flex:1, fontFamily:FONT, fontSize:15, fontWeight:700, color:INK }}>{s.text}</div>
+                        <div style={{ display:"flex", gap:8, flexShrink:0, alignItems:"center" }}>
+                          {wrong && <span style={{ fontFamily:FONT, fontSize:12, color:RED, fontWeight:600 }}>{s.answer ? "Always true!" : "It goes down."}</span>}
+                          {[true,false].map(opt => {
+                            const isChosen = hasPicked && picked === opt;
+                            const isCorrectOpt = opt === s.answer;
+                            const bg = isChosen ? (isCorrectOpt ? GREEN : RED) : hasPicked && isCorrectOpt ? GREEN : "#F5F0E8";
+                            const color = isChosen || (hasPicked && isCorrectOpt) ? "#fff" : SOFT;
+                            return (
+                              <button key={String(opt)} onClick={() => !hasPicked && setRecapPicks(p=>({...p,[i]:opt}))}
+                                style={{ padding:"8px 18px", borderRadius:10, border:"none", cursor:hasPicked?"default":"pointer", background:bg, color, fontFamily:FONT, fontSize:13, fontWeight:800, transition:"all 0.2s" }}>
+                                {opt ? "True" : "False"}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* COMPLETE */}
+            {slide.kind === "complete" && (
+              <div style={{ minHeight:"100%", display:"flex", flexDirection:"column", justifyContent:"center", maxWidth:580, paddingBottom:40 }}>
+                <div style={{ fontFamily:FONT, fontSize:13, fontWeight:700, color:GREEN, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:16 }}>Lesson complete</div>
+                <div style={{ display:"flex", alignItems:"flex-start", gap:16, marginBottom:36 }}>
+                  <div style={{ fontFamily:FONT, fontSize:64, fontWeight:900, color:INK, lineHeight:0.95 }}>Gradient<br/>&amp; Slope</div>
+                  <div style={{ width:40, height:40, borderRadius:"50%", background:GREEN, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 4px 0 ${GREEN_DK}`, flexShrink:0, marginTop:4 }}>
+                    <svg width="20" height="20" viewBox="0 0 64 64"><path d="M14 33l12 12 24-24" stroke="#fff" strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                </div>
+                <div style={{ background:"#fff", borderRadius:20, padding:"20px 24px", display:"flex", alignItems:"center", gap:20, boxShadow:"0 4px 0 rgba(31,37,68,0.06)" }}>
+                  <div style={{ width:48, height:48, borderRadius:12, background:"#E7F8EC", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="24" height="24" viewBox="0 0 64 64"><path d="M14 33l12 12 24-24" stroke={GREEN} strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontFamily:FONT, fontSize:11, fontWeight:700, color:GREEN, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:10 }}>Your progress</div>
+                    <div style={{ display:"flex", gap:5 }}>
+                      {Array.from({length:10}).map((_,i) => <div key={i} style={{ height:10, flex:1, borderRadius:999, background: i < completeLevel ? GREEN : "#E0DAD0", transition:"background 0.4s ease" }}/>)}
+                    </div>
+                  </div>
+                  <div style={{ textAlign:"right", flexShrink:0 }}>
+                    <div style={{ fontFamily:FONT, fontSize:22, fontWeight:800, color:GREEN, transition:"all 0.6s ease" }}>{completePct}%</div>
+                    <div style={{ fontFamily:FONT, fontSize:12, color:SOFT }}>Mastery</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div style={{ borderTop: showFeedback || isTransition || isResults ? "none" : "2px solid rgba(31,37,68,0.10)" }}>
+            {isIntro && (
+              <div style={{ padding:"14px 52px 26px", display:"flex", justifyContent:"flex-end" }}>
+                <button onClick={advance} style={{ padding:"15px 48px", background:ACCENT, color:"#fff", border:"none", borderRadius:14, fontFamily:FONT, fontSize:15, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 0 rgba(59,91,219,0.35)", letterSpacing:"0.04em" }}>START LESSON</button>
+              </div>
+            )}
+            {isComplete && (
+              <div style={{ padding:"14px 52px 26px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <button onClick={() => setSlideIdx(0)} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:FONT, fontSize:14, fontWeight:700, color:SOFT }}>Review from the start</button>
+                <button onClick={() => { onComplete(); onClose(); }} style={{ padding:"13px 36px", background:ACCENT, color:"#fff", border:"none", borderRadius:14, fontFamily:FONT, fontSize:14, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 0 rgba(59,91,219,0.35)", letterSpacing:"0.04em" }}>BACK TO LESSONS</button>
+              </div>
+            )}
+            {showTopBar && !showFeedback && (
+              <div style={{ padding:"14px 52px 26px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                {slideIdx > 0 ? (
+                  <button onClick={goBack} style={{ display:"flex", alignItems:"center", gap:8, padding:"13px 22px", borderRadius:14, border:"2px solid rgba(31,37,68,0.18)", background:"#fff", cursor:"pointer" }}>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span style={{ fontFamily:FONT, fontSize:14, fontWeight:700, color:INK, letterSpacing:"0.04em" }}>BACK</span>
+                  </button>
+                ) : <div />}
+                {slide.kind === "ab" ? (
+                  <button disabled style={{ padding:"13px 40px", background:"rgba(31,37,68,0.1)", color:"rgba(31,37,68,0.35)", border:"none", borderRadius:14, fontFamily:FONT, fontSize:14, fontWeight:800, cursor:"not-allowed", letterSpacing:"0.04em" }}>PICK AN ANSWER</button>
+                ) : (
+                  <button onClick={advance} style={{ padding:"13px 40px", background:ACCENT, color:"#fff", border:"none", borderRadius:14, fontFamily:FONT, fontSize:14, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 0 rgba(59,91,219,0.35)", letterSpacing:"0.04em" }}>CONTINUE</button>
+                )}
+              </div>
+            )}
+            {showFeedback && (() => {
+              const s = slide as Extract<Slide,{kind:"ab"}>;
+              const isCorrect = pickedHere === s.correct;
+              return (
+                <div style={{ background: isCorrect ? GREEN : RED, padding:"20px 52px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:24 }}>
+                  <div>
+                    <div style={{ fontFamily:FONT, fontSize:17, fontWeight:900, color:"#fff", marginBottom:3, display:"flex", alignItems:"center", gap:8 }}>
+                      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">{isCorrect ? <path d="M2 8l4 4 8-8" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/> : <path d="M3 3l10 10M13 3L3 13" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/>}</svg>
+                      {isCorrect ? "Nice." : "Not quite."}
+                    </div>
+                    <div style={{ fontFamily:FONT, fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.92)", lineHeight:1.5, maxWidth:620 }}>{s.explain}</div>
+                  </div>
+                  <button onClick={advance} style={{ padding:"12px 30px", background:"#fff", color: isCorrect ? GREEN_DK : RED, border:"none", borderRadius:12, fontFamily:FONT, fontSize:14, fontWeight:700, cursor:"pointer", flexShrink:0 }}>Continue</button>
+                </div>
+              );
+            })()}
+          </div>
+
         </div>
-        {!submitted && <CTAButton disabled>Pick an answer</CTAButton>}
-        {submitted && <div style={{ height: 110, flexShrink: 0 }} />}
-        {submitted && (
-          <FeedbackBanner
-            correct={isCorrect}
-            correctLabel={correctLabel}
-            text={slide.explain}
-            onContinue={advance}
-          />
-        )}
       </div>
-    </DeviceFrame>
+    </div>
   );
 }

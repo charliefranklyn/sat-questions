@@ -164,6 +164,52 @@ function EquationCard({ children }: { children: React.ReactNode }) {
   );
 }
 
+function EarningsVisual() {
+  const hours = [0, 1, 2, 3, 4];
+  const W = 260, H = 180, pad = 40;
+  const xs = (x: number) => pad + (x / 4) * (W - pad - 16);
+  const ys = (y: number) => H - pad - (y / 60) * (H - pad - 12);
+  return (
+    <div style={{ display:"flex", gap:16, maxWidth:700, alignItems:"stretch" }}>
+      <div style={{ flex:"0 0 160px", background:"#fff", borderRadius:20, padding:"24px 20px", boxShadow:"0 4px 0 rgba(31,37,68,0.06)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:14 }}>
+        <div style={{ width:64, height:64, borderRadius:"50%", background:`${ACCENT}18`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" stroke={ACCENT} strokeWidth="2.5"/>
+            <path d="M16 8v2M16 22v2M10 16h2M20 16h2" stroke={ACCENT} strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="16" cy="16" r="3" fill={ACCENT}/>
+            <path d="M16 13v3l2 2" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <div style={{ fontFamily:FONT, textAlign:"center" }}>
+          <div style={{ fontSize:28, fontWeight:900, color:INK }}>$15</div>
+          <div style={{ fontSize:13, fontWeight:600, color:SOFT, marginTop:2 }}>per hour</div>
+        </div>
+        <div style={{ fontFamily:FONT, fontSize:12, color:SOFT, textAlign:"center", lineHeight:1.5 }}>More hours →<br/>more pay</div>
+      </div>
+      <div style={{ flex:1, background:"#fff", borderRadius:20, padding:"16px 16px 8px", boxShadow:"0 4px 0 rgba(31,37,68,0.06)" }}>
+        <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`}>
+          {[0, 15, 30, 45, 60].map(y => (
+            <line key={y} x1={pad} y1={ys(y)} x2={W - 12} y2={ys(y)} stroke="#F0E9D1" strokeWidth="1"/>
+          ))}
+          <line x1={pad} y1={H - pad} x2={W - 12} y2={H - pad} stroke={INK} strokeWidth="2"/>
+          <line x1={pad} y1={8} x2={pad} y2={H - pad} stroke={INK} strokeWidth="2"/>
+          {[0, 15, 30, 45, 60].map(y => (
+            <text key={y} x={pad - 6} y={ys(y) + 4} fontFamily={MONO} fontSize="10" fill={SOFT} textAnchor="end">${y}</text>
+          ))}
+          {hours.map(x => (
+            <text key={x} x={xs(x)} y={H - pad + 14} fontFamily={MONO} fontSize="10" fill={SOFT} textAnchor="middle">{x}h</text>
+          ))}
+          <line x1={xs(0)} y1={ys(0)} x2={xs(4)} y2={ys(60)} stroke={ACCENT} strokeWidth="3.5" strokeLinecap="round"/>
+          {hours.map((x, i) => (
+            <circle key={i} cx={xs(x)} cy={ys(x * 15)} r="6" fill={ACCENT} stroke="#fff" strokeWidth="2.5"/>
+          ))}
+        </svg>
+        <div style={{ fontFamily:FONT, fontSize:12, fontWeight:600, color:SOFT, textAlign:"center", paddingBottom:6 }}>hours worked → pay earned</div>
+      </div>
+    </div>
+  );
+}
+
 type OptionState = "idle" | "correct" | "wrong" | "dim";
 function OptionRow({ letter, label, state, onClick }: {
   letter: string; label: string; state: OptionState; onClick?: () => void;
@@ -204,66 +250,67 @@ type Slide =
   | { kind:"intro" }
   | { kind:"teach"; tag:string; tagColor?:string; headline:React.ReactNode; visual?:React.ReactNode; body?:React.ReactNode }
   | { kind:"ab"; tag:string; tagColor?:string; headline:string; visual?:React.ReactNode; optionA:string; optionB:string; correct:"A"|"B"; explain:string }
+  | { kind:"transition"; variant:1|2|3 }
   | { kind:"recap" }
   | { kind:"complete" };
 
 const SLIDES: Slide[] = [
   { kind:"intro" },
   {
-    kind:"teach", tag:"01 · What is linear?",
-    headline: <>Linear functions show a <span style={{ color:ACCENT }}>constant rate of change</span>.</>,
-    visual: <MiniTable headers={["Week","Savings","Change"]} rows={[["0","$0","—"],["1","$20","+ $20"],["2","$40","+ $20"],["3","$60","+ $20"],["4","$80","+ $20"]]} highlightCol={2} accentColor={ACCENT}/>,
-    body: <>In this table, savings increase by <b style={{ color:ACCENT }}>$20 each week</b>. Because the change is the same each time, this is linear.</>,
+    kind:"teach", tag:"What is a linear equation?",
+    headline: <>Linear equations show relationships that <span style={{ color:ACCENT }}>grow at a steady rate</span>.</>,
+    visual: <EarningsVisual />,
+    body: <>Every hour you work, you earn exactly $15 more. That steady, predictable pattern is a linear relationship.</>,
   },
   {
-    kind:"ab", tag:"01 · What is linear?",
+    kind:"teach", tag:"01 · Recognise it",
+    headline: <>The straight line happens because the change is <span style={{ color:ACCENT }}>always the same</span>.</>,
+    visual: <MiniTable headers={["Week","Savings","Change"]} rows={[["0","$0","—"],["1","$20","+ $20"],["2","$40","+ $20"],["3","$60","+ $20"],["4","$80","+ $20"]]} highlightCol={2} accentColor={ACCENT}/>,
+    body: <>Savings go up by <b style={{ color:ACCENT }}>$20 every week</b> — never more, never less. That constant gap is what makes the line straight.</>,
+  },
+  {
+    kind:"ab", tag:"01 · Recognise it",
     headline:"Is this table linear?",
     visual: <MiniTable headers={["x","y","Gap"]} rows={[["0","5","—"],["1","15","+10"],["2","30","+15"],["3","50","+20"]]} highlightCol={2} accentColor={RED}/>,
-    optionA:"Yes — the change is the same each step",
-    optionB:"No — the change is different each step",
-    correct:"B", explain:"Values going up isn't enough. The gap has to be the same every row.",
+    optionA:"Yes — the values are going up",
+    optionB:"No — the gap changes each row",
+    correct:"B", explain:"Going up isn't enough. The gap has to be identical every row — here it grows each time, so it's not linear.",
   },
   {
-    kind:"teach", tag:"02 · On the number plane",
-    headline: <>Linear functions make a <span style={{ color:ACCENT }}>straight line</span>.</>,
-    visual: <PlotVisual />,
-    body: <>When the rate of change is constant (e.g. +20 each step), the graph forms a straight line — this is a linear function.</>,
-  },
-  {
-    kind:"ab", tag:"02 · On the number plane",
-    headline:"Which graph is linear?",
+    kind:"ab", tag:"01 · Recognise it",
+    headline:"Which graph shows a linear equation?",
     visual: <LineVsCurveSVG />,
     optionA:"A — the straight line", optionB:"B — the curved line",
-    correct:"A", explain:"Linear always means straight. Curves and bends mean something else is going on.",
+    correct:"A", explain:"Linear always means straight. A curve means the rate of change isn't constant.",
   },
   {
-    kind:"teach", tag:"03 · The formula",
-    headline:"That straight line has an equation.",
+    kind:"teach", tag:"02 · The equation",
+    headline:"Every linear equation follows the same pattern.",
     visual: <FormulaCard />,
-    body: <><b style={{ color:ORANGE }}>m</b> shows the rate of change. <b style={{ color:PURPLE }}>b</b> shows the starting value.</>,
+    body: <><b style={{ color:ORANGE }}>m</b> is how much y changes each step. <b style={{ color:PURPLE }}>b</b> is where y starts when x = 0.</>,
   },
   {
-    kind:"teach", tag:"03 · The formula",
+    kind:"teach", tag:"02 · The equation",
     headline: <>Real life: a <span style={{ color:ORANGE }}>taxi ride</span>.</>,
     visual: <TaxiCard />,
     body: <>Upfront fee = <b style={{ color:PURPLE }}>b</b>. Price per mile = <b style={{ color:ORANGE }}>m</b>. That&apos;s it.</>,
   },
   {
-    kind:"ab", tag:"03 · The formula",
+    kind:"ab", tag:"02 · The equation",
     headline:"In y = 3x + 7, which number is the rate of change?",
     visual: <EquationCard>y = <span style={{ color:ORANGE, fontWeight:700 }}>3</span>x + <span style={{ color:PURPLE, fontWeight:700 }}>7</span></EquationCard>,
     optionA:"3", optionB:"7", correct:"A",
     explain:"m is always the number next to x. It's the rate of change — how much y changes per step.",
   },
   {
-    kind:"ab", tag:"03 · The formula",
+    kind:"ab", tag:"02 · The equation",
     headline:"In y = 3x + 7, which number is the starting value?",
     visual: <EquationCard>y = <span style={{ color:ORANGE, fontWeight:700 }}>3</span>x + <span style={{ color:PURPLE, fontWeight:700 }}>7</span></EquationCard>,
     optionA:"3", optionB:"7", correct:"B",
     explain:"b is the number on its own — no x attached. It's where y starts when x = 0.",
   },
   {
-    kind:"ab", tag:"03 · The formula",
+    kind:"ab", tag:"02 · The equation",
     headline:"A plumber charges $75 to show up, then $40/hr. What's b in C = 40h + 75?",
     visual: (
       <div style={{ background:"#fff", borderRadius:20, padding:"28px 28px", textAlign:"center", boxShadow:"0 4px 0 rgba(31,37,68,0.06)", fontFamily:MONO, fontSize:44, fontWeight:500, color:INK, maxWidth:520 }}>
@@ -296,11 +343,14 @@ const SLIDES: Slide[] = [
     optionB:"Pool starts at 12 inches, rises 4 in/min",
     correct:"B", explain:"b = 12 is the starting value (water at t = 0). m = 4 is the rate — water rises 4 inches every minute.",
   },
+  { kind:"transition", variant:1 },
+  { kind:"transition", variant:2 },
+  { kind:"transition", variant:3 },
   { kind:"recap" },
   { kind:"complete" },
 ];
 
-export default function InteractiveLesson({ onClose, onComplete }: {
+export default function InteractiveLessonExp2({ onClose, onComplete }: {
   onClose: () => void;
   onComplete: () => void;
 }) {
@@ -313,9 +363,10 @@ export default function InteractiveLesson({ onClose, onComplete }: {
   const SEGS       = SLIDES.length - 1;
   const progress   = (slideIdx / SEGS) * 100;
 
-  const isIntro    = slide.kind === "intro";
-  const isComplete = slide.kind === "complete";
-  const showTopBar = !isIntro && !isComplete;
+  const isIntro      = slide.kind === "intro";
+  const isComplete   = slide.kind === "complete";
+  const isTransition = slide.kind === "transition";
+  const showTopBar   = !isIntro && !isComplete && !isTransition;
   // When submitted on an AB slide, the feedback banner replaces the action bar in normal flow
   const showFeedback = slide.kind === "ab" && submitted;
 
@@ -402,7 +453,7 @@ export default function InteractiveLesson({ onClose, onComplete }: {
                     <span style={{ background:ACCENT, color:"#fff", fontFamily:MONO, fontSize:18, padding:"12px 22px", borderRadius:9999, boxShadow:"0 5px 0 rgba(0,0,0,0.12)" }}>y = mx + b</span>
                     <span style={{ background:PURPLE, color:"#fff", fontFamily:FONT, fontSize:18, fontWeight:800, padding:"12px 22px", borderRadius:9999, boxShadow:"0 5px 0 rgba(0,0,0,0.12)" }}>made easy</span>
                   </div>
-                  <div style={{ fontFamily:FONT, fontSize:14, color:SOFT }}>11 steps · about 5 minutes</div>
+                  <div style={{ fontFamily:FONT, fontSize:14, color:SOFT }}>12 steps · about 6 minutes</div>
                 </div>
               </div>
             )}
@@ -444,6 +495,97 @@ export default function InteractiveLesson({ onClose, onComplete }: {
                     <OptionRow letter="A" label={s.optionA} state={submitted ? getOptionState("A") : "idle"} onClick={() => { if (!submitted) { if ("A" === s.correct) playCorrect(); setPicks(p=>({...p,[slideIdx]:"A"})); } }}/>
                     <OptionRow letter="B" label={s.optionB} state={submitted ? getOptionState("B") : "idle"} onClick={() => { if (!submitted) { if ("B" === s.correct) playCorrect(); setPicks(p=>({...p,[slideIdx]:"B"})); } }}/>
                   </div>
+                </div>
+              );
+            })()}
+
+            {/* TRANSITION */}
+            {slide.kind === "transition" && (() => {
+              const v = (slide as Extract<Slide,{kind:"transition"}>).variant;
+              return (
+                <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+                  background: v === 1 ? INK : v === 3 ? RED : CREAM,
+                  borderRadius: "inherit",
+                }}>
+                  {/* Label */}
+                  <div style={{ position:"absolute", top:20, left:28, fontFamily:FONT, fontSize:11, fontWeight:700, color: v===1?"rgba(255,255,255,0.4)":v===3?"rgba(255,255,255,0.6)":SOFT, letterSpacing:"0.1em", textTransform:"uppercase" }}>
+                    Option {v}
+                  </div>
+
+                  {/* Option 1 — Dark dramatic */}
+                  {v === 1 && (
+                    <div style={{ textAlign:"center", padding:"0 60px" }}>
+                      <div style={{ fontFamily:FONT, fontSize:13, fontWeight:700, color:"rgba(255,255,255,0.5)", letterSpacing:"0.12em", textTransform:"uppercase", marginBottom:20 }}>You&apos;ve learned the concepts.</div>
+                      <div style={{ fontFamily:FONT, fontSize:72, fontWeight:900, color:"#fff", lineHeight:0.95, marginBottom:40 }}>Now it&apos;s<br/>your turn.</div>
+                      <div style={{ display:"flex", gap:10, justifyContent:"center", marginBottom:40 }}>
+                        {Array.from({length:6}).map((_,i)=>(
+                          <div key={i} style={{ width:36, height:10, borderRadius:99, background:RED,
+                            opacity:0, animation:`fadeSlideUp 0.4s ease forwards`, animationDelay:`${i*120}ms`
+                          }}/>
+                        ))}
+                      </div>
+                      <div style={{ fontFamily:FONT, fontSize:14, color:"rgba(255,255,255,0.5)" }}>6 SAT Questions</div>
+                    </div>
+                  )}
+
+                  {/* Option 2 — Gamified unlock */}
+                  {v === 2 && (
+                    <div style={{ textAlign:"center", padding:"0 60px" }}>
+                      <div style={{ width:80, height:80, borderRadius:20, background:ACCENT, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 24px", boxShadow:"0 8px 0 rgba(59,91,219,0.3)", animation:"bounceIn 0.5s ease" }}>
+                        <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
+                          <rect x="14" y="28" width="36" height="26" rx="6" fill="white"/>
+                          <path d="M22 28v-8a10 10 0 0 1 20 0v8" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+                          <circle cx="32" cy="41" r="4" fill={ACCENT}/>
+                        </svg>
+                      </div>
+                      <div style={{ fontFamily:FONT, fontSize:13, fontWeight:700, color:ACCENT, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:12 }}>SAT Questions unlocked</div>
+                      <div style={{ fontFamily:FONT, fontSize:56, fontWeight:900, color:INK, lineHeight:1, marginBottom:32 }}>Prove what<br/>you know.</div>
+                      <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+                        {Array.from({length:6}).map((_,i)=>(
+                          <div key={i} style={{ width:32, height:32, borderRadius:10, background:RED, display:"flex", alignItems:"center", justifyContent:"center",
+                            fontFamily:FONT, fontSize:13, fontWeight:800, color:"#fff",
+                            opacity:0, animation:`popIn 0.3s ease forwards`, animationDelay:`${i*100}ms`
+                          }}>{i+1}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Option 3 — Clean tension */}
+                  {v === 3 && (
+                    <div style={{ textAlign:"center", padding:"0 60px" }}>
+                      <div style={{ fontFamily:FONT, fontSize:72, fontWeight:900, color:"#fff", lineHeight:0.95, marginBottom:20 }}>6 questions.<br/>No hints.</div>
+                      <div style={{ fontFamily:FONT, fontSize:16, color:"rgba(255,255,255,0.7)", marginBottom:48 }}>Show what you&apos;ve learned.</div>
+                      <div style={{ display:"flex", gap:10, justifyContent:"center" }}>
+                        {Array.from({length:6}).map((_,i)=>(
+                          <div key={i} style={{ width:40, height:10, borderRadius:99, background:"rgba(255,255,255,0.25)", position:"relative", overflow:"hidden" }}>
+                            <div style={{ position:"absolute", inset:0, background:"#fff", borderRadius:99,
+                              animation:`fillBar 0.4s ease forwards`, animationDelay:`${i*150}ms`, transform:"scaleX(0)", transformOrigin:"left"
+                            }}/>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Continue button */}
+                  <button onClick={advance} style={{
+                    position:"absolute", bottom:28, right:40,
+                    padding:"13px 36px", border:"none", borderRadius:14, cursor:"pointer",
+                    fontFamily:FONT, fontSize:14, fontWeight:800, letterSpacing:"0.04em",
+                    background: v===2 ? ACCENT : "#fff",
+                    color: v===2 ? "#fff" : v===1 ? INK : RED,
+                    boxShadow: v===2 ? "0 4px 0 rgba(59,91,219,0.3)" : "0 4px 0 rgba(0,0,0,0.1)",
+                  }}>
+                    START →
+                  </button>
+
+                  <style>{`
+                    @keyframes fadeSlideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+                    @keyframes bounceIn { 0% { transform:scale(0.5); opacity:0; } 70% { transform:scale(1.1); } 100% { transform:scale(1); opacity:1; } }
+                    @keyframes popIn { from { opacity:0; transform:scale(0.6); } to { opacity:1; transform:scale(1); } }
+                    @keyframes fillBar { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+                  `}</style>
                 </div>
               );
             })()}
@@ -518,7 +660,7 @@ export default function InteractiveLesson({ onClose, onComplete }: {
           </div>{/* row 2: scrollable shell */}
 
           {/* ── Row 3: bottom zone — separator is the hard visual boundary ── */}
-          <div style={{ borderTop: showFeedback ? "none" : "2px solid rgba(31,37,68,0.10)" }}>
+          <div style={{ borderTop: showFeedback || isTransition ? "none" : "2px solid rgba(31,37,68,0.10)" }}>
             {isIntro && (
               <div style={{ padding:"14px 52px 26px", display:"flex", justifyContent:"flex-end" }}>
                 <button onClick={advance} style={{ padding:"15px 48px", background:ACCENT, color:"#fff", border:"none", borderRadius:14, fontFamily:FONT, fontSize:15, fontWeight:800, cursor:"pointer", boxShadow:"0 4px 0 rgba(59,91,219,0.35)", letterSpacing:"0.04em" }}>

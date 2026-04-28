@@ -8,8 +8,8 @@ const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: 
 const dmMono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-dm-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "SAT Practice",
-  description: "Full SAT curriculum practice questions for Math and Reading & Writing",
+  title: "EdAccelerator",
+  description: "Personalised maths lessons for selective school preparation",
 };
 
 export default function RootLayout({
