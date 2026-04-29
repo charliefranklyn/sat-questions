@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import ChatPanel, { CHAT_W } from "@/components/ChatPanel";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function playCorrect() { new Audio("/sounds/correct.mp3").play().catch(() => {}); }
 
@@ -68,9 +69,9 @@ function OptionList({ options, correct, picked, onPick }: {
 }
 
 // ── EdAccelerator header ──────────────────────────────────────────────────────
-function EdHeader() {
+function EdHeader({ onChatOpen, isMobile }: { onChatOpen?: () => void; isMobile?: boolean }) {
   return (
-    <div style={{ borderBottom: "1px solid rgba(226,232,240,0.6)", padding: "0 52px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div style={{ borderBottom: "1px solid rgba(226,232,240,0.6)", padding: isMobile ? "0 16px" : "0 52px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <svg width="28" height="28" viewBox="264 271 552 537" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -84,8 +85,16 @@ function EdHeader() {
         </svg>
         <span style={{ fontFamily: FONT, fontSize: 14, fontWeight: 600, color: "#0F172A", letterSpacing: "-0.01em" }}>EdAccelerator</span>
       </div>
-      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#4e7efe 0%,#1c45f6 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontFamily: FONT, fontSize: 13, fontWeight: 600, color: "#fff" }}>C</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {onChatOpen && (
+          <button onClick={onChatOpen} style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: "1.5px solid #E2E8F0", borderRadius: 10, padding: "6px 12px", cursor: "pointer", fontFamily: FONT, fontSize: 13, fontWeight: 600, color: ACCENT }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Chat
+          </button>
+        )}
+        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#4e7efe 0%,#1c45f6 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontFamily: FONT, fontSize: 13, fontWeight: 600, color: "#fff" }}>C</span>
+        </div>
       </div>
     </div>
   );
@@ -114,23 +123,24 @@ const SLIDES = [
   { id: "hard3"             }, // 8  Q  two-sided
   { id: "hard4"             }, // 9  Q  word problem
   { id: "hard5"             }, // 10 Q  test values
-  { id: "practice_unlocked" }, // 11
+  { id: "hard6"             }, // 11 Q  painter word problem
+  { id: "practice_unlocked" }, // 12
   { id: "p1"  }, { id: "p2"  }, { id: "p3"  }, { id: "p4"  }, { id: "p5"  },
   { id: "p6"  }, { id: "p7"  }, { id: "p8"  }, { id: "p9"  }, { id: "p10" },
-  { id: "score"             }, // 22
-  { id: "complete"          }, // 23
+  { id: "score"             }, // 23
+  { id: "complete"          }, // 24
 ];
 
 const PROGRESS = [
-  0.04, 0.10, 0.18, 0.26, 0.34, 0.42, 0.50, 0.56, 0.62, 0.68, 0.74,
+  0.04, 0.10, 0.18, 0.26, 0.34, 0.42, 0.50, 0.56, 0.62, 0.68, 0.74, 0.80,
   1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
 ];
 
-// Lesson Q correct answers (idx 1–10)
-const LESSON_CORRECT: Record<number, number> = { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 0, 7: 1, 8: 0, 9: 0, 10: 0 };
+// Lesson Q correct answers (idx 1–11)
+const LESSON_CORRECT: Record<number, number> = { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 0, 7: 0, 8: 0, 9: 0, 10: 1, 11: 0 };
 
-// Practice correct answers (idx 12–21)
-const PRACTICE_CORRECT = [0, 1, 0, 1, 1, 0, 0, 0, 0, 0];
+// Practice correct answers (idx 13–22)
+const PRACTICE_CORRECT = [0, 1, 0, 1, 0, 1, 0, 1, 0, 0]; // A B A B A B A B A A
 
 const EXPLAIN_DATA: Record<number, [string, string]> = {
   1: ["The elephant weighs more — so its value is greater. The symbol opens towards the larger value, so Elephant > Mouse.", "The > symbol opens towards the bigger value. The elephant is heavier, so Elephant > Mouse."],
@@ -138,11 +148,12 @@ const EXPLAIN_DATA: Record<number, [string, string]> = {
   3: ["5 is less than 12 — so 5 < 12.", "The < symbol means 'less than'. 5 is smaller than 12, so 5 < 12."],
   4: ["'At least 5' means 5 or more — that's ≥.", "'At least' means the minimum is 5 — it could be 5, 6, 7... That's x ≥ 5."],
   5: ["'No more than 10' means 10 or less — that's ≤.", "'No more than' means the maximum is 10. That's x ≤ 10, not x ≥ 10."],
-  6: ["Expand first: 3(x+2) = 3x+6. Then 3x+6 ≤ 18 → 3x ≤ 12 → x ≤ 4.", "Expand the brackets: 3(x+2) = 3x+6. Subtract 6: 3x ≤ 12. Divide by 3: x ≤ 4."],
-  7: ["Dividing by −2 flips the symbol: −2x > 8 → x < −4.", "When you divide by a negative, the symbol flips. −2x > 8 ÷ (−2) gives x < −4, not x > −4."],
-  8: ["Subtract 1 from all three parts: 2 < 2x < 10. Divide by 2: 1 < x < 5.", "Apply the same operation to all three parts: 3−1 < 2x < 11−1 → 2 < 2x < 10 → 1 < x < 5."],
+  6: ["Sam is 128cm — the only one above the 120cm minimum. 128 ≥ 120 ✓", "The requirement is height ≥ 120. Only Sam at 128cm satisfies this. Alex (112), Mia (108) and Jake (117) are all below 120."],
+  7: ["Only −1 satisfies x < 3. Substituting: −1 < 3 ✓. But 3 < 3 is false, and 5, 7 are greater than 3.", "Check each value: does it make x < 3 true? Only −1 does."],
+  8: ["5, 8 and 11 all satisfy x ≥ 5. The ≥ symbol includes equal to, so 5 itself counts. 2 is less than 5.", "≥ means greater than OR equal to. So 5 counts, and anything above 5 counts too. Only 2 is too small."],
   9: ["45 + m ≥ 70 means she needs at least 25 more marks.", "'At least 70' means ≥ 70. Her current marks plus extra m gives 45 + m ≥ 70."],
-  10: ["-1 is the only value less than 3. 3 itself does not satisfy x < 3 (strict inequality).", "Substitute each: −1 < 3 ✓. But 3 is not less than 3, and 5, 7 are greater than 3."],
+  10: ["You can't go over $20 — so the total must be ≤ 20. That's 3x + 5 ≤ 20.", "The total cost is 3x + 5. It must not exceed $20, so we use ≤, not ≥ or =."],
+  11: ["The total cost is 20 + 15h. It must not exceed $80, so 20 + 15h ≤ 80.", "The callout fee is fixed at $20. Each hour costs $15. Total must stay within $80 budget — that's ≤."],
 };
 
 const TIP_DATA: Record<number, string> = {
@@ -151,52 +162,68 @@ const TIP_DATA: Record<number, string> = {
   3: "Which is smaller — 5 or 12? The < symbol means 'less than'.",
   4: "'At least' means that value or more. Which symbol includes equal to?",
   5: "'No more than' means that value or less. Which symbol allows equal to?",
-  6: "Start by expanding the brackets: 3(x + 2) = 3x + ?",
-  7: "Remember: dividing or multiplying by a negative number flips the inequality symbol.",
-  8: "Apply the same operation to all three parts of the inequality at once.",
+  6: "The minimum is 120cm. Which person's height is greater than or equal to 120?",
+  7: "Substitute each value into x < 3. Which ones make it true?",
+  8: "≥ means greater than or equal to. Which values are 5 or more?",
   9: "'At least 70' — which symbol means at least?",
-  10: "Substitute each value into x < 3. Does −1 < 3? Does 3 < 3?",
+  10: "You have $20 to spend. Can the total go over $20? Which symbol means 'at most'?",
+  11: "The total is callout fee + (cost per hour × hours). It must stay within budget. Which symbol means 'at most'?",
 };
 
-// Practice questions (hard)
+// Practice questions
 const PDATA = [
-  { q: "Solve: 2x + 3 > 9", opts: ["x > 3", "x > 6"], cor: 0 },
-  { q: "Solve: 4x − 2 ≤ 10", opts: ["x ≤ 2", "x ≤ 3"], cor: 1 },
-  { q: "Solve: 3(x − 1) < 12", opts: ["x < 5", "x < 4"], cor: 0 },
-  { q: "Solve: −x > 4", opts: ["x > −4", "x < −4"], cor: 1 },
-  { q: "Solve: −3x ≤ 9", opts: ["x ≤ −3", "x ≥ −3"], cor: 1 },
-  { q: "Solve: −1 < x + 2 < 5", opts: ["−3 < x < 3", "−1 < x < 7"], cor: 0 },
-  { q: "Sam needs more than 80 points to win. She has 52. Which inequality shows the extra points m she needs?", opts: ["m > 28", "m ≥ 28"], cor: 0 },
-  { q: "Which values satisfy x ≤ −2?", opts: ["−3 and −2", "−2 and −1"], cor: 0 },
-  { q: "Solve: 2(x + 4) ≥ 14", opts: ["x ≥ 3", "x ≥ 5"], cor: 0 },
-  { q: "Solve: 2 ≤ 3x − 1 ≤ 8", opts: ["1 ≤ x ≤ 3", "2 ≤ x ≤ 3"], cor: 0 },
+  // Q1-Q2: simple number line comparisons
+  { q: "Which symbol goes in the blank?  8 ___ 3", opts: ["8 > 3", "8 < 3"], cor: 0 },
+  { q: "Which is correct?", opts: ["2 > 9", "2 < 9"], cor: 1 },
+  // Q3-Q5: pick values that satisfy
+  { q: "Which values from {1, 4, 6, 9} satisfy x > 5?", opts: ["6 and 9", "4, 6 and 9"], cor: 0 },
+  { q: "Which values from {0, 3, 7, 10} satisfy x ≤ 3?", opts: ["0, 3 and 7", "0 and 3"], cor: 1 },
+  { q: "Which values from {2, 5, 8, 11} satisfy x ≥ 8?", opts: ["8 and 11", "5, 8 and 11"], cor: 0 },
+  // Q6-Q10: real world (breakdown table format)
+  { q: "Which inequality shows the hours h you can book?", opts: ["30 + 45h ≥ 210", "30 + 45h ≤ 210"], cor: 1 }, // B
+  { q: "Which inequality shows the hours h?", opts: ["15 + 20h ≤ 95", "15 + 20h ≥ 95"], cor: 0 },              // A
+  { q: "Which inequality shows the number of people p?", opts: ["50 + 8p ≥ 130", "50 + 8p ≤ 130"], cor: 1 },   // B
+  { q: "Which inequality shows the km x you can travel?", opts: ["3x + 5 ≤ 26", "3x + 5 ≥ 26"], cor: 0 },      // A
+  { q: "Which inequality shows the hours h you can book?", opts: ["25 + 30h ≤ 175", "25 + 30h ≥ 175"], cor: 0 }, // A (break pattern)
+];
+
+type PTableData = { title: string; sub: string; rows: { label: string; value: string }[]; budget: string } | null;
+const PTABLE: PTableData[] = [
+  null, null, null, null, null, // Q1-Q5: number line
+  { title: "Electrician fees",  sub: "An electrician charges a $30 callout fee plus $45 per hour. You have $210 to spend.", rows: [{ label: "Callout fee", value: "$30" }, { label: "Per hour", value: "$45" }], budget: "$210" },
+  { title: "Cleaning service",  sub: "A cleaner charges a $15 booking fee plus $20 per hour. You have $95 to spend.",    rows: [{ label: "Booking fee", value: "$15" }, { label: "Per hour",    value: "$20" }], budget: "$95"  },
+  { title: "Party planning",    sub: "A party venue charges $50 hire plus $8 per person. You have $130 to spend.",        rows: [{ label: "Venue hire",  value: "$50" }, { label: "Per person",  value: "$8"  }], budget: "$130" },
+  { title: "Taxi fare",         sub: "A taxi charges a $5 booking fee plus $3 per km. You have $26 to spend.",            rows: [{ label: "Booking fee", value: "$5"  }, { label: "Per km",     value: "$3"  }], budget: "$26"  },
+  { title: "Gardener fees",     sub: "A gardener charges $25 callout plus $30 per hour. You have $175 to spend.",         rows: [{ label: "Callout fee", value: "$25" }, { label: "Per hour",    value: "$30" }], budget: "$175" },
 ];
 
 const PNLDATA: { start: number; end: number; marks: number[]; ticks: number[]; dots: { val: number; color: string }[]; ray?: { from: number; dir: "left" | "right" }; band?: { from: number; to: number } }[] = [
-  // Q1: 2x+3>9, x>3
-  { start:0,  end:8,  marks:[3],     ticks:[0,1,2,3,4,5,6,7,8],              dots:[{val:3,color:ACCENT}],              ray:{from:3,  dir:"right"} },
-  // Q2: 4x-2≤10, x≤3
-  { start:0,  end:8,  marks:[3],     ticks:[0,1,2,3,4,5,6,7,8],              dots:[{val:3,color:ACCENT}],              ray:{from:3,  dir:"left"}  },
-  // Q3: 3(x-1)<12, x<5
-  { start:0,  end:8,  marks:[5],     ticks:[0,1,2,3,4,5,6,7,8],              dots:[{val:5,color:"#F97316"}],           ray:{from:5,  dir:"left"}  },
-  // Q4: -x>4, x<-4
-  { start:-8, end:0,  marks:[-4],    ticks:[-8,-7,-6,-5,-4,-3,-2,-1,0],      dots:[{val:-4,color:"#F97316"}],          ray:{from:-4, dir:"left"}  },
-  // Q5: -3x≤9, x≥-3
-  { start:-6, end:2,  marks:[-3],    ticks:[-6,-5,-4,-3,-2,-1,0,1,2],        dots:[{val:-3,color:ACCENT}],             ray:{from:-3, dir:"right"} },
-  // Q6: -1<x+2<5, -3<x<3
-  { start:-5, end:5,  marks:[-3,3],  ticks:[-5,-4,-3,-2,-1,0,1,2,3,4,5],    dots:[{val:-3,color:"#F97316"},{val:3,color:ACCENT}], band:{from:-3,to:3} },
-  // Q7: m>28
-  { start:24, end:36, marks:[28],    ticks:[24,25,26,27,28,29,30,31,32,33,34,35,36], dots:[{val:28,color:ACCENT}],    ray:{from:28, dir:"right"} },
-  // Q8: x≤-2, test -3,-2,-1,0
-  { start:-4, end:2,  marks:[-3,-2,-1,0], ticks:[-4,-3,-2,-1,0,1,2],        dots:[{val:-3,color:ACCENT},{val:-2,color:ACCENT},{val:-1,color:RED},{val:0,color:RED}], ray:{from:-2, dir:"left"} },
-  // Q9: 2(x+4)≥14, x≥3
-  { start:0,  end:8,  marks:[3],     ticks:[0,1,2,3,4,5,6,7,8],              dots:[{val:3,color:ACCENT}],              ray:{from:3,  dir:"right"} },
-  // Q10: 2≤3x-1≤8, 1≤x≤3
-  { start:-1, end:5,  marks:[1,3],   ticks:[-1,0,1,2,3,4,5],                dots:[{val:1,color:"#F97316"},{val:3,color:ACCENT}], band:{from:1,to:3} },
+  // Q1: 8 vs 3
+  { start:0,  end:10, marks:[3,8],  ticks:[0,1,2,3,4,5,6,7,8,9,10],         dots:[{val:3,color:"#F97316"},{val:8,color:ACCENT}] },
+  // Q2: 2 vs 9
+  { start:0,  end:10, marks:[2,9],  ticks:[0,1,2,3,4,5,6,7,8,9,10],         dots:[{val:2,color:"#F97316"},{val:9,color:ACCENT}] },
+  // Q3: {1,4,6,9} satisfy x>5 → 6,9
+  { start:0,  end:10, marks:[1,4,6,9],  ticks:[0,1,2,3,4,5,6,7,8,9,10], dots:[{val:1,color:"#F97316"},{val:4,color:"#F97316"},{val:6,color:ACCENT},{val:9,color:ACCENT}] },
+  // Q4: {0,3,7,10} satisfy x≤3 → 0,3
+  { start:0,  end:11, marks:[0,3,7,10], ticks:[0,1,2,3,4,5,6,7,8,9,10,11], dots:[{val:0,color:ACCENT},{val:3,color:ACCENT},{val:7,color:"#F97316"},{val:10,color:"#F97316"}] },
+  // Q5: {2,5,8,11} satisfy x≥8 → 8,11
+  { start:0,  end:12, marks:[2,5,8,11], ticks:[0,1,2,3,4,5,6,7,8,9,10,11,12], dots:[{val:2,color:"#F97316"},{val:5,color:"#F97316"},{val:8,color:ACCENT},{val:11,color:ACCENT}] },
+  // Q6-Q10: table layout (PNLDATA unused for these)
+  { start:0, end:1, marks:[], ticks:[], dots:[] },
+  { start:0, end:1, marks:[], ticks:[], dots:[] },
+  { start:0, end:1, marks:[], ticks:[], dots:[] },
+  { start:0, end:1, marks:[], ticks:[], dots:[] },
+  { start:0, end:1, marks:[], ticks:[], dots:[] },
 ];
 
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: () => void; onComplete: () => void }) {
+  const isMobile = useIsMobile();
+  const [chatOpen, setChatOpen] = useState(false);
+  const slidePad = isMobile ? "16px 16px 80px"  : "28px 52px 100px";
+  const cols2    = isMobile ? "1fr"              : "1fr 1fr";
+  const barPad   = isMobile ? "12px 16px"        : "20px 52px";
+  const heroFs   = isMobile ? 32                 : 56;
   const [idx, setIdx]           = useState(0);
   const [picked, setPicked]     = useState<number | null>(null);
   const [practiceResults, setPracticeResults] = useState<(boolean|null)[]>(Array(10).fill(null));
@@ -204,16 +231,16 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
   const isLast       = idx === SLIDES.length - 1;
   const isFirst      = idx === 0;
-  const isPractice   = idx >= 12 && idx <= 21;
-  const practiceStep = isPractice ? idx - 12 : 0;
+  const isPractice   = idx >= 13 && idx <= 22;
+  const practiceStep = isPractice ? idx - 13 : 0;
   const practiceScore = practiceResults.filter(r => r === true).length;
-  const isLessonQ    = idx >= 1 && idx <= 10;
+  const isLessonQ    = idx >= 1 && idx <= 11;
   const isQuestionSlide = isLessonQ || isPractice;
 
   useEffect(() => {
     if (isLast) {
-      setCompleteFilled(1);
-      const t = setTimeout(() => setCompleteFilled(2), 600);
+      setCompleteFilled(6);
+      const t = setTimeout(() => setCompleteFilled(7), 600);
       return () => clearTimeout(t);
     }
   }, [idx, isLast]);
@@ -236,6 +263,14 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
     setIdx(i => i + 1);
   };
 
+  if (isMobile) return (
+    <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"#F5F7FA", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, fontFamily: FONT, flexDirection:"column", gap:16, padding:24, textAlign:"center" }}>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="#94A3B8" strokeWidth="1.5"/><circle cx="12" cy="17" r="1" fill="#94A3B8"/></svg>
+      <div style={{ fontSize:20, fontWeight:800, color:INK }}>Desktop only</div>
+      <div style={{ fontSize:14, color:GRAY, maxWidth:240, lineHeight:1.6 }}>These lessons are not yet available on mobile. Please open on a desktop or laptop to continue.</div>
+    </div>
+  );
+
   return (
     <>
       <ChatPanel
@@ -247,12 +282,12 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
         answeredLabel={picked !== null ? ["A","B","C","D"][picked] : undefined}
         answeredCorrect={picked !== null ? picked === correctForIdx : undefined}
       />
-      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, right: CHAT_W, background: "#fff", fontFamily: FONT, zIndex: 100, overflowY: "auto" }}>
+      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, right:isMobile?0:CHAT_W, background: "#fff", fontFamily: FONT, zIndex: 100, overflowY: "auto" }}>
 
-        <EdHeader />
+        <EdHeader onChatOpen={isMobile ? () => setChatOpen(true) : undefined} isMobile={isMobile} />
 
         {/* Progress bar */}
-        <div style={{ position: "relative", zIndex: 1, padding: "20px 52px 0", display: "flex", alignItems: "center", gap: 20 }}>
+        <div style={{ position: "relative", zIndex: 1, padding:isMobile?"12px 16px 0":"20px 52px 0", display: "flex", alignItems: "center", gap: 20 }}>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", flexShrink: 0 }}>
             <svg width="20" height="20" viewBox="0 0 22 22"><path d="M4 4l14 14M18 4L4 18" stroke={INK} strokeWidth="2.5" strokeLinecap="round"/></svg>
           </button>
@@ -271,10 +306,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 0: INTRO ── */}
         {idx === 0 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
               <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 12, color: GRAY, letterSpacing: "0.10em", textTransform: "uppercase", marginBottom: 10 }}>Today&apos;s lesson</div>
-              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 56, color: INK, lineHeight: 0.95, marginBottom: 14 }}>Linear<br/>Inequalities</div>
+              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize:heroFs, color: INK, lineHeight: 0.95, marginBottom: 14 }}>Linear<br/>Inequalities</div>
               <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 16, color: INK, lineHeight: 1.6, marginBottom: 24, maxWidth: 400 }}>
                 Learn the four inequality symbols — <span style={{ fontFamily: MONO, fontWeight: 700, color: ACCENT }}>&gt;</span>, <span style={{ fontFamily: MONO, fontWeight: 700, color: ACCENT }}>&lt;</span>, <span style={{ fontFamily: MONO, fontWeight: 700, color: ACCENT }}>≥</span>, <span style={{ fontFamily: MONO, fontWeight: 700, color: ACCENT }}>≤</span> — and how to use them to compare values.
               </div>
@@ -284,7 +319,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: FONT, fontSize: 10, fontWeight: 800, color: ACCENT, letterSpacing: "0.10em", textTransform: "uppercase", marginBottom: 6 }}>Your progress</div>
-                  <ProgressPills filled={6} total={10} />
+                  <ProgressPills filled={6} total={8} />
                 </div>
                 <div style={{ textAlign: "right", flexShrink: 0 }}>
                   <div style={{ fontFamily: FONT, fontSize: 18, fontWeight: 800, color: ACCENT }}>70%</div>
@@ -300,10 +335,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 1: ELEPHANT ── */}
         {idx === 1 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
               <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 14 }}>
-                Inequalities allow us to compare two values mathematically.
+                Inequalities allow us to <span style={{ color: ACCENT }}>compare</span> two values mathematically.
               </div>
               <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", lineHeight: 1.6, marginBottom: 20 }}>
                 They show us which value is greater, smaller, or equal.
@@ -326,7 +361,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
               </div>
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>How would you write this comparison?</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>How would you write this comparison?</div>
+              </div>
             <OptionList options={["Elephant's weight > Mouse's weight", "Elephant's weight < Mouse's weight"]} correct={0} picked={picked} onPick={setPicked} />
             </div>
           </div>
@@ -334,7 +372,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 2: SYMBOLS ── */}
         {idx === 2 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
               <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 16 }}>
                 There are two main inequality symbols.
@@ -366,7 +404,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
               </svg>
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>Which is correct?</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which is correct?</div>
+              </div>
               <OptionList options={["10 > 3", "10 < 3"]} correct={0} picked={picked} onPick={setPicked} />
             </div>
           </div>
@@ -374,7 +415,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 3: PRACTICE < ── */}
         {idx === 3 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
               <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 16 }}>
                 Let&apos;s practise it again.
@@ -401,7 +442,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
               </svg>
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>Which is correct?</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which is correct?</div>
+              </div>
               <OptionList options={["5 > 12", "5 < 12"]} correct={1} picked={picked} onPick={setPicked} />
             </div>
           </div>
@@ -409,7 +453,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 4: ≥ and ≤ ── */}
         {idx === 4 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
               <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 14 }}>
                 Sometimes a value can be equal to the limit too.
@@ -440,7 +484,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
               </svg>
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>Which is correct for a number that is at least 5?</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which is correct for a number that is at least 5?</div>
+              </div>
               <OptionList options={["x ≤ 5", "x ≥ 5"]} correct={1} picked={picked} onPick={setPicked} />
             </div>
           </div>
@@ -448,7 +495,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 5: ≤ PRACTICE ── */}
         {idx === 5 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
               <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 16 }}>
                 Can you solve this one?
@@ -476,6 +523,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
               </svg>
             </div>
             <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which is correct for a number that is no more than 10?</div>
+              </div>
               <OptionList options={["x ≥ 10", "x ≤ 10"]} correct={1} picked={picked} onPick={setPicked} />
             </div>
           </div>
@@ -483,128 +534,122 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 6: HARD 1 — multi-step ── */}
         {idx === 6 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 8 }}>
-                You can solve inequalities step by step.
+              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 12 }}>
+                Sometimes we need to find which values <span style={{ color: ACCENT }}>satisfy</span> an inequality.
               </div>
               <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 16, color: "#475569", lineHeight: 1.6, marginBottom: 20 }}>
-                Expand brackets first, then simplify.
+                A rollercoaster has a minimum height of 120cm.<br/>Which of these people can ride?
               </div>
-              <div style={{ background: "#F8FAFC", borderRadius: 16, padding: "20px 24px", display: "flex", flexDirection: "column", gap: 0 }}>
-                {[
-                  { expr: "3(x + 2) ≤ 18", note: "start" },
-                  { expr: "3x + 6 ≤ 18",   note: "expand" },
-                  { expr: "3x ≤ 12",        note: "− 6" },
-                  { expr: "x ≤ 4",          note: "÷ 3", highlight: true },
-                ].map((row, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: i < 3 ? "1px solid #E2E8F0" : "none" }}>
-                    <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: row.highlight ? 900 : 600, color: row.highlight ? ACCENT : INK }}>{row.expr}</span>
-                    <span style={{ fontFamily: FONT, fontSize: 12, fontWeight: 600, color: row.highlight ? ACCENT : GRAY, background: row.highlight ? "rgba(59,91,219,0.08)" : "transparent", padding: "3px 8px", borderRadius: 6 }}>{row.note}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>Solve: 3(x + 2) ≤ 18</div>
-              <OptionList options={["x ≤ 4", "x ≤ 6"]} correct={0} picked={picked} onPick={setPicked} />
-            </div>
-          </div>
-        )}
-
-        {/* ── Slide 7: HARD 2 — negative flip ── */}
-        {idx === 7 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
-            <div>
-              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 20 }}>
-                Dividing by a negative flips the symbol.
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <div style={{ background: "#F8FAFC", borderRadius: 14, padding: "18px 22px", display: "flex", alignItems: "center", gap: 20 }}>
-                  <span style={{ fontFamily: MONO, fontSize: 20, fontWeight: 700, color: INK }}>−2x &gt; 8</span>
-                  <svg width="28" height="16" viewBox="0 0 28 16" fill="none"><path d="M2 8h24M18 2l6 6-6 6" stroke={GRAY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  <span style={{ fontFamily: MONO, fontSize: 20, fontWeight: 900, color: ACCENT }}>x &lt; −4</span>
-                </div>
-                <div style={{ background: "#FFF7E6", border: "1.5px solid #F59E0B", borderRadius: 14, padding: "14px 18px", display: "flex", alignItems: "flex-start", gap: 12 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="9" stroke="#F59E0B" strokeWidth="2"/><path d="M12 8v4M12 16h.01" stroke="#F59E0B" strokeWidth="2.2" strokeLinecap="round"/></svg>
-                  <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 500, color: "#92400E", lineHeight: 1.5 }}>
-                    Divide both sides by <strong>−2</strong> — the symbol flips from <strong>&gt;</strong> to <strong>&lt;</strong>.
-                  </div>
-                </div>
-                <svg viewBox="0 0 340 60" style={{ width: "100%", height: "auto", display: "block" }}>
-                  <line x1="20" y1="20" x2="310" y2="20" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round"/>
-                  <polygon points="314,20 304,15 304,25" fill="#CBD5E1"/>
-                  <line x1="20" y1="20" x2={20 + ((-4 - (-8)) / 8) * 290} y2="20" stroke={ACCENT} strokeWidth="5" strokeLinecap="round" opacity="0.35"/>
-                  {[-8,-7,-6,-5,-4,-3,-2,-1,0].map(n => {
-                    const x = 20 + ((n - (-8)) / 8) * 290;
-                    const isMark = n === -4;
-                    return (
-                      <g key={n}>
-                        <line x1={x} y1={isMark ? 12 : 16} x2={x} y2={24} stroke={isMark ? INK : "#CBD5E1"} strokeWidth={isMark ? 2 : 1}/>
-                        {isMark && <text x={x} y="46" textAnchor="middle" fontFamily={MONO} fontSize="13" fontWeight="700" fill={INK}>{n}</text>}
+              {/* Bar chart: 4 people, only Sam (128cm) meets the requirement */}
+              {(() => {
+                const BASE = 148, SCALE = 0.82;
+                const py = (v: number) => BASE - v * SCALE;
+                const people = [
+                  { name: "Alex", h: 112, color: RED },
+                  { name: "Sam",  h: 128, color: GREEN },
+                  { name: "Mia",  h: 108, color: RED },
+                  { name: "Jake", h: 117, color: RED },
+                ];
+                return (
+                  <svg viewBox="0 0 300 170" style={{ width: "100%", height: "auto", display: "block" }}>
+                    {[0, 40, 80, 120, 160].map(v => (
+                      <g key={v}>
+                        <line x1="40" y1={py(v)} x2="280" y2={py(v)} stroke={v === 120 ? "#F59E0B" : "#E2E8F0"} strokeWidth={v === 120 ? 1.5 : 1} strokeDasharray={v === 120 ? "4,3" : undefined}/>
+                        <text x="34" y={py(v) + 4} textAnchor="end" fontFamily={MONO} fontSize="9" fill={v === 120 ? "#F59E0B" : GRAY}>{v}</text>
                       </g>
-                    );
-                  })}
-                  <circle cx={20 + ((-4 - (-8)) / 8) * 290} cy="20" r="8" fill={ACCENT}/>
-                </svg>
-              </div>
+                    ))}
+                    <text x="284" y={py(120) + 4} fontFamily={FONT} fontSize="9" fontWeight="700" fill="#F59E0B">min</text>
+                    {people.map(({ name, h, color }, i) => {
+                      const x = 56 + i * 52;
+                      const bh = h * SCALE;
+                      return (
+                        <g key={name}>
+                          <rect x={x} y={py(h)} width={36} height={bh} rx="3" fill={color} opacity="0.85"/>
+                          <text x={x + 18} y={BASE + 16} textAnchor="middle" fontFamily={FONT} fontSize="10" fontWeight="600" fill={INK}>{name}</text>
+                        </g>
+                      );
+                    })}
+                    <line x1="40" y1={BASE} x2="280" y2={BASE} stroke={INK} strokeWidth="1.5" opacity="0.3"/>
+                  </svg>
+                );
+              })()}
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>Solve: −2x &gt; 8</div>
-              <OptionList options={["x > −4", "x < −4"]} correct={1} picked={picked} onPick={setPicked} />
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Who meets the height requirement of 120cm?</div>
+              </div>
+              <OptionList options={["Sam (128cm)", "Jake (117cm)"]} correct={0} picked={picked} onPick={setPicked} />
             </div>
           </div>
         )}
 
-        {/* ── Slide 8: HARD 3 — two-sided ── */}
-        {idx === 8 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+        {/* ── Slide 7: test values ── */}
+        {idx === 7 && (
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 8 }}>
-                A double inequality traps x between two values.
+              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 24 }}>
+                Here&apos;s a harder one.
               </div>
-              <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 16, color: "#475569", lineHeight: 1.6, marginBottom: 20 }}>
-                Apply the same operation to all three parts.
-              </div>
-              <div style={{ background: "#F8FAFC", borderRadius: 16, padding: "20px 24px", display: "flex", flexDirection: "column", gap: 0, marginBottom: 16 }}>
-                {[
-                  { expr: "3 < 2x + 1 < 11",  note: "start" },
-                  { expr: "2 < 2x < 10",       note: "− 1" },
-                  { expr: "1 < x < 5",          note: "÷ 2", highlight: true },
-                ].map((row, i, arr) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: i < arr.length - 1 ? "1px solid #E2E8F0" : "none" }}>
-                    <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: row.highlight ? 900 : 600, color: row.highlight ? ACCENT : INK }}>{row.expr}</span>
-                    <span style={{ fontFamily: FONT, fontSize: 12, fontWeight: 600, color: row.highlight ? ACCENT : GRAY, background: row.highlight ? "rgba(59,91,219,0.08)" : "transparent", padding: "3px 8px", borderRadius: 6 }}>{row.note}</span>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {["−1", "3", "5", "7"].map(v => (
+                  <div key={v} style={{ background: "#F8FAFC", border: "1.5px solid #E2E8F0", borderRadius: 14, padding: "20px 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ fontFamily: MONO, fontSize: 32, fontWeight: 900, color: INK }}>{v}</div>
                   </div>
                 ))}
               </div>
-              <svg viewBox="0 0 340 60" style={{ width: "100%", height: "auto", display: "block" }}>
-                <line x1="20" y1="20" x2="310" y2="20" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round"/>
-                <polygon points="314,20 304,15 304,25" fill="#CBD5E1"/>
-                {(() => { const s=-1,e=7,W=290; const pos=(v:number)=>20+(v-s)/(e-s)*W; return (<>
-                  <line x1={pos(1)} y1="20" x2={pos(5)} y2="20" stroke={ACCENT} strokeWidth="5" strokeLinecap="round" opacity="0.35"/>
-                  {[-1,0,1,2,3,4,5,6,7].map(n => { const x=pos(n); const m=n===1||n===5; return (<g key={n}><line x1={x} y1={m?12:16} x2={x} y2={24} stroke={m?INK:"#CBD5E1"} strokeWidth={m?2:1}/>{m&&<text x={x} y="46" textAnchor="middle" fontFamily={MONO} fontSize="13" fontWeight="700" fill={INK}>{n}</text>}</g>); })}
-                  <circle cx={pos(1)} cy="20" r="8" fill="#F97316"/>
-                  <circle cx={pos(5)} cy="20" r="8" fill={ACCENT}/>
-                </>); })()}
-              </svg>
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>Solve: 3 &lt; 2x + 1 &lt; 11</div>
-              <OptionList options={["1 < x < 5", "2 < x < 10"]} correct={0} picked={picked} onPick={setPicked} />
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which values from &#123;−1, 3, 5, 7&#125; satisfy x &lt; 3?</div>
+              </div>
+              <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 500, color: GRAY, marginBottom: 20, paddingLeft: 54 }}>Select all that apply.</div>
+              <OptionList options={["−1 only", "−1 and 3"]} correct={0} picked={picked} onPick={setPicked} />
+            </div>
+          </div>
+        )}
+
+        {/* ── Slide 8: test values ≥ ── */}
+        {idx === 8 && (
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+            <div>
+              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 24 }}>
+                And another one.
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {["2", "5", "8", "11"].map(v => (
+                  <div key={v} style={{ background: "#F8FAFC", border: "1.5px solid #E2E8F0", borderRadius: 14, padding: "20px 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ fontFamily: MONO, fontSize: 32, fontWeight: 900, color: INK }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which values from &#123;2, 5, 8, 11&#125; satisfy x ≥ 5?</div>
+              </div>
+              <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 500, color: GRAY, marginBottom: 20, paddingLeft: 54 }}>Select all that apply.</div>
+              <OptionList options={["5, 8 and 11", "2, 5 and 8"]} correct={0} picked={picked} onPick={setPicked} />
             </div>
           </div>
         )}
 
         {/* ── Slide 9: HARD 4 — word problem ── */}
         {idx === 9 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 20 }}>
-                Inequalities model real-world problems.
+              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 12 }}>
+                We can use inequalities to solve <span style={{ color: ACCENT }}>real world</span> problems.
               </div>
-              <div style={{ background: "#F8FAFC", borderRadius: 16, padding: "20px 24px", marginBottom: 16 }}>
-                <div style={{ fontFamily: FONT, fontSize: 14, fontWeight: 600, color: GRAY, marginBottom: 12, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Score needed to pass</div>
+              <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", lineHeight: 1.6, marginBottom: 20 }}>
+                A student has 45 marks. They need at least 70 to pass.
+              </div>
+              <div style={{ background: "#F8FAFC", borderRadius: 16, padding: "20px 24px" }}>
+                <div style={{ fontFamily: FONT, fontSize: 12, fontWeight: 700, color: GRAY, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginBottom: 14 }}>Score breakdown</div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                   <span style={{ fontFamily: MONO, fontSize: 14, fontWeight: 700, color: ACCENT }}>45 (current)</span>
                   <span style={{ fontFamily: MONO, fontSize: 14, fontWeight: 700, color: GREEN }}>70 (target)</span>
@@ -617,49 +662,101 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
                   Needs <strong style={{ color: INK }}>m</strong> more marks to reach at least 70.
                 </div>
               </div>
-              <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 12, padding: "14px 18px", fontFamily: MONO, fontSize: 20, fontWeight: 700, color: ACCENT, textAlign: "center" as const }}>
-                45 + m ≥ 70
-              </div>
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>A student has 45 marks. They need at least 70 to pass. Which inequality shows the extra marks m needed?</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which inequality shows the extra marks needed to pass?</div>
+              </div>
               <OptionList options={["45 + m ≥ 70", "45 + m > 70"]} correct={0} picked={picked} onPick={setPicked} />
             </div>
           </div>
         )}
 
-        {/* ── Slide 10: HARD 5 — test values ── */}
+        {/* ── Slide 10: taxi word problem ── */}
         {idx === 10 && (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 20 }}>
-                Substitute each value to test it.
+              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 10 }}>
+                Here&apos;s another one.
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-                {[{v:"-1", ok:true},{v:"3",ok:false},{v:"5",ok:false},{v:"7",ok:false}].map(row => (
-                  <div key={row.v} style={{ display: "flex", alignItems: "center", gap: 14, background: row.ok ? "#E7F8EC" : "#FDECEC", borderRadius: 12, padding: "12px 18px" }}>
-                    <div style={{ fontFamily: MONO, fontSize: 18, fontWeight: 700, color: INK, minWidth: 28 }}>{row.v}</div>
-                    <div style={{ fontFamily: FONT, fontSize: 14, color: row.ok ? "#2CA555" : "#EF5A5A", flex: 1 }}>
-                      {row.v} &lt; 3? <strong>{row.ok ? "Yes ✓" : "No ✗"}</strong>
-                    </div>
-                    {row.ok
-                      ? <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="11" fill={GREEN}/><path d="M6 11l3.5 3.5 6.5-6.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      : <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="11" fill={RED}/><path d="M7 7l8 8M15 7l-8 8" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/></svg>
-                    }
+              <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 16, color: "#475569", lineHeight: 1.6, marginBottom: 20 }}>
+                A taxi charges $3 per km plus a $5 booking fee.<br/>You have $20 to spend.
+              </div>
+              {/* Taxi fare table */}
+              <div style={{ background: "#F8FAFC", borderRadius: 14, overflow: "hidden", border: "1px solid #E2E8F0", marginBottom: 12 }}>
+                <div style={{ background: INK, padding: "10px 18px" }}>
+                  <span style={{ fontFamily: FONT, fontSize: 12, fontWeight: 700, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Taxi fare breakdown</span>
+                </div>
+                {[
+                  { label: "Booking fee", value: "$5" },
+                  { label: "Cost per km", value: "$3" },
+                ].map((row, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 18px", borderTop: "1px solid #E2E8F0", background: "#fff" }}>
+                    <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 500, color: "#475569" }}>{row.label}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: INK }}>{row.value}</span>
                   </div>
                 ))}
               </div>
+              {/* Budget box */}
+              <div style={{ background: "rgba(56,199,107,0.08)", border: "1.5px solid #38C76B", borderRadius: 12, padding: "13px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: GREEN_DK }}>You have a budget of</span>
+                <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 900, color: GREEN_DK }}>$20</span>
+              </div>
             </div>
             <div>
-              <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK, marginBottom: 20 }}>Which values from &#123;−1, 3, 5, 7&#125; satisfy x &lt; 3?</div>
-              <OptionList options={["−1 only", "−1 and 3"]} correct={0} picked={picked} onPick={setPicked} />
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which inequality represents this situation?</div>
+              </div>
+              <OptionList options={["3x + 5 ≥ 20", "3x + 5 ≤ 20", "3x + 5 = 20"]} correct={1} picked={picked} onPick={setPicked} />
             </div>
           </div>
         )}
 
-        {/* ── Slide 11: PRACTICE UNLOCKED ── */}
+        {/* ── Slide 11: painter word problem ── */}
         {idx === 11 && (
-          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+            <div>
+              <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1, marginBottom: 10 }}>
+                And a final one.
+              </div>
+              <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 16, color: "#475569", lineHeight: 1.6, marginBottom: 20 }}>
+                A painter charges a $20 callout fee<br/>plus $15 per hour. You have $80 to spend.
+              </div>
+              <div style={{ background: "#F8FAFC", borderRadius: 14, overflow: "hidden", border: "1px solid #E2E8F0", marginBottom: 12 }}>
+                <div style={{ background: INK, padding: "10px 18px" }}>
+                  <span style={{ fontFamily: FONT, fontSize: 12, fontWeight: 700, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Painter fee breakdown</span>
+                </div>
+                {[
+                  { label: "Callout fee",   value: "$20" },
+                  { label: "Cost per hour", value: "$15" },
+                ].map((row, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 18px", borderTop: "1px solid #E2E8F0", background: "#fff" }}>
+                    <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 500, color: "#475569" }}>{row.label}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: INK }}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: "rgba(56,199,107,0.08)", border: "1.5px solid #38C76B", borderRadius: 12, padding: "13px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: GREEN_DK }}>You have a budget of</span>
+                <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 900, color: GREEN_DK }}>$80</span>
+              </div>
+            </div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>Which inequality represents this situation?</div>
+              </div>
+              <OptionList options={["20 + 15h ≤ 80", "20 + 15h ≥ 80"]} correct={0} picked={picked} onPick={setPicked} />
+            </div>
+          </div>
+        )}
+
+        {/* ── Slide 12: PRACTICE UNLOCKED ── */}
+        {idx === 12 && (
+
+          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding:isMobile?"16px 16px 60px":"24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
             <div style={{ position: "relative", marginBottom: 20, width: 126, height: 126 }}>
               <div style={{ width: 126, height: 126, borderRadius: "50%", background: "rgba(59,91,219,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="70" height="70" viewBox="0 0 90 90" fill="none">
@@ -693,20 +790,59 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
                 </div>
               ))}
             </div>
-            <button onClick={() => { setPicked(null); setIdx(12); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 36px", background: ACCENT, border: "none", borderRadius: 14, fontFamily: FONT, fontWeight: 700, fontSize: 15, color: "#fff", cursor: "pointer", boxShadow: "0 4px 0 rgba(59,91,219,0.35)" }}>
+            <button onClick={() => { setPicked(null); setIdx(13); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 36px", background: ACCENT, border: "none", borderRadius: 14, fontFamily: FONT, fontWeight: 700, fontSize: 15, color: "#fff", cursor: "pointer", boxShadow: "0 4px 0 rgba(59,91,219,0.35)" }}>
               Start Practice
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           </div>
         )}
 
-        {/* ── Practice slides 12–21 ── */}
+        {/* ── Practice slides 13–22 ── */}
         {isPractice && (() => {
-          const q  = PDATA[practiceStep];
-          const nl = PNLDATA[practiceStep];
+          const q   = PDATA[practiceStep];
+          const nl  = PNLDATA[practiceStep];
+          const tbl = PTABLE[practiceStep];
+
+          if (tbl) {
+            // Real-world table layout (Q6–Q10)
+            return (
+              <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+                <div>
+                  <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 48, color: INK, lineHeight: 1.1, marginBottom: 10 }}>
+                    Question <span style={{ color: ACCENT }}>{practiceStep + 1}.</span>
+                  </div>
+                  <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 15, color: "#475569", lineHeight: 1.6, marginBottom: 20 }}>{tbl.sub}</div>
+                  <div style={{ background: "#F8FAFC", borderRadius: 14, overflow: "hidden", border: "1px solid #E2E8F0", marginBottom: 12 }}>
+                    <div style={{ background: INK, padding: "10px 18px" }}>
+                      <span style={{ fontFamily: FONT, fontSize: 12, fontWeight: 700, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{tbl.title}</span>
+                    </div>
+                    {tbl.rows.map((row, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 18px", borderTop: "1px solid #E2E8F0", background: "#fff" }}>
+                        <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 500, color: "#475569" }}>{row.label}</span>
+                        <span style={{ fontFamily: MONO, fontSize: 16, fontWeight: 800, color: INK }}>{row.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ background: "rgba(56,199,107,0.08)", border: "1.5px solid #38C76B", borderRadius: 12, padding: "13px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: FONT, fontSize: 15, fontWeight: 600, color: GREEN_DK }}>You have a budget of</span>
+                    <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 900, color: GREEN_DK }}>{tbl.budget}</span>
+                  </div>
+                </div>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,91,219,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: FONT, fontWeight: 900, fontSize: 18, color: ACCENT }}>?</div>
+                    <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 18, color: INK }}>{q.q}</div>
+                  </div>
+                  <OptionList options={q.opts} correct={q.cor} picked={picked} onPick={setPicked} />
+                </div>
+              </div>
+            );
+          }
+
+          // Number line layout (Q1–Q5)
           const pos = (v: number) => 20 + (v - nl.start) / (nl.end - nl.start) * 290;
           return (
-            <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+            <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 48, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
               <div>
                 <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 48, color: INK, lineHeight: 1.1, marginBottom: 24 }}>
                   Question <span style={{ color: ACCENT }}>{practiceStep + 1}.</span>
@@ -738,19 +874,19 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
           );
         })()}
 
-        {/* ── Slide 22: SCORE ── */}
-        {idx === 22 && (() => {
+        {/* ── Slide 23: SCORE ── */}
+        {idx === 23 && (() => {
           const msg = practiceScore === 10 ? { text: "Perfect!", color: GREEN }
             : practiceScore >= 8 ? { text: "Great work.", color: GREEN }
             : practiceScore >= 6 ? { text: "Good work.", color: ACCENT }
             : practiceScore >= 4 ? { text: "Good effort.", color: RED }
             : { text: "Keep practising.", color: RED };
           return (
-            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
+            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding:isMobile?"16px 16px 60px":"24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
               <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 11, color: ACCENT, letterSpacing: "0.12em", marginBottom: 20 }}>SAT QUESTIONS</div>
               <div style={{ marginBottom: 12, lineHeight: 1 }}>
                 <span style={{ fontFamily: FONT, fontWeight: 900, fontSize: 120, color: INK }}>{practiceScore}</span>
-                <span style={{ fontFamily: FONT, fontWeight: 700, fontSize: 56, color: GRAY }}>/10</span>
+                <span style={{ fontFamily: FONT, fontWeight: 700, fontSize:heroFs, color: GRAY }}>/10</span>
               </div>
               <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 28, color: msg.color, marginBottom: 36 }}>{msg.text}</div>
               <div style={{ display: "flex", gap: 12, marginBottom: 44 }}>
@@ -771,7 +907,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Slide 18: COMPLETE ── */}
         {isLast && (
-          <div style={{ position: "relative", zIndex: 1, padding: "36px 52px 140px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:isMobile?"16px 16px 80px":"36px 52px 140px", display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
             <div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: GREENBG, borderRadius: 99, padding: "6px 16px", marginBottom: 28 }}>
                 <svg width="15" height="15" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill={GREEN}/><path d="M4 8l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -797,7 +933,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: FONT, fontSize: 11, fontWeight: 800, color: GRAY, letterSpacing: "0.10em", textTransform: "uppercase", marginBottom: 8 }}>Your Progress</div>
-                  <ProgressPills filled={completeFilled} total={10} color={GREEN} />
+                  <ProgressPills filled={completeFilled} total={8} color={GREEN} />
                 </div>
                 <div style={{ textAlign: "right", flexShrink: 0 }}>
                   <div style={{ fontFamily: FONT, fontSize: 26, fontWeight: 800, color: GREEN }}>80%</div>
@@ -813,7 +949,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
 
         {/* ── Bottom bar ── */}
         {isLast ? (
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: CHAT_W, zIndex: 10, background: "#fff", borderTop: "1px solid #E2E8F0", padding: "20px 52px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right:isMobile?0:CHAT_W, zIndex: 10, background: "#fff", borderTop: "1px solid #E2E8F0", padding:barPad, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
             <div style={{ fontFamily: FONT, fontWeight: 400, fontSize: 14, color: "#475569" }}>
               You can now read and write all four inequality symbols.
             </div>
@@ -824,10 +960,10 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
               </button>
             </div>
           </div>
-        ) : idx === 11 || idx === 22 ? null : (() => {
+        ) : idx === 12 || idx === 23 ? null : (() => {
           if (!isQuestionSlide || picked === null) {
             return (
-              <div style={{ position: "fixed", bottom: 0, left: 0, right: CHAT_W, zIndex: 10, background: "#fff", borderTop: "1px solid #E2E8F0", padding: "20px 52px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ position: "fixed", bottom: 0, left: 0, right:isMobile?0:CHAT_W, zIndex: 10, background: "#fff", borderTop: "1px solid #E2E8F0", padding:barPad, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 {!isFirst
                   ? <button onClick={() => { setPicked(null); setIdx(i => i - 1); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "13px 22px", background: "#fff", border: "1.5px solid #E2E8F0", borderRadius: 12, fontFamily: FONT, fontWeight: 700, fontSize: 14, color: INK, cursor: "pointer" }}>
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L6 8l4 5" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -846,7 +982,7 @@ export default function InteractiveLessonL7({ onClose, onComplete }: { onClose: 
           }
           const isCorrect = picked === correctForIdx;
           return (
-            <div style={{ position: "fixed", bottom: 0, left: 0, right: CHAT_W, zIndex: 10, padding: "14px 52px", display: "flex", alignItems: "center", justifyContent: "flex-end", background: isCorrect ? GREENBG : "#FDECEC", borderTop: `2px solid ${isCorrect ? GREEN : RED}` }}>
+            <div style={{ position: "fixed", bottom: 0, left: 0, right:isMobile?0:CHAT_W, zIndex: 10, padding:isMobile?"12px 16px":"14px 52px", display: "flex", alignItems: "center", justifyContent: "flex-end", background: isCorrect ? GREENBG : "#FDECEC", borderTop: `2px solid ${isCorrect ? GREEN : RED}` }}>
               <button onClick={handleContinue} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 28px", background: isCorrect ? GREEN_DK : RED, border: "none", borderRadius: 12, fontFamily: FONT, fontWeight: 800, fontSize: 14, letterSpacing: "0.05em", color: "#fff", cursor: "pointer", boxShadow: `0 4px 0 ${isCorrect ? "rgba(44,165,85,0.35)" : "rgba(239,90,90,0.35)"}`, flexShrink: 0 }}>
                 CONTINUE <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 5l3 3-3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>

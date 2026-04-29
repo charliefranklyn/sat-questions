@@ -7,6 +7,7 @@ import InteractiveLessonL4 from "@/components/InteractiveLessonL4";
 import InteractiveLessonL5 from "@/components/InteractiveLessonL5";
 import InteractiveLessonL6 from "@/components/InteractiveLessonL6";
 import InteractiveLessonL7 from "@/components/InteractiveLessonL7";
+import InteractiveLessonL8 from "@/components/InteractiveLessonL8";
 
 const INK    = "#1F2544";
 const SOFT   = "#5A6088";
@@ -20,7 +21,7 @@ const GOLD     = "#F59E0B";
 const SILVER   = "#94A3B8";
 const BRONZE   = "#CD7C2E";
 
-type LessonId = "l1" | "l2" | "l3" | "l4" | "l5" | "l6" | "l7";
+type LessonId = "l1" | "l2" | "l3" | "l4" | "l5" | "l6" | "l7" | "l8";
 
 const LINEAR_LESSONS = [
   { id: "l1" as LessonId, num: "01", title: "Recognising Linear Functions",   count: 10, locked: false },
@@ -30,15 +31,16 @@ const LINEAR_LESSONS = [
   { id: "l5" as LessonId, num: "05", title: "Reading Equations from Graphs",  count: 10, locked: false },
   { id: "l6" as LessonId, num: "06", title: "Systems of Equations",           count: 10, locked: false },
   { id: "l7" as LessonId, num: "07", title: "Linear Inequalities",            count: 10, locked: false },
+  { id: "l8" as LessonId, num: "08", title: "Solving Inequalities",           count: 10, locked: false },
 ];
 
 const LEADERBOARD = [
-  { rank: 1, name: "Ava",    score: 38, total: 40, time: "18m 42s", isYou: false },
-  { rank: 2, name: "Jay",    score: 38, total: 40, time: "21m 10s", isYou: false },
-  { rank: 3, name: "Charlie",score: 36, total: 40, time: "19m 05s", isYou: false },
-  { rank: 4, name: "Mia",   score: 34, total: 40, time: "22m 31s", isYou: false },
-  { rank: 5, name: "You",    score: 32, total: 40, time: "—",       isYou: true  },
-  { rank: 6, name: "Leo",    score: 30, total: 40, time: "20m 44s", isYou: false },
+  { rank: 1, name: "Ava",     score: 76, total: 80, time: "1h 24m", isYou: false },
+  { rank: 2, name: "Jay",     score: 74, total: 80, time: "1h 38m", isYou: false },
+  { rank: 3, name: "Charlie", score: 71, total: 80, time: "1h 29m", isYou: false },
+  { rank: 4, name: "Mia",     score: 68, total: 80, time: "1h 45m", isYou: false },
+  { rank: 5, name: "You",     score: 64, total: 80, time: "—",       isYou: true  },
+  { rank: 6, name: "Leo",     score: 59, total: 80, time: "1h 33m", isYou: false },
 ];
 
 function RankBadge({ rank }: { rank: number }) {
@@ -108,7 +110,7 @@ function TopicSection({ title, icon, lessons, done, expanded, onToggle, onOpen }
 
 export default function MathematicsPage() {
   const [open, setOpen] = useState<LessonId | null>(null);
-  const [done, setDone] = useState<Record<LessonId, boolean>>({ l1: false, l2: false, l3: false, l4: false, l5: false, l6: false, l7: false });
+  const [done, setDone] = useState<Record<LessonId, boolean>>({ l1: false, l2: false, l3: false, l4: false, l5: false, l6: false, l7: false, l8: false });
   const [expandLinear, setExpandLinear] = useState(true);
 
   const completedCount = Object.values(done).filter(Boolean).length;
@@ -128,7 +130,7 @@ export default function MathematicsPage() {
             <div style={{ fontFamily: FONT, fontSize: 22, fontWeight: 900, color: INK, letterSpacing: "-0.02em" }}>Selective Mathematics</div>
             {completedCount > 0 && (
               <div style={{ marginLeft: 4, background: "#E7F8EC", color: GREEN_DK, fontFamily: FONT, fontSize: 12, fontWeight: 800, padding: "4px 10px", borderRadius: 9999 }}>
-                {completedCount} / 6 done
+                {completedCount} / 8 done
               </div>
             )}
           </div>
@@ -160,7 +162,7 @@ export default function MathematicsPage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.7)" strokeWidth="2"/><path d="M12 7v5l3 3" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"/></svg>
                 Challenge ends in
               </div>
-              <div style={{ fontFamily: FONT, fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>2d 14h 32m</div>
+              <div style={{ fontFamily: FONT, fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>4d 0h 0m</div>
             </div>
             <div style={{ fontSize: 44 }}>🏆</div>
           </div>
@@ -207,6 +209,7 @@ export default function MathematicsPage() {
     {open === "l5" && <InteractiveLessonL5 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l5: true }))} />}
     {open === "l6" && <InteractiveLessonL6 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l6: true }))} />}
     {open === "l7" && <InteractiveLessonL7 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l7: true }))} />}
+    {open === "l8" && <InteractiveLessonL8 onClose={() => setOpen(null)} onComplete={() => setDone(d => ({ ...d, l8: true }))} />}
     </>
   );
 }

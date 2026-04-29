@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const CHAT_W = 378;
 
@@ -81,11 +82,14 @@ export default function ChatPanel({
   top = 0, locked = false, hintOnly = false,
   autoMessage, tipMessage, slideKey = 0,
   answeredLabel, answeredCorrect, slideContext,
+  mobileOpen = false, onMobileClose,
 }: {
   top?: number; locked?: boolean; hintOnly?: boolean;
   autoMessage?: string; tipMessage?: string; slideKey?: number;
   answeredLabel?: string; answeredCorrect?: boolean; slideContext?: string;
+  mobileOpen?: boolean; onMobileClose?: () => void;
 }) {
+  const isMobile = useIsMobile();
   const [messages, setMessages]             = useState<Msg[]>([]);
   const [feedback, setFeedback]             = useState<Feedback[]>([]);
   const [chipsDismissed, setChipsDismissed] = useState(false);
@@ -195,12 +199,26 @@ export default function ChatPanel({
     { label: "I have a question",    icon: <QuestionBubbleIcon />, fn: injectQuestion },
   ];
 
+  if (isMobile && !mobileOpen) return null;
+
   return (
     <div style={{
-      position: "fixed", top, right: 0, bottom: 0, width: CHAT_W,
-      background: "#fff", borderLeft: "1px solid #E2E8F0",
+      position: "fixed",
+      ...(isMobile
+        ? { top: 0, left: 0, right: 0, bottom: 0, width: "100%" }
+        : { top, right: 0, bottom: 0, width: CHAT_W }),
+      background: "#fff", borderLeft: isMobile ? "none" : "1px solid #E2E8F0",
       display: "flex", flexDirection: "column", zIndex: 200, fontFamily: FONT,
     }}>
+      {isMobile && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: "1px solid #E2E8F0" }}>
+          <button onClick={onMobileClose} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: FONT, fontSize: 14, fontWeight: 600, color: ACCENT }}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M13 4l-6 6 6 6" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Back
+          </button>
+          <span style={{ fontFamily: FONT, fontSize: 14, fontWeight: 700, color: INK }}>AI Tutor</span>
+        </div>
+      )}
 
       {/* Message area */}
       <div style={{

@@ -1,6 +1,7 @@
 "use client";
 import ChatPanel, { CHAT_W } from "@/components/ChatPanel";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function playCorrect() { new Audio("/sounds/correct.mp3").play().catch(() => {}); }
 
@@ -525,9 +526,9 @@ function OptionList({ options, correct, picked, onPick }: { options:string[]; co
 }
 
 // ── EdAccelerator header (shared) ─────────────────────────────────────────────
-function EdHeader() {
+function EdHeader({ onChatOpen, isMobile }: { onChatOpen?: () => void; isMobile?: boolean }) {
   return (
-    <div style={{ borderBottom:"1px solid rgba(226,232,240,0.6)", padding:"0 52px", height:56, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+    <div style={{ borderBottom:"1px solid rgba(226,232,240,0.6)", padding:isMobile?"0 16px":"0 52px", height:56, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
       <div style={{ display:"flex", alignItems:"center", gap:10 }}>
         <svg width="28" height="28" viewBox="264 271 552 537" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -541,8 +542,16 @@ function EdHeader() {
         </svg>
         <span style={{ fontFamily:FONT, fontSize:14, fontWeight:600, color:"#0F172A", letterSpacing:"-0.01em" }}>EdAccelerator</span>
       </div>
-      <div style={{ width:32, height:32, borderRadius:"50%", background:"linear-gradient(135deg,#4e7efe 0%,#1c45f6 100%)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <span style={{ fontFamily:FONT, fontSize:13, fontWeight:600, color:"#fff" }}>C</span>
+      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+        {onChatOpen && (
+          <button onClick={onChatOpen} style={{ display:"flex", alignItems:"center", gap:5, background:"none", border:"1.5px solid #E2E8F0", borderRadius:10, padding:"6px 12px", cursor:"pointer", fontFamily:FONT, fontSize:13, fontWeight:600, color:ACCENT }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Chat
+          </button>
+        )}
+        <div style={{ width:32, height:32, borderRadius:"50%", background:"linear-gradient(135deg,#4e7efe 0%,#1c45f6 100%)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <span style={{ fontFamily:FONT, fontSize:13, fontWeight:600, color:"#fff" }}>C</span>
+        </div>
       </div>
     </div>
   );
@@ -578,6 +587,12 @@ const PROGRESS = [0.06,0.12,0.18,0.24,0.30,0.36,0.42,0.48,0.56,1.0,1.0,1.0,1.0,1
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:()=>void; onComplete:()=>void }) {
+  const isMobile = useIsMobile();
+  const [chatOpen, setChatOpen] = useState(false);
+  const slidePad = isMobile ? "16px 16px 80px"  : "28px 52px 100px";
+  const cols2    = isMobile ? "1fr"              : "1fr 1fr";
+  const barPad   = isMobile ? "12px 16px"        : "20px 52px";
+  const heroFs   = isMobile ? 32                 : 56;
   const [idx, setIdx]         = useState(0);
   const [picked, setPicked]   = useState<number|null>(null);
   const [multiPicked, setMultiPicked]   = useState<number[]>([]);
@@ -692,6 +707,14 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
         : `Not quite. ${EXPLAIN_DATA[idx][1]}\n\nKey takeaway: ${TAKEAWAY_DATA[idx]}`
       : undefined;
 
+  if (isMobile) return (
+    <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"#F5F7FA", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, fontFamily:'"Inter, ui-sans-serif, system-ui, sans-serif"', flexDirection:"column", gap:16, padding:24, textAlign:"center" }}>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="#94A3B8" strokeWidth="1.5"/><circle cx="12" cy="17" r="1" fill="#94A3B8"/></svg>
+      <div style={{ fontSize:20, fontWeight:800, color:"#1E293B" }}>Desktop only</div>
+      <div style={{ fontSize:14, color:"#94A3B8", maxWidth:240, lineHeight:1.6 }}>These lessons are not yet available on mobile. Please open on a desktop or laptop to continue.</div>
+    </div>
+  );
+
   return (
     <>
     <ChatPanel
@@ -703,12 +726,12 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
       answeredLabel={idx === 6 ? (multiSubmitted ? "(1,15), (2,30), (3,45)" : undefined) : (picked !== null ? ["A","B","C","D"][picked] : undefined)}
       answeredCorrect={idx === 6 ? (multiSubmitted ? multiAllCorrect : undefined) : (picked !== null ? picked === CORRECT_BY_IDX[idx] : undefined)}
     />
-<div style={{ position:"fixed", top:0, left:0, bottom:0, right:CHAT_W, background:"#fff", fontFamily:FONT, zIndex:100, overflowY:"auto" }}>
+<div style={{ position:"fixed", top:0, left:0, bottom:0, right:isMobile?0:CHAT_W, background:"#fff", fontFamily:FONT, zIndex:100, overflowY:"auto" }}>
 
-      <EdHeader />
+      <EdHeader onChatOpen={isMobile ? () => setChatOpen(true) : undefined} isMobile={isMobile} />
 
       {/* ── Progress bar ── */}
-      <div style={{ position:"relative", zIndex:1, padding:"20px 52px 0", display:"flex", alignItems:"center", gap:20 }}>
+      <div style={{ position:"relative", zIndex:1, padding:isMobile?"12px 16px 0":"20px 52px 0", display:"flex", alignItems:"center", gap:20 }}>
         <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", padding:0, display:"flex", flexShrink:0 }}>
           <svg width="20" height="20" viewBox="0 0 22 22"><path d="M4 4l14 14M18 4L4 18" stroke={INK} strokeWidth="2.5" strokeLinecap="round"/></svg>
         </button>
@@ -727,10 +750,10 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 0: INTRO ── */}
       {idx === 0 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"center", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"center", maxWidth:1280, margin:"0 auto" }}>
           <div>
             <div style={{ fontFamily:FONT, fontWeight:600, fontSize:12, color:GRAY, letterSpacing:"0.10em", textTransform:"uppercase", marginBottom:10 }}>Today&apos;s lesson</div>
-            <div style={{ fontFamily:FONT, fontWeight:900, fontSize:56, color:INK, lineHeight:0.95, marginBottom:14 }}>Graphing<br/>Linear<br/>Functions</div>
+            <div style={{ fontFamily:FONT, fontWeight:900, fontSize:heroFs, color:INK, lineHeight:0.95, marginBottom:14 }}>Graphing<br/>Linear<br/>Functions</div>
             <div style={{ fontFamily:FONT, fontWeight:500, fontSize:16, color:INK, lineHeight:1.6, marginBottom:24, maxWidth:400 }}>
               We&apos;ll learn how to <span style={{ color:ACCENT, fontWeight:600 }}>plot linear functions</span> on a graph: from coordinates to straight lines.
             </div>
@@ -740,7 +763,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
               </div>
               <div style={{ flex:1 }}>
                 <div style={{ fontFamily:FONT, fontSize:10, fontWeight:800, color:ACCENT, letterSpacing:"0.10em", textTransform:"uppercase", marginBottom:6 }}>Your progress</div>
-                <ProgressPills filled={1} total={10} />
+                <ProgressPills filled={1} total={8} />
               </div>
               <div style={{ textAlign:"right", flexShrink:0 }}>
                 <div style={{ fontFamily:FONT, fontSize:18, fontWeight:800, color:ACCENT }}>20%</div>
@@ -756,14 +779,14 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 1: HOW IS A LINEAR FUNCTION GRAPHED? ── */}
       {idx === 1 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           {/* Header — capped at left half so headline never crosses centre */}
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:8 }}>
               How is a linear function <span style={{ color:ACCENT }}>graphed?</span>
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             {/* Left */}
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <div style={{ fontFamily:FONT, fontSize:16, color:INK, lineHeight:1.6 }}>
@@ -773,7 +796,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
                 How do you think it would look on a graph?
               </div>
               <div style={{ background:"rgba(59,91,219,0.04)", borderRadius:16, padding:"20px", border:"1px solid rgba(59,91,219,0.10)" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                <div style={{ display:"grid", gridTemplateColumns:cols2, gap:16 }}>
                   <div>
                     <div style={{ background:"#fff", borderRadius:10, padding:10, marginBottom:8, border:"1px solid #E2E8F0" }}>
                       <MiniLinear />
@@ -805,13 +828,13 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 2: TWO PIECES OF INFORMATION ── */}
       {idx === 2 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:12 }}>
               Linear functions always create a <span style={{ color:ACCENT }}>straight line</span> when mapped on a graph.
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             {/* Left */}
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <div style={{ fontFamily:FONT, fontSize:16, color:INK, lineHeight:1.6 }}>
@@ -836,13 +859,13 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 3: WHAT ARE X AND Y COORDINATES? (point at 3,4) ── */}
       {idx === 3 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:8 }}>
               x and y coordinates tell us <span style={{ color:ACCENT }}>where a point sits</span> on a graph.
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             {/* Left */}
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               <div style={{ background:"rgba(59,91,219,0.06)", borderRadius:14, padding:"14px 18px" }}>
@@ -867,13 +890,13 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 4: NOW TRY THIS ONE (point at 2,5) ── */}
       {idx === 4 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:8 }}>
               Now try <span style={{ color:ACCENT }}>this one.</span>
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             <div style={{ marginTop:4 }}><PointGraph px={2} py={5} /></div>
             <div>
               <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
@@ -888,13 +911,13 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 5: NOW TRY THIS ONE (negative x — point at -2,3) ── */}
       {idx === 5 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:8 }}>
               Now try <span style={{ color:ACCENT }}>this one.</span>
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             <div style={{ marginTop:4 }}><PointGraph px={-2} py={3} /></div>
             <div>
               <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
@@ -909,26 +932,26 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 6: COORDINATE POINTS FROM TABLE (multi-select) ── */}
       {idx === 6 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:12 }}>
               Can you guess the <span style={{ color:ACCENT }}>coordinates</span> for this linear function?
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             {/* Left */}
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               <div style={{ background:"rgba(59,91,219,0.06)", borderRadius:14, padding:"14px 18px", fontFamily:FONT, fontSize:15, color:INK, lineHeight:1.6 }}>
                 The x coordinate is the input <span style={{ color:ACCENT, fontWeight:600 }}>(hours worked)</span>, the y coordinate is the output <span style={{ color:ACCENT, fontWeight:600 }}>(earnings)</span>. Together they create a coordinate point like <span style={{ fontWeight:700 }}>(1, 15)</span>.
               </div>
               <div style={{ borderRadius:14, overflow:"hidden", border:"1px solid rgba(59,91,219,0.10)" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", background:"rgba(59,91,219,0.05)" }}>
+                <div style={{ display:"grid", gridTemplateColumns:cols2, background:"rgba(59,91,219,0.05)" }}>
                   {["Hours worked","Earnings"].map(c=>(
                     <div key={c} style={{ padding:"13px 24px", fontFamily:FONT, fontWeight:700, fontSize:14, color:INK }}>{c}</div>
                   ))}
                 </div>
                 {[["1","$15"],["2","$30"],["3","$45"]].map(([a,b],i)=>(
-                  <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 1fr", borderTop:"1px solid rgba(59,91,219,0.08)", background:"#fff" }}>
+                  <div key={i} style={{ display:"grid", gridTemplateColumns:cols2, borderTop:"1px solid rgba(59,91,219,0.08)", background:"#fff" }}>
                     <div style={{ padding:"14px 24px", fontFamily:FONT, fontSize:16, color:INK, textAlign:"center" }}>{a}</div>
                     <div style={{ padding:"14px 24px", fontFamily:FONT, fontSize:16, color:INK, textAlign:"center" }}>{b}</div>
                   </div>
@@ -958,7 +981,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 7: WHICH GRAPH ── */}
       {idx === 7 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:12 }}>
               You&apos;ve got 3 coordinates:&nbsp;
@@ -967,14 +990,14 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
               <span style={{ color:ACCENT }}>(3, 45)</span>
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             {/* Left */}
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <div style={{ fontFamily:FONT, fontSize:15, color:"#475569", lineHeight:1.5 }}>
                 Which graph shows these points plotted correctly?
               </div>
               <div style={{ background:"rgba(59,91,219,0.04)", borderRadius:16, padding:"20px", border:"1px solid rgba(59,91,219,0.10)" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                <div style={{ display:"grid", gridTemplateColumns:cols2, gap:16 }}>
                   <div>
                     <div style={{ background:"#fff", borderRadius:10, padding:10, marginBottom:8, border:"1px solid #E2E8F0" }}>
                       <CoordGraphCorrect />
@@ -1004,13 +1027,13 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 8: WHICH SET OF COORDINATES ── */}
       {idx === 8 && (
-        <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
           <div style={{ marginBottom:20, maxWidth:"50%" }}>
             <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, marginBottom:12 }}>
               A correctly drawn linear function always creates a <span style={{ color:ACCENT }}>straight line.</span>
             </div>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"start" }}>
             {/* Left */}
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <div style={{ marginTop:8 }}><GraphWide /></div>
@@ -1029,7 +1052,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 9: PRACTICE UNLOCKED ── */}
       {idx === 9 && (
-        <div style={{ position:"relative", zIndex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px 52px 80px", textAlign:"center", minHeight:"calc(100vh - 80px)" }}>
+        <div style={{ position:"relative", zIndex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:isMobile?"16px 16px 60px":"24px 52px 80px", textAlign:"center", minHeight:"calc(100vh - 80px)" }}>
           <div style={{ position:"relative", marginBottom:20, width:126, height:126 }}>
             <div style={{ width:126, height:126, borderRadius:"50%", background:"rgba(59,91,219,0.08)", display:"flex", alignItems:"center", justifyContent:"center" }}>
               <svg width="70" height="70" viewBox="0 0 90 90" fill="none">
@@ -1189,13 +1212,13 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
         ];
         const s = PSLIDES[practiceStep];
         return (
-          <div style={{ position:"relative", zIndex:1, padding:"28px 52px 100px", maxWidth:1280, margin:"0 auto" }}>
+          <div style={{ position:"relative", zIndex:1, padding:slidePad, maxWidth:1280, margin:"0 auto" }}>
             <div style={{ marginBottom:24 }}>
               <div style={{ fontFamily:FONT, fontWeight:900, fontSize:40, color:INK, lineHeight:1.1, whiteSpace:"nowrap" }}>
                 {s.headline}
               </div>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:48, alignItems:"start" }}>
+            <div style={{ display:"grid", gridTemplateColumns:cols2, gap:48, alignItems:"start" }}>
               <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
                 {s.context && (
                   <div style={{ background:"rgba(59,91,219,0.06)", borderRadius:14, padding:"16px 20px", display:"flex", alignItems:"center", gap:16 }}>
@@ -1266,11 +1289,11 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
           : practiceScore >= 4 ? { text:"Good effort.", color:RED }
           : { text:"Keep practising.", color:RED };
         return (
-          <div style={{ position:"relative", zIndex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px 52px 80px", textAlign:"center", minHeight:"calc(100vh - 80px)" }}>
+          <div style={{ position:"relative", zIndex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:isMobile?"16px 16px 60px":"24px 52px 80px", textAlign:"center", minHeight:"calc(100vh - 80px)" }}>
             <div style={{ fontFamily:FONT, fontWeight:800, fontSize:11, color:ACCENT, letterSpacing:"0.12em", marginBottom:20 }}>SAT QUESTIONS</div>
             <div style={{ marginBottom:12, lineHeight:1 }}>
               <span style={{ fontFamily:FONT, fontWeight:900, fontSize:120, color:INK }}>{practiceScore}</span>
-              <span style={{ fontFamily:FONT, fontWeight:700, fontSize:56, color:GRAY }}>/10</span>
+              <span style={{ fontFamily:FONT, fontWeight:700, fontSize:heroFs, color:GRAY }}>/10</span>
             </div>
             <div style={{ fontFamily:FONT, fontWeight:700, fontSize:28, color:msg.color, marginBottom:36 }}>{msg.text}</div>
             <div style={{ display:"flex", gap:12, marginBottom:44 }}>
@@ -1291,14 +1314,14 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Slide 15: COMPLETE ── */}
       {isLast && (
-        <div style={{ position:"relative", zIndex:1, padding:"36px 52px 140px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, alignItems:"center", maxWidth:1280, margin:"0 auto" }}>
+        <div style={{ position:"relative", zIndex:1, padding:isMobile?"16px 16px 80px":"36px 52px 140px", display:"grid", gridTemplateColumns:cols2, gap:32, alignItems:"center", maxWidth:1280, margin:"0 auto" }}>
           <div>
             <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:GREENBG, borderRadius:99, padding:"6px 16px", marginBottom:28 }}>
               <svg width="15" height="15" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill={GREEN}/><path d="M4 8l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
               <span style={{ fontFamily:FONT, fontWeight:800, fontSize:12, color:GREEN_DK, letterSpacing:"0.09em" }}>LESSON COMPLETE</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:28, marginBottom:18 }}>
-              <div style={{ fontFamily:FONT, fontWeight:900, fontSize:56, color:INK, lineHeight:0.92 }}>Graphing<br/>Linear<br/>Functions</div>
+              <div style={{ fontFamily:FONT, fontWeight:900, fontSize:heroFs, color:INK, lineHeight:0.92 }}>Graphing<br/>Linear<br/>Functions</div>
               <div style={{ position:"relative", width:76, height:76, flexShrink:0 }}>
                 <svg width="76" height="76" viewBox="0 0 76 76" style={{ position:"absolute", inset:0 }}>
                   {[[38,4,38,14],[38,62,38,72],[4,38,14,38],[62,38,72,38],[11,11,18,18],[58,58,65,65],[11,65,18,58],[65,11,58,18]].map(([x1,y1,x2,y2],i)=>(
@@ -1321,7 +1344,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
               </div>
               <div style={{ flex:1 }}>
                 <div style={{ fontFamily:FONT, fontSize:11, fontWeight:800, color:GRAY, letterSpacing:"0.10em", textTransform:"uppercase", marginBottom:8 }}>Your Progress</div>
-                <ProgressPills filled={completeFilled} total={10} color={GREEN} />
+                <ProgressPills filled={completeFilled} total={8} color={GREEN} />
               </div>
               <div style={{ textAlign:"right", flexShrink:0 }}>
                 <div style={{ fontFamily:FONT, fontSize:26, fontWeight:800, color:GREEN }}>30%</div>
@@ -1337,7 +1360,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
       {/* ── Bottom bar ── */}
       {idx === 9 || idx === 20 ? null : isLast ? (
-        <div style={{ position:"fixed", bottom:0, left:0, right:CHAT_W, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:"20px 52px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:24 }}>
+        <div style={{ position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:barPad, display:"flex", alignItems:"center", justifyContent:"space-between", gap:24 }}>
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(59,91,219,0.10)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 19V7a2 2 0 0 1 2-2h11a3 3 0 0 1 3 3v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" stroke={ACCENT} strokeWidth="1.8"/><path d="M8 7v12M8 11h8" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round"/></svg>
@@ -1366,7 +1389,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
           if (!multiSubmitted) {
             const readyToCheck = multiPicked.length === 3;
             return (
-              <div style={{ position:"fixed", bottom:0, left:0, right:CHAT_W, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:"20px 52px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div style={{ position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:barPad, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                 <button onClick={() => { setPicked(null); setMultiPicked([]); setMultiSubmitted(false); setIdx(i => i-1); }} style={{ display:"flex", alignItems:"center", gap:8, padding:"13px 22px", background:"#fff", border:"1.5px solid #E2E8F0", borderRadius:12, fontFamily:FONT, fontWeight:700, fontSize:14, color:INK, cursor:"pointer" }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L6 8l4 5" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   BACK
@@ -1383,7 +1406,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
             );
           }
           return (
-            <div style={{ position:"fixed", bottom:0, left:0, right:CHAT_W, zIndex:10, padding:"18px 52px", display:"flex", alignItems:"center", justifyContent:"flex-end", gap:24, background: multiAllCorrect ? GREENBG : "#FDECEC", borderTop:`2px solid ${multiAllCorrect ? GREEN : RED}` }}>
+            <div style={{ position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, padding:"18px 52px", display:"flex", alignItems:"center", justifyContent:"flex-end", gap:24, background: multiAllCorrect ? GREENBG : "#FDECEC", borderTop:`2px solid ${multiAllCorrect ? GREEN : RED}` }}>
               <button onClick={() => { setMultiPicked([]); setMultiSubmitted(false); setPicked(null); setIdx(i => i+1); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 28px", background: multiAllCorrect ? GREEN_DK : RED, border:"none", borderRadius:12, fontFamily:FONT, fontWeight:800, fontSize:14, letterSpacing:"0.05em", color:"#fff", cursor:"pointer", boxShadow:`0 4px 0 ${multiAllCorrect ? "rgba(44,165,85,0.35)" : "rgba(239,90,90,0.35)"}`, flexShrink:0 }}>
                 CONTINUE
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 5l3 3-3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1394,7 +1417,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
 
         if (!isQuestionSlide || picked === null) {
           return (
-            <div style={{ position:"fixed", bottom:0, left:0, right:CHAT_W, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:"20px 52px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+            <div style={{ position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:barPad, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
               {!isFirst ? (
                 <button onClick={() => { setPicked(null); setMultiPicked([]); setMultiSubmitted(false); setIdx(i => i-1); }} style={{ display:"flex", alignItems:"center", gap:8, padding:"13px 22px", background:"#fff", border:"1.5px solid #E2E8F0", borderRadius:12, fontFamily:FONT, fontWeight:700, fontSize:14, color:INK, cursor:"pointer" }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L6 8l4 5" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1430,7 +1453,7 @@ export default function InteractiveLessonL2({ onClose, onComplete }: { onClose:(
         };
 
         return (
-          <div style={{ position:"fixed", bottom:0, left:0, right:CHAT_W, zIndex:10, padding:"14px 52px", display:"flex", alignItems:"center", justifyContent:"flex-end", background: isCorrect ? GREENBG : "#FDECEC", borderTop:`2px solid ${isCorrect ? GREEN : RED}` }}>
+          <div style={{ position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, padding:isMobile?"12px 16px":"14px 52px", display:"flex", alignItems:"center", justifyContent:"flex-end", background: isCorrect ? GREENBG : "#FDECEC", borderTop:`2px solid ${isCorrect ? GREEN : RED}` }}>
             <button onClick={handleContinue} style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 28px", background: isCorrect ? GREEN_DK : RED, border:"none", borderRadius:12, fontFamily:FONT, fontWeight:800, fontSize:14, letterSpacing:"0.05em", color:"#fff", cursor:"pointer", boxShadow:`0 4px 0 ${isCorrect ? "rgba(44,165,85,0.35)" : "rgba(239,90,90,0.35)"}`, flexShrink:0 }}>
               CONTINUE
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 5l3 3-3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>

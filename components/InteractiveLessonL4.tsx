@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import ChatPanel, { CHAT_W } from "@/components/ChatPanel";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function playCorrect() { new Audio("/sounds/correct.mp3").play().catch(() => {}); }
 
@@ -204,9 +205,9 @@ function OptionList({ options, correct, picked, onPick }: {
   );
 }
 
-function EdHeader() {
+function EdHeader({ onChatOpen, isMobile }: { onChatOpen?: () => void; isMobile?: boolean }) {
   return (
-    <div style={{ borderBottom: "1px solid rgba(226,232,240,0.6)", padding: "0 52px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div style={{ borderBottom: "1px solid rgba(226,232,240,0.6)", padding: isMobile ? "0 16px" : "0 52px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <svg width="28" height="28" viewBox="264 271 552 537" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -220,8 +221,16 @@ function EdHeader() {
         </svg>
         <span style={{ fontFamily: FONT, fontSize: 14, fontWeight: 600, color: "#0F172A", letterSpacing: "-0.01em" }}>EdAccelerator</span>
       </div>
-      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#4e7efe 0%,#1c45f6 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontFamily: FONT, fontSize: 13, fontWeight: 600, color: "#fff" }}>C</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {onChatOpen && (
+          <button onClick={onChatOpen} style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: "1.5px solid #E2E8F0", borderRadius: 10, padding: "6px 12px", cursor: "pointer", fontFamily: FONT, fontSize: 13, fontWeight: 600, color: ACCENT }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Chat
+          </button>
+        )}
+        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#4e7efe 0%,#1c45f6 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontFamily: FONT, fontSize: 13, fontWeight: 600, color: "#fff" }}>C</span>
+        </div>
       </div>
     </div>
   );
@@ -275,6 +284,12 @@ const PROGRESS = [
 ];
 
 export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: () => void; onComplete: () => void }) {
+  const isMobile = useIsMobile();
+  const [chatOpen, setChatOpen] = useState(false);
+  const slidePad = isMobile ? "16px 16px 80px"  : "28px 52px 100px";
+  const cols2    = isMobile ? "1fr"              : "1fr 1fr";
+  const barPad   = isMobile ? "12px 16px"        : "20px 52px";
+  const heroFs   = isMobile ? 32                 : 56;
   const [idx, setIdx]               = useState(0);
   const [picked, setPicked]         = useState<number | null>(null);
   const [practiceResults, setPracticeResults] = useState<(boolean | null)[]>(
@@ -313,7 +328,7 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
     7:  ["The difference between y values tells you how far up the line travelled - that's the rise.", "The run comes from x values, not y values. 6 - 3 measures vertical change, which is the rise."],
     8:  ["The difference in x values (2 − 1 = 1) tells you how far across — that's the run.", "The rise comes from y values. 2 − 1 measures horizontal change: run."],
     9:  ["y values on top, x values on the bottom — (9 − 3) ÷ (3 − 1) = 6 ÷ 2 = 3.", "Option B gives the right answer too (negatives cancel), but C swaps y and x — that gives the wrong slope entirely."],
-    10: ["(9 − 4) ÷ (5 − 2) = 5 ÷ 3. y values on top (rise), x values on the bottom (run).", "Option C swaps y and x — that gives run ÷ rise, which is the wrong way around."],
+    10: ["(9 − 4) ÷ (5 − 2) = 5 ÷ 3. y values on top (rise), x values on the bottom (run).", "Option B swaps y and x — that gives run ÷ rise, which is the wrong way around."],
     11: ["Subtract y values: 9 − 3 = 6. Subtract x values: 3 − 1 = 2. Divide: 6 ÷ 2 = 3.", "Apply the formula: (y₂ − y₁) ÷ (x₂ − x₁) = (9 − 3) ÷ (3 − 1) = 6 ÷ 2 = 3."],
     12: ["Subtract y values: 10 − 4 = 6. Subtract x values: 5 − 2 = 3. Divide: 6 ÷ 3 = 2.", "(10 − 4) ÷ (5 − 2) = 6 ÷ 3 = 2. Divide rise by run — don't just write rise or run alone."],
     14: ["Line B is steeper — it rises more for the same horizontal step.", "Compare the angle of both lines. Line B makes a steeper angle — it rises faster for every step across."],
@@ -398,6 +413,14 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
   const scoreCount = practiceResults.filter(r => r === true).length;
 
+  if (isMobile) return (
+    <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"#F5F7FA", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, fontFamily:'"Inter, ui-sans-serif, system-ui, sans-serif"', flexDirection:"column", gap:16, padding:24, textAlign:"center" }}>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="#94A3B8" strokeWidth="1.5"/><circle cx="12" cy="17" r="1" fill="#94A3B8"/></svg>
+      <div style={{ fontSize:20, fontWeight:800, color:"#1E293B" }}>Desktop only</div>
+      <div style={{ fontSize:14, color:"#94A3B8", maxWidth:240, lineHeight:1.6 }}>These lessons are not yet available on mobile. Please open on a desktop or laptop to continue.</div>
+    </div>
+  );
+
   return (
     <>
     <ChatPanel
@@ -409,12 +432,12 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
       answeredLabel={picked !== null ? ["A","B","C","D"][picked] : undefined}
       answeredCorrect={picked !== null ? picked === CORRECT_BY_IDX[idx] : undefined}
     />
-    <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, right: CHAT_W, background: "#fff", fontFamily: FONT, zIndex: 100, overflowY: "auto" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, right:isMobile?0:CHAT_W, background: "#fff", fontFamily: FONT, zIndex: 100, overflowY: "auto" }}>
 
-      <EdHeader />
+      <EdHeader onChatOpen={isMobile ? () => setChatOpen(true) : undefined} isMobile={isMobile} />
 
       {/* ── Progress bar ── */}
-      <div style={{ position: "relative", zIndex: 1, padding: "20px 52px 0", display: "flex", alignItems: "center", gap: 20 }}>
+      <div style={{ position: "relative", zIndex: 1, padding:isMobile?"12px 16px 0":"20px 52px 0", display: "flex", alignItems: "center", gap: 20 }}>
         <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", flexShrink: 0 }}>
           <svg width="20" height="20" viewBox="0 0 22 22"><path d="M4 4l14 14M18 4L4 18" stroke={INK} strokeWidth="2.5" strokeLinecap="round"/></svg>
         </button>
@@ -433,10 +456,10 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 0: INTRO ── */}
       {idx === 0 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "center", maxWidth: 1280, margin: "0 auto" }}>
           <div>
             <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 12, color: GRAY, letterSpacing: "0.10em", textTransform: "uppercase" as const, marginBottom: 10 }}>Today&apos;s lesson</div>
-            <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 56, color: INK, lineHeight: 0.95, marginBottom: 14 }}>The Slope<br/>of a Linear<br/>Function</div>
+            <div style={{ fontFamily: FONT, fontWeight: 900, fontSize:heroFs, color: INK, lineHeight: 0.95, marginBottom: 14 }}>The Slope<br/>of a Linear<br/>Function</div>
             <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 16, color: INK, lineHeight: 1.6, marginBottom: 24, maxWidth: 400 }}>
               We&apos;ll learn what slope means, how to count it on a graph, and how to calculate it from any two points.
             </div>
@@ -446,7 +469,7 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: FONT, fontSize: 10, fontWeight: 800, color: ACCENT, letterSpacing: "0.10em", textTransform: "uppercase" as const, marginBottom: 6 }}>Your progress</div>
-                <ProgressPills filled={3} total={10} />
+                <ProgressPills filled={3} total={8} />
               </div>
               <div style={{ textAlign: "right", flexShrink: 0 }}>
                 <div style={{ fontFamily: FONT, fontSize: 18, fontWeight: 800, color: ACCENT }}>40%</div>
@@ -462,14 +485,14 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 1: TWO GRAPHS ── */}
       {idx === 1 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Look at these two graphs.</div>
             <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", marginTop: 10, lineHeight: 1.6 }}>
               Both people earn money over time - but at different rates.
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "24px", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 12 }}>
               <TwoLinesGraph />
               <div style={{ display: "flex", gap: 20 }}>
@@ -493,14 +516,14 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 2: FLAT VS STEEP ── */}
       {idx === 2 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20, maxWidth: "50%" }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Steep = fast. Flat = slow.</div>
             <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", marginTop: 10, lineHeight: 1.6 }}>
               The steeper the line, the faster it grows.<br/>In maths, we call this <strong style={{ color: INK }}>slope</strong>.
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "16px" }}>
               <FlatVsSteepGraph />
             </div>
@@ -514,14 +537,14 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 3: COUNT STEPS ── */}
       {idx === 3 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20, maxWidth: "50%" }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Can you find the slope?</div>
             <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", marginTop: 10, lineHeight: 1.6 }}>
               <span style={{ fontWeight: 700, color: INK }}>Hint:</span> Look at how many squares it goes up.
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px" }}>
               <GridGraph rise={3} run={1} />
             </div>
@@ -535,7 +558,7 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 4: RISE ÷ RUN ── */}
       {idx === 4 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20, maxWidth: "50%" }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>You just calculated slope.</div>
             <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", marginTop: 10, lineHeight: 1.7 }}>
@@ -543,7 +566,7 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
               <span style={{ fontFamily: MONO, fontWeight: 700, fontSize: 18, color: INK }}>Slope = rise ÷ run</span>
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px", display: "flex", justifyContent: "center" }}>
               <GridGraph rise={6} run={2} showRiseRun />
             </div>
@@ -557,11 +580,11 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 5: 4 UP, 2 ACROSS ── */}
       {idx === 5 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20, maxWidth: "50%" }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Now try this one.</div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px", display: "flex", justifyContent: "center" }}>
               <GridGraph rise={4} run={2} showRiseRun />
             </div>
@@ -575,11 +598,11 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 6: 9 UP, 3 ACROSS ── */}
       {idx === 6 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20, maxWidth: "50%" }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Now try this one.</div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px" }}>
               <GridGraph rise={9} run={3} showRiseRun />
             </div>
@@ -593,14 +616,14 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 7: Y DIFF ── */}
       {idx === 7 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>You know that slope = rise ÷ run.</div>
             <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", marginTop: 10, lineHeight: 1.6 }}>
               Look at these two points: <span style={{ fontFamily: MONO, fontWeight: 700, color: INK }}>(1, 3)</span> and <span style={{ fontFamily: MONO, fontWeight: 700, color: INK }}>(2, 6)</span>
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px" }}>
               {(() => {
                 const W=320, H=220, pL=44, pR=28, pT=22, pB=42;
@@ -643,11 +666,11 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 8: X DIFF ── */}
       {idx === 8 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20, maxWidth: "50%" }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Now look at the x values.</div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px" }}>
               {(() => {
                 const W=320, H=220, pL=44, pR=28, pT=22, pB=42;
@@ -690,11 +713,11 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 9: FORMULA SETUP ── */}
       {idx === 9 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>We can calculate the slope<br/>from any <span style={{ color: ACCENT }}>two coordinates.</span></div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
               <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px 24px" }}>
                 <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 700, color: ACCENT, marginBottom: 14 }}>Slope formula</div>
@@ -766,11 +789,11 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 10: TWO COORDS ── */}
       {idx === 10 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Now try this one.</div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
               <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px 24px" }}>
                 <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 700, color: ACCENT, marginBottom: 14 }}>Slope formula</div>
@@ -842,14 +865,14 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 11: CALC 1 ── */}
       {idx === 11 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Try it yourself.</div>
             <div style={{ fontFamily: FONT, fontWeight: 500, fontSize: 17, color: "#475569", marginTop: 10 }}>
               Use the formula to calculate the gradient from these two points.
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
               <FormulaBox />
               <div style={{ background: "#F8FAFC", borderRadius: 14, padding: "20px 24px" }}>
@@ -876,11 +899,11 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 12: CALC 2 ── */}
       {idx === 12 && (
-        <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 40, color: INK, lineHeight: 1.1 }}>Now try these coordinates.</div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
             <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
               <FormulaBox />
               <div style={{ background: "#F8FAFC", borderRadius: 14, padding: "20px 24px" }}>
@@ -907,7 +930,7 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
       {/* ── Slide 13: PRACTICE UNLOCKED ── */}
       {idx === 13 && (
-        <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
+        <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding:isMobile?"16px 16px 60px":"24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
           <div style={{ position: "relative", marginBottom: 20, width: 126, height: 126 }}>
             <div style={{ width: 126, height: 126, borderRadius: "50%", background: "rgba(59,91,219,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <svg width="60" height="60" viewBox="0 0 80 80" fill="none">
@@ -954,12 +977,12 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
         // p1: steeper line
         if (step === 0) {
           return (
-            <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+            <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
               {header}
               <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 36, color: INK, lineHeight: 1.2, marginBottom: 20 }}>
                 Which line has a steeper gradient?
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+              <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
                 <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "24px", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 12 }}>
                   <TwoLinesGraph />
                   <div style={{ display: "flex", gap: 20 }}>
@@ -991,12 +1014,12 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
             { rise: 8, run: 4, opts: ["2","4","8"] },
           ][step - 1];
           return (
-            <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+            <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
               {header}
               <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 36, color: INK, lineHeight: 1.2, marginBottom: 20 }}>
                 What is the gradient?
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+              <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
                 <div style={{ background: "rgba(59,91,219,0.06)", borderRadius: 14, padding: "20px" }}>
                   <GridGraph rise={rrData.rise} run={rrData.run} showRiseRun />
                 </div>
@@ -1019,12 +1042,12 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
         ][step - 5];
 
         return (
-          <div style={{ position: "relative", zIndex: 1, padding: "28px 52px 100px", maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding:slidePad, maxWidth: 1280, margin: "0 auto" }}>
             {header}
             <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 36, color: INK, lineHeight: 1.2, marginBottom: 20 }}>
               Calculate the gradient.
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+            <div style={{ display: "grid", gridTemplateColumns:cols2, gap: 32, alignItems: "start" }}>
               <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
                 <FormulaBox />
                 <div style={{ background: "#F8FAFC", borderRadius: 14, padding: "20px 24px" }}>
@@ -1058,11 +1081,11 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
           : scoreCount >= 4 ? { text: "Good effort.", color: RED }
           : { text: "Keep practising.", color: RED };
         return (
-          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
+          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding:isMobile?"16px 16px 60px":"24px 52px 80px", textAlign: "center", minHeight: "calc(100vh - 80px)" }}>
             <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 11, color: ACCENT, letterSpacing: "0.12em", marginBottom: 20 }}>PRACTICE QUESTIONS</div>
             <div style={{ marginBottom: 12, lineHeight: 1 }}>
               <span style={{ fontFamily: FONT, fontWeight: 900, fontSize: 120, color: INK }}>{scoreCount}</span>
-              <span style={{ fontFamily: FONT, fontWeight: 700, fontSize: 56, color: GRAY }}>/10</span>
+              <span style={{ fontFamily: FONT, fontWeight: 700, fontSize:heroFs, color: GRAY }}>/10</span>
             </div>
             <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 28, color: msg.color, marginBottom: 36 }}>{msg.text}</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 52px)", gap: 10, marginBottom: 44 }}>
@@ -1110,7 +1133,7 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
 
         if (!isQuestionSlide || picked === null) {
           return (
-            <div style={{ position: "fixed", bottom: 0, left: 0, right: CHAT_W, zIndex: 10, background: "#fff", borderTop: "1px solid #E2E8F0", padding: "20px 52px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ position: "fixed", bottom: 0, left: 0, right:isMobile?0:CHAT_W, zIndex: 10, background: "#fff", borderTop: "1px solid #E2E8F0", padding:barPad, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               {!isFirst
                 ? <button onClick={() => { setPicked(null); setIdx(i => i - 1); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "13px 22px", background: "#fff", border: "1.5px solid #E2E8F0", borderRadius: 12, fontFamily: FONT, fontWeight: 700, fontSize: 14, color: INK, cursor: "pointer" }}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L6 8l4 5" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1131,7 +1154,7 @@ export default function InteractiveLessonL4({ onClose, onComplete }: { onClose: 
         const isCorrect = picked === CORRECT_BY_IDX[idx];
 
         return (
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: CHAT_W, zIndex: 10, padding: "14px 52px", display: "flex", alignItems: "center", justifyContent: "flex-end", background: isCorrect ? GREENBG : "#FDECEC", borderTop: `2px solid ${isCorrect ? GREEN : RED}` }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right:isMobile?0:CHAT_W, zIndex: 10, padding:isMobile?"12px 16px":"14px 52px", display: "flex", alignItems: "center", justifyContent: "flex-end", background: isCorrect ? GREENBG : "#FDECEC", borderTop: `2px solid ${isCorrect ? GREEN : RED}` }}>
             <button onClick={handleContinue} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 28px", background: isCorrect ? GREEN_DK : RED, border: "none", borderRadius: 12, fontFamily: FONT, fontWeight: 800, fontSize: 14, letterSpacing: "0.05em", color: "#fff", cursor: "pointer", boxShadow: `0 4px 0 ${isCorrect ? "rgba(44,165,85,0.35)" : "rgba(239,90,90,0.35)"}`, flexShrink: 0 }}>
               CONTINUE <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 5l3 3-3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
