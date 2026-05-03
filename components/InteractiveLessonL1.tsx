@@ -1,6 +1,6 @@
 "use client";
 import ChatPanel, { CHAT_W } from "@/components/ChatPanel";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 function playCorrect() {
@@ -338,10 +338,17 @@ const SLIDES = [
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: () => void; onComplete: () => void }) {
+export type LessonL1Handle = { next: () => void };
+
+const InteractiveLessonL1 = forwardRef<LessonL1Handle, {
+  onClose: () => void; onComplete: () => void; chatSide?: "left" | "right";
+  onSlideChange?: (idx: number) => void;
+  onAnswer?: (picked: number, correct: boolean) => void;
+  startIdx?: number;
+}>(function InteractiveLessonL1({ onClose, onComplete, chatSide = "right", onSlideChange, onAnswer, startIdx = 0 }, ref) {
   const isMobile = useIsMobile();
   const [chatOpen, setChatOpen] = useState(false);
-  const [idx, setIdx]           = useState(0);
+  const [idx, setIdx]           = useState(startIdx);
   const [picked, setPicked]     = useState<number|null>(null);
   const [completeFilled, setCompleteFilled] = useState(1);
   const [practiceResults, setPracticeResults] = useState<(boolean|null)[]>([null,null,null,null,null,null,null,null,null,null]);
@@ -352,6 +359,8 @@ export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: 
   const hdrPad    = isMobile ? "0 16px"           : "0 52px";
   const barPad    = isMobile ? "12px 16px"        : "20px 52px";
   const heroFs    = isMobile ? 32                 : 56;
+  const chatLeft  = !isMobile && chatSide === "left";
+  const chatRight = !isMobile && chatSide === "right";
   const secFs     = isMobile ? 24                 : 40;
 
   useEffect(() => {
@@ -361,6 +370,18 @@ export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: 
       return () => clearTimeout(t);
     }
   }, [idx]);
+
+  useImperativeHandle(ref, () => ({
+    next: () => { setPicked(null); setIdx(i => i + 1); },
+  }));
+
+  useEffect(() => { onSlideChange?.(idx); }, [idx]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (picked !== null) {
+      const correct = picked === CORRECT_BY_IDX[idx];
+      onAnswer?.(picked, correct);
+    }
+  }, [picked]); // eslint-disable-line react-hooks/exhaustive-deps
   // Blue bar: finishes at taxi (idx 6), stays full after
   const PROGRESS = [0.18, 0.28, 0.38, 0.48, 0.54, 0.60, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
   const isPractice = idx >= 8 && idx <= 17;
@@ -460,8 +481,9 @@ export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: 
       answeredCorrect={picked !== null ? picked === CORRECT_BY_IDX[idx] : undefined}
       mobileOpen={chatOpen}
       onMobileClose={() => setChatOpen(false)}
+      side={chatSide}
     />
-<div style={{ position:"fixed", top:0, left:0, bottom:0, right:isMobile?0:CHAT_W, background:"#fff", fontFamily:FONT, zIndex:100, overflowY:"auto" }}>
+<div style={{ position:"fixed", top:0, left:chatLeft?CHAT_W:0, bottom:0, right:chatRight?CHAT_W:0, background:"#fff", fontFamily:FONT, zIndex:100, overflowY:"auto" }}>
 
       {/* ── EdAccelerator header ── */}
       <div style={{ borderBottom:"1px solid rgba(226,232,240,0.6)", padding:hdrPad, height:56, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -1119,7 +1141,7 @@ export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: 
 
       {/* ── Bottom bar ── */}
       {idx === 7 || idx === 18 ? null : isLast ? (
-        <div style={{ position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:barPad, display:"flex", alignItems:"center", justifyContent:"space-between", gap:24 }}>
+        <div style={{ position:"fixed", bottom:0, left:chatLeft?CHAT_W:0, right:chatRight?CHAT_W:0, zIndex:10, background:"#fff", borderTop:"1px solid #E2E8F0", padding:barPad, display:"flex", alignItems:"center", justifyContent:"space-between", gap:24 }}>
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(59,91,219,0.10)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 19V7a2 2 0 0 1 2-2h11a3 3 0 0 1 3 3v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" stroke={ACCENT} strokeWidth="1.8"/><path d="M8 7v12M8 11h8" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round"/></svg>
@@ -1143,7 +1165,7 @@ export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: 
         if (!isQuestionSlide || picked === null) {
           const needsAnswer = isQuestionSlide && picked === null;
           return (
-            <div style={{ position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, padding:barPad, display:"flex", justifyContent:"space-between", alignItems:"center", background:"#fff", borderTop:"1px solid #E2E8F0" }}>
+            <div style={{ position:"fixed", bottom:0, left:chatLeft?CHAT_W:0, right:chatRight?CHAT_W:0, zIndex:10, padding:barPad, display:"flex", justifyContent:"space-between", alignItems:"center", background:"#fff", borderTop:"1px solid #E2E8F0" }}>
               <button
                 onClick={() => { if (!isFirst) { setPicked(null); setIdx(i => i - 1); } }}
                 style={{ display:"flex", alignItems:"center", gap:8, padding:"13px 24px", background:"#fff", border:"1.5px solid #E2E8F0", borderRadius:12, fontFamily:FONT, fontWeight:700, fontSize:14, color:INK, cursor:isFirst?"default":"pointer", opacity:isFirst?0.4:1, boxShadow:"0 2px 8px rgba(0,0,0,0.07)" }}
@@ -1176,7 +1198,7 @@ export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: 
         };
 
         return (
-          <div style={{ background:isCorrect?GREENBG:"#FDECEC", padding:isMobile?"12px 16px":"14px 52px", position:"fixed", bottom:0, left:0, right:isMobile?0:CHAT_W, zIndex:10, display:"flex", alignItems:"center", justifyContent:"flex-end", borderTop:`2px solid ${isCorrect?GREEN:RED}` }}>
+          <div style={{ background:isCorrect?GREENBG:"#FDECEC", padding:isMobile?"12px 16px":"14px 52px", position:"fixed", bottom:0, left:chatLeft?CHAT_W:0, right:chatRight?CHAT_W:0, zIndex:10, display:"flex", alignItems:"center", justifyContent:"flex-end", borderTop:`2px solid ${isCorrect?GREEN:RED}` }}>
             <button onClick={handleContinue} style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 28px", background:isCorrect?GREEN_DK:RED, border:"none", borderRadius:12, fontFamily:FONT, fontWeight:800, fontSize:14, letterSpacing:"0.05em", color:"#fff", cursor:"pointer", boxShadow:`0 4px 0 ${isCorrect?"rgba(44,165,85,0.35)":"rgba(239,90,90,0.35)"}`, flexShrink:0 }}>
               CONTINUE
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 5l3 3-3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1187,4 +1209,6 @@ export default function InteractiveLessonL1({ onClose, onComplete }: { onClose: 
     </div>
     </>
   );
-}
+});
+
+export default InteractiveLessonL1;

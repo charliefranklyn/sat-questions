@@ -83,11 +83,13 @@ export default function ChatPanel({
   autoMessage, tipMessage, slideKey = 0,
   answeredLabel, answeredCorrect, slideContext,
   mobileOpen = false, onMobileClose,
+  side = "right",
 }: {
   top?: number; locked?: boolean; hintOnly?: boolean;
   autoMessage?: string; tipMessage?: string; slideKey?: number;
   answeredLabel?: string; answeredCorrect?: boolean; slideContext?: string;
   mobileOpen?: boolean; onMobileClose?: () => void;
+  side?: "left" | "right";
 }) {
   const isMobile = useIsMobile();
   const [messages, setMessages]             = useState<Msg[]>([]);
@@ -206,8 +208,10 @@ export default function ChatPanel({
       position: "fixed",
       ...(isMobile
         ? { top: 0, left: 0, right: 0, bottom: 0, width: "100%" }
-        : { top, right: 0, bottom: 0, width: CHAT_W }),
-      background: "#fff", borderLeft: isMobile ? "none" : "1px solid #E2E8F0",
+        : side === "left"
+          ? { top, left: 0, bottom: 0, width: CHAT_W }
+          : { top, right: 0, bottom: 0, width: CHAT_W }),
+      background: "#fff", borderLeft: (!isMobile && side === "right") ? "1px solid #E2E8F0" : "none", borderRight: (!isMobile && side === "left") ? "1px solid #E2E8F0" : "none",
       display: "flex", flexDirection: "column", zIndex: 200, fontFamily: FONT,
     }}>
       {isMobile && (
